@@ -1,4 +1,5 @@
 #include <python3.14/Python.h>
+#include <python3.14/abstract.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -57,6 +58,28 @@ static inline kwargs_state parse_kwargs(PyObject* kwargs)
     return state;
 }
 
+static inline double sum_iterable(PyObject* iterable)
+{
+    double sum = 0.0;
+
+
+
+    PyObject* iter = PyObject_GetIter(iterable);
+    if ( !iter ) return -1.0;
+
+    PyObject* item;
+    while ( (item = PyIter_Next(iter)) )
+    {
+
+
+        Py_DECREF(item);
+    }
+    Py_DECREF(iter);
+
+
+    return sum;
+}
+
 static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
@@ -78,7 +101,11 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
     printf("you've passed %zu pos args\n", argc);
     state.only_str ? puts("only_str is True") : puts("only str is False");
     state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
-    //printf("%zu\n", sizeof state);
+
+    for ( Py_ssize_t i = 0; i < argc; i++ )
+    {
+        ;
+    }
 
     return Py_None;
 }
