@@ -1,6 +1,7 @@
 #include <python3.14/Python.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct
 {
@@ -17,25 +18,40 @@ static inline kwargs_state parse_kwargs(PyObject* kwargs)
 
     kwargs_state state = {false};
 
-    PyObject* only_str_kwarg;
-    PyObject* ret_int_kwarg;
-    int ret;
+    PyObject* key;
+    PyObject* value;
+    Py_ssize_t pos = 0;
+    bool only_str_found = false;
+    bool ret_int_found = false;
 
-    if ( (only_str_kwarg = PyDict_GetItemString(kwargs, "only_str")) )
+    while ( PyDict_Next(kwargs, &pos, &key, &value) )
     {
-        ret = PyObject_IsTrue(only_str_kwarg);
-        if ( ret < 0 )
+        const char* kwarg_name = PyUnicode_AsUTF8(key);
+        if ( !kwarg_name )
             return (kwargs_state){.error = true};
 
-        state.only_str = ret;
-    }
-    if ( (ret_int_kwarg = PyDict_GetItemString(kwargs, "ret_int")) )
-    {
-        ret = PyObject_IsTrue(ret_int_kwarg);
-        if ( ret < 0 )
-            return (kwargs_state){.error = true};
+        if ( !only_str_found && !strcmp(kwarg_name, "only_str") )
+        {
+            int ret = PyObject_IsTrue(value);
+            if ( ret < 0 )
+                return (kwargs_state){.error = true};
 
-        state.ret_int = ret;
+            state.only_str = ret;
+            only_str_found = true;
+        }
+        else if ( !ret_int_found && !strcmp(kwarg_name, "ret_int") )
+        {
+            int ret = PyObject_IsTrue(value);
+            if ( ret < 0 )
+                return (kwargs_state){.error = true};
+
+            state.ret_int = ret;
+            ret_int_found = true;
+        }
+        else
+        {
+            return (kwargs_state){.error = true};
+        }
     }
 
     return state;
@@ -52,12 +68,17 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     kwargs_state state = parse_kwargs(kwargs);
-    if ( state.error ) return NULL;
+    if ( state.error )
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid keyword argument(s).");
+        return NULL;
+    }
 
     printf("you've passed %zu pos args\n", argc);
     state.only_str ? puts("only_str is True") : puts("only str is False");
     state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
-
+    //printf("%zu\n", sizeof state);
 
     return Py_None;
 }
