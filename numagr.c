@@ -1,8 +1,45 @@
 #include <python3.14/Python.h>
-// #include <python3.14/pyerrors.h>
-// #include <python3.14/pyport.h>
-// #include <python3.14/tupleobject.h>
 #include <stdio.h>
+#include <stdbool.h>
+
+typedef struct
+{
+    bool only_str;
+    bool ret_int;
+    bool error;
+
+} kwargs_state;
+
+static inline kwargs_state parse_kwargs(PyObject* kwargs)
+{
+    if ( !kwargs )
+        return (kwargs_state){false};
+
+    kwargs_state state = {false};
+
+    PyObject* only_str_kwarg;
+    PyObject* ret_int_kwarg;
+    int ret;
+
+    if ( (only_str_kwarg = PyDict_GetItemString(kwargs, "only_str")) )
+    {
+        ret = PyObject_IsTrue(only_str_kwarg);
+        if ( ret < 0 )
+            return (kwargs_state){.error = true};
+
+        state.only_str = ret;
+    }
+    if ( (ret_int_kwarg = PyDict_GetItemString(kwargs, "ret_int")) )
+    {
+        ret = PyObject_IsTrue(ret_int_kwarg);
+        if ( ret < 0 )
+            return (kwargs_state){.error = true};
+
+        state.ret_int = ret;
+    }
+
+    return state;
+}
 
 static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 {
@@ -14,31 +51,13 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
         return NULL;
     }
 
-    PyObject* only_str_kwarg;
-    PyObject* ret_int_kwarg;
-    int only_str = 0;
-    int ret_int = 0;
-    if ( kwargs )
-    {
-        if ( (only_str_kwarg = PyDict_GetItemString(kwargs, "only_str")) )
-        {
-            only_str = PyObject_IsTrue(only_str_kwarg);
-            if ( only_str < 0 ) return NULL;
-        }
-        if ( (ret_int_kwarg = PyDict_GetItemString(kwargs, "ret_int")) )
-        {
-            ret_int = PyObject_IsTrue(ret_int_kwarg);
-            if ( ret_int < 0 ) return NULL;
-        }
-    }
+    kwargs_state state = parse_kwargs(kwargs);
+    if ( state.error ) return NULL;
 
     printf("you've passed %zu pos args\n", argc);
-    only_str ? puts("only_str is True") : puts("only str is False");
-    ret_int ? puts("ret_int is True") : puts("ret_int is False");
-    // for ( int i = 0; i < argc; i++ )
-    // {
-    //     puts();
-    // }
+    state.only_str ? puts("only_str is True") : puts("only str is False");
+    state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
+
 
     return Py_None;
 }
