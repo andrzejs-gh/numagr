@@ -1,10 +1,20 @@
 #include <python3.14/Python.h>
 #include <python3.14/abstract.h>
+#include <python3.14/floatobject.h>
+#include <python3.14/longobject.h>
+#include <python3.14/pyerrors.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
 // #define HANDLE_
+
+enum
+{
+    FAILED_TO_GET_ITER = 1,
+    STR_ENCODING_FAILURE,
+    DOUBLE_OVERFLOW
+};
 
 typedef struct
 {
@@ -80,7 +90,7 @@ static inline kwargs_state parse_kwargs(PyObject* kwargs)
 static inline int sum_iterable(PyObject* iterable, double* sum)
 {
     PyObject* iter = PyObject_GetIter(iterable);
-    if ( !iter ) return -1.0;
+    if ( !iter ) return FAILED_TO_GET_ITER;
 
     PyObject* item;
     while ( (item = PyIter_Next(iter)) )
@@ -88,22 +98,30 @@ static inline int sum_iterable(PyObject* iterable, double* sum)
         if ( PyUnicode_Check(item) )
         {
             const char* str = PyUnicode_AsUTF8(item);
-            // if (  )
+            if ( !str )
+            {
+                Py_DECREF(item); Py_DECREF(iter);
+                return STR_ENCODING_FAILURE;
+            }
             *sum += strtod(str, NULL);
         }
         else if ( PyLong_Check(item) )
         {
-            // *sum += ;
+            double value = PyLong_AsDouble(item);
+            if ( PyErr_Occurred() )
+            {
+                Py_DECREF(item); Py_DECREF(iter);
+                return DOUBLE_OVERFLOW;
+            }
+            *sum += value;
         }
         else if ( PyFloat_Check(item) )
         {
-
+            *sum += PyFloat_AS_DOUBLE(item);
         }
-
         Py_DECREF(item);
     }
     Py_DECREF(iter);
-
 
     return 0;
 }
