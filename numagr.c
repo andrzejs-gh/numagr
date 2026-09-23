@@ -1,13 +1,7 @@
 #include <python3.14/Python.h>
-#include <python3.14/abstract.h>
-#include <python3.14/floatobject.h>
-#include <python3.14/longobject.h>
-#include <python3.14/pyerrors.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
-// #define HANDLE_
 
 enum
 {
@@ -87,11 +81,8 @@ static inline kwargs_state parse_kwargs(PyObject* kwargs)
     return state;
 }
 
-static inline int sum_iterable(PyObject* iterable, double* sum)
+static inline int sum_iterable(PyObject* iterable, PyObject* iter, double* sum)
 {
-    PyObject* iter = PyObject_GetIter(iterable);
-    if ( !iter ) return FAILED_TO_GET_ITER;
-
     PyObject* item;
     while ( (item = PyIter_Next(iter)) )
     {
@@ -126,6 +117,68 @@ static inline int sum_iterable(PyObject* iterable, double* sum)
     return 0;
 }
 
+static inline int sum_list(PyObject* list, double* sum)
+{
+    Py_ssize_t count = PyList_GET_SIZE(list);
+
+    for ( Py_ssize_t i = 0; i < count; i++ )
+    {
+        PyObject* item = PyList_GET_ITEM(list, i);
+
+        if ( PyUnicode_Check(item) )
+        {
+            const char* str = PyUnicode_AsUTF8(item);
+            if ( !str ) return STR_ENCODING_FAILURE;
+
+            *sum += strtod(str, NULL);
+        }
+        else if ( PyLong_Check(item) )
+        {
+            double value = PyLong_AsDouble(item);
+            if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;
+
+            *sum += value;
+        }
+        else if ( PyFloat_Check(item) )
+        {
+            *sum += PyFloat_AS_DOUBLE(item);
+        }
+    }
+
+    return 0;
+}
+
+static inline int sum_tuple(PyObject* tuple, double* sum)
+{
+    Py_ssize_t count = PyTuple_GET_SIZE(tuple);
+
+    for ( Py_ssize_t i = 0; i < count; i++ )
+    {
+        PyObject* item = PyTuple_GET_ITEM(tuple, i);
+
+        if ( PyUnicode_Check(item) )
+        {
+            const char* str = PyUnicode_AsUTF8(item);
+            if ( !str ) return STR_ENCODING_FAILURE;
+
+            *sum += strtod(str, NULL);
+        }
+        else if ( PyLong_Check(item) )
+        {
+            double value = PyLong_AsDouble(item);
+            if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;
+
+            *sum += value;
+        }
+        else if ( PyFloat_Check(item) )
+        {
+            *sum += PyFloat_AS_DOUBLE(item);
+        }
+    }
+
+    return 0;
+}
+
 static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
@@ -142,14 +195,35 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 
     printf("you've passed %zu pos args\n", argc);
     state.only_str ? puts("only_str is True") : puts("only str is False");
-    // state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
 
-    // for ( Py_ssize_t i = 0; i < argc; i++ )
-    // {
-    //     ;
-    // }
+    double sum = 0.0;
+    int err;
 
-    return Py_None;
+    for ( Py_ssize_t i = 0; i < argc; i++ )
+    {
+        PyObject* arg = PyTuple_GET_ITEM(args, i);
+
+        if ( PyList_Check(arg) )
+        {
+            err = sum_list(arg, &sum);
+            if ( err ) return NULL;
+        }
+        else if ( PyTuple_Check(arg) )
+        {
+            err = sum_tuple(arg, &sum);
+            if ( err ) return NULL;
+        }
+        else
+        {
+            PyObject* iter = PyObject_GetIter(arg);
+            if ( !iter ) continue;
+
+            err = sum_iterable(arg, iter, &sum);
+            if ( err ) return NULL;
+        }
+    }
+
+    return PyFloat_FromDouble(sum);
 }
 
 static PyMethodDef methods[] = {
