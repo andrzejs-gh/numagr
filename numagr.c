@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+// #define HANDLE_
+
 typedef struct
 {
     bool only_str;
@@ -11,9 +13,9 @@ typedef struct
     bool invalid_kwarg_name;
     bool invalid_kwarg_value;
 
-} kwarg_state;
+} kwargs_state;
 
-static inline bool kwarg_is_valid(kwarg_state state)
+static inline bool kwargs_are_valid(kwargs_state state)
 {
     if ( state.kwarg_name_encoding_failure )
     {
@@ -39,12 +41,12 @@ static inline bool kwarg_is_valid(kwarg_state state)
     return true;
 }
 
-static inline kwarg_state parse_kwarg(PyObject* kwargs)
+static inline kwargs_state parse_kwargs(PyObject* kwargs)
 {
     if ( !kwargs )
-        return (kwarg_state){false};
+        return (kwargs_state){false};
 
-    kwarg_state state = {false};
+    kwargs_state state = {false};
 
     PyObject* key;
     PyObject* value;
@@ -55,46 +57,55 @@ static inline kwarg_state parse_kwarg(PyObject* kwargs)
     {
         const char* kwarg_name = PyUnicode_AsUTF8(key);
         if ( !kwarg_name )
-            return (kwarg_state){.kwarg_name_encoding_failure = true};
+            return (kwargs_state){.kwarg_name_encoding_failure = true};
 
         if ( !only_str_found && !strcmp(kwarg_name, "only_str") )
         {
             int ret = PyObject_IsTrue(value);
             if ( ret < 0 )
-                return (kwarg_state){.invalid_kwarg_value = true};
+                return (kwargs_state){.invalid_kwarg_value = true};
 
             state.only_str = ret;
             only_str_found = true;
         }
         else
         {
-            return (kwarg_state){.invalid_kwarg_name = true};
+            return (kwargs_state){.invalid_kwarg_name = true};
         }
     }
 
     return state;
 }
 
-static inline double sum_iterable(PyObject* iterable)
+static inline int sum_iterable(PyObject* iterable, double* sum)
 {
-    double sum = 0.0;
-
-
-
     PyObject* iter = PyObject_GetIter(iterable);
     if ( !iter ) return -1.0;
 
     PyObject* item;
     while ( (item = PyIter_Next(iter)) )
     {
+        if ( PyUnicode_Check(item) )
+        {
+            const char* str = PyUnicode_AsUTF8(item);
+            // if (  )
+            *sum += strtod(str, NULL);
+        }
+        else if ( PyLong_Check(item) )
+        {
+            // *sum += ;
+        }
+        else if ( PyFloat_Check(item) )
+        {
 
+        }
 
         Py_DECREF(item);
     }
     Py_DECREF(iter);
 
 
-    return sum;
+    return 0;
 }
 
 static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
@@ -107,8 +118,8 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
         return NULL;
     }
 
-    kwarg_state state = parse_kwarg(kwargs);
-    if ( state.only_str && !kwarg_is_valid(state) )
+    kwargs_state state = parse_kwargs(kwargs);
+    if ( !kwargs_are_valid(state) )
         return NULL;
 
     printf("you've passed %zu pos args\n", argc);
