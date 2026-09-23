@@ -7,51 +7,68 @@
 typedef struct
 {
     bool only_str;
-    bool ret_int;
-    bool error;
+    bool kwarg_name_encoding_failure;
+    bool invalid_kwarg_name;
+    bool invalid_kwarg_value;
 
-} kwargs_state;
+} kwarg_state;
 
-static inline kwargs_state parse_kwargs(PyObject* kwargs)
+static inline bool kwarg_is_valid(kwarg_state state)
+{
+    if ( state.kwarg_name_encoding_failure )
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Keyword name UTF8-encoding failure.");
+        return false;
+    }
+    else if ( state.invalid_kwarg_name )
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid keyword argument name. "
+                        "The only allowed kwarg is: \"only_str\".");
+        return false;
+    }
+    else if ( state.invalid_kwarg_value )
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid keyword argument value, "
+                        "\"only_str\" value must evaluate to either True or False");
+        return false;
+    }
+
+    return true;
+}
+
+static inline kwarg_state parse_kwarg(PyObject* kwargs)
 {
     if ( !kwargs )
-        return (kwargs_state){false};
+        return (kwarg_state){false};
 
-    kwargs_state state = {false};
+    kwarg_state state = {false};
 
     PyObject* key;
     PyObject* value;
     Py_ssize_t pos = 0;
     bool only_str_found = false;
-    bool ret_int_found = false;
 
     while ( PyDict_Next(kwargs, &pos, &key, &value) )
     {
         const char* kwarg_name = PyUnicode_AsUTF8(key);
         if ( !kwarg_name )
-            return (kwargs_state){.error = true};
+            return (kwarg_state){.kwarg_name_encoding_failure = true};
 
         if ( !only_str_found && !strcmp(kwarg_name, "only_str") )
         {
             int ret = PyObject_IsTrue(value);
             if ( ret < 0 )
-                return (kwargs_state){.error = true};
+                return (kwarg_state){.invalid_kwarg_value = true};
 
             state.only_str = ret;
             only_str_found = true;
         }
-        else if ( !ret_int_found && !strcmp(kwarg_name, "ret_int") )
-        {
-            int ret = PyObject_IsTrue(value);
-            if ( ret < 0 )
-                return (kwargs_state){.error = true};
-
-            state.ret_int = ret;
-            ret_int_found = true;
-        }
         else
         {
-            return (kwargs_state){.error = true};
+            return (kwarg_state){.invalid_kwarg_name = true};
         }
     }
 
@@ -90,22 +107,18 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
         return NULL;
     }
 
-    kwargs_state state = parse_kwargs(kwargs);
-    if ( state.error )
-    {
-        PyErr_SetString(PyExc_TypeError,
-                        "Invalid keyword argument(s).");
+    kwarg_state state = parse_kwarg(kwargs);
+    if ( state.only_str && !kwarg_is_valid(state) )
         return NULL;
-    }
 
     printf("you've passed %zu pos args\n", argc);
     state.only_str ? puts("only_str is True") : puts("only str is False");
-    state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
+    // state.ret_int ? puts("ret_int is True") : puts("ret_int is False");
 
-    for ( Py_ssize_t i = 0; i < argc; i++ )
-    {
-        ;
-    }
+    // for ( Py_ssize_t i = 0; i < argc; i++ )
+    // {
+    //     ;
+    // }
 
     return Py_None;
 }
