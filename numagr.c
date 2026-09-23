@@ -216,7 +216,7 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
         else
         {
             PyObject* iter = PyObject_GetIter(arg);
-            if ( !iter ) continue;
+            if ( !iter ) return NULL;
 
             err = sum_iterable(arg, iter, &sum);
             if ( err ) return NULL;
