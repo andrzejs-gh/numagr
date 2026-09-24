@@ -3,83 +3,70 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define PARSE_ARGS_AND_KWARGS                                                   \
+do                                                                              \
+{                                                                               \
+    if ( !argc )                                                                \
+    {                                                                           \
+        PyErr_SetString(PyExc_TypeError,                                        \
+                        "Expected at least one positional argument.");          \
+        return NULL;                                                            \
+    }                                                                           \
+                                                                                \
+    if ( !kwargs )                                                              \
+        break;                                                                  \
+                                                                                \
+    PyObject* key;                                                              \
+    PyObject* value;                                                            \
+    Py_ssize_t pos = 0;                                                         \
+    bool only_str_found = false;                                                \
+                                                                                \
+    while ( PyDict_Next(kwargs, &pos, &key, &value) )                           \
+    {                                                                           \
+        const char* kwarg_name = PyUnicode_AsUTF8(key);                         \
+        if ( !kwarg_name )                                                      \
+        {                                                                       \
+            PyErr_SetString(PyExc_TypeError,                                    \
+                            "Keyword name UTF8-encoding failure.");             \
+            return NULL;                                                        \
+        }                                                                       \
+                                                                                \
+        if ( !only_str_found && !strcmp(kwarg_name, "only_str") )               \
+        {                                                                       \
+            int ret = PyObject_IsTrue(value);                                   \
+            if ( ret < 0 )                                                      \
+            {                                                                   \
+                PyErr_SetString                                                 \
+                (                                                               \
+                    PyExc_TypeError,                                            \
+                    "Invalid keyword argument value, "                          \
+                    "\"only_str\" value must evaluate to either True or False"  \
+                );                                                              \
+                return NULL;                                                    \
+            }                                                                   \
+            is_only_str = ret;                                                  \
+            only_str_found = true;                                              \
+        }                                                                       \
+        else                                                                    \
+        {                                                                       \
+            PyErr_SetString                                                     \
+            (                                                                   \
+                PyExc_TypeError,                                                \
+                "Invalid keyword argument name. "                               \
+                "The only allowed kwarg is: \"only_str\"."                      \
+            );                                                                  \
+            return NULL;                                                        \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+} while (0);
+
 enum
 {
     FAILED_TO_GET_ITER = 1,
     STR_ENCODING_FAILURE,
     DOUBLE_OVERFLOW
 };
-
-typedef struct
-{
-    bool only_str;
-    bool kwarg_name_encoding_failure;
-    bool invalid_kwarg_name;
-    bool invalid_kwarg_value;
-
-} kwargs_state;
-
-static inline bool kwargs_are_valid(kwargs_state state)
-{
-    if ( state.kwarg_name_encoding_failure )
-    {
-        PyErr_SetString(PyExc_TypeError,
-                        "Keyword name UTF8-encoding failure.");
-        return false;
-    }
-    else if ( state.invalid_kwarg_name )
-    {
-        PyErr_SetString(PyExc_TypeError,
-                        "Invalid keyword argument name. "
-                        "The only allowed kwarg is: \"only_str\".");
-        return false;
-    }
-    else if ( state.invalid_kwarg_value )
-    {
-        PyErr_SetString(PyExc_TypeError,
-                        "Invalid keyword argument value, "
-                        "\"only_str\" value must evaluate to either True or False");
-        return false;
-    }
-
-    return true;
-}
-
-static inline kwargs_state parse_kwargs(PyObject* kwargs)
-{
-    if ( !kwargs )
-        return (kwargs_state){false};
-
-    kwargs_state state = {false};
-
-    PyObject* key;
-    PyObject* value;
-    Py_ssize_t pos = 0;
-    bool only_str_found = false;
-
-    while ( PyDict_Next(kwargs, &pos, &key, &value) )
-    {
-        const char* kwarg_name = PyUnicode_AsUTF8(key);
-        if ( !kwarg_name )
-            return (kwargs_state){.kwarg_name_encoding_failure = true};
-
-        if ( !only_str_found && !strcmp(kwarg_name, "only_str") )
-        {
-            int ret = PyObject_IsTrue(value);
-            if ( ret < 0 )
-                return (kwargs_state){.invalid_kwarg_value = true};
-
-            state.only_str = ret;
-            only_str_found = true;
-        }
-        else
-        {
-            return (kwargs_state){.invalid_kwarg_name = true};
-        }
-    }
-
-    return state;
-}
 
 static inline int sum_iterable(PyObject* iter, bool only_str, double* sum)
 {
@@ -237,19 +224,12 @@ static inline int sum_tuple(PyObject* tuple, bool only_str, double* sum)
 static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
-    if ( !argc )
-    {
-        PyErr_SetString(PyExc_TypeError,
-                        "Expected at least one positional argument.");
-        return NULL;
-    }
+    bool is_only_str = false;
 
-    kwargs_state state = parse_kwargs(kwargs);
-    if ( !kwargs_are_valid(state) )
-        return NULL;
+    PARSE_ARGS_AND_KWARGS;
 
-    bool is_only_str = state.only_str;
     double sum = 0.0;
+    // size_t count = 0;
     int err;
 
     for ( Py_ssize_t i = 0; i < argc; i++ )
@@ -277,6 +257,18 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     return PyFloat_FromDouble(sum);
+}
+
+static PyObject* max(PyObject* self, PyObject* args, PyObject* kwargs)
+{
+    Py_ssize_t argc = PyTuple_GET_SIZE(args);
+    bool is_only_str = false;
+
+    PARSE_ARGS_AND_KWARGS;
+
+
+
+    return Py_None;
 }
 
 static PyMethodDef methods[] = {
