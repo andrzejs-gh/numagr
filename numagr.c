@@ -1,5 +1,5 @@
 #include <python3.14/Python.h>
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -81,9 +81,30 @@ static inline kwargs_state parse_kwargs(PyObject* kwargs)
     return state;
 }
 
-static inline int sum_iterable(PyObject* iterable, PyObject* iter, double* sum)
+static inline int sum_iterable(PyObject* iter, bool only_str, double* sum)
 {
     PyObject* item;
+
+    if ( only_str )
+    {
+        while ( (item = PyIter_Next(iter)) )
+        {
+            if ( PyUnicode_Check(item) )
+            {
+                const char* str = PyUnicode_AsUTF8(item);
+                if ( !str )
+                {
+                    Py_DECREF(item); Py_DECREF(iter);
+                    return STR_ENCODING_FAILURE;
+                }
+                *sum += strtod(str, NULL);
+            }
+            Py_DECREF(item);
+        }
+        Py_DECREF(iter);
+        return 0;
+    }
+
     while ( (item = PyIter_Next(iter)) )
     {
         if ( PyUnicode_Check(item) )
@@ -117,9 +138,26 @@ static inline int sum_iterable(PyObject* iterable, PyObject* iter, double* sum)
     return 0;
 }
 
-static inline int sum_list(PyObject* list, double* sum)
+static inline int sum_list(PyObject* list, bool only_str, double* sum)
 {
     Py_ssize_t count = PyList_GET_SIZE(list);
+
+    if ( only_str )
+    {
+        for ( Py_ssize_t i = 0; i < count; i++ )
+        {
+            PyObject* item = PyList_GET_ITEM(list, i);
+
+            if ( PyUnicode_Check(item) )
+            {
+                const char* str = PyUnicode_AsUTF8(item);
+                if ( !str ) return STR_ENCODING_FAILURE;
+
+                *sum += strtod(str, NULL);
+            }
+        }
+        return 0;
+    }
 
     for ( Py_ssize_t i = 0; i < count; i++ )
     {
@@ -148,9 +186,26 @@ static inline int sum_list(PyObject* list, double* sum)
     return 0;
 }
 
-static inline int sum_tuple(PyObject* tuple, double* sum)
+static inline int sum_tuple(PyObject* tuple, bool only_str, double* sum)
 {
     Py_ssize_t count = PyTuple_GET_SIZE(tuple);
+
+    if ( only_str )
+    {
+        for ( Py_ssize_t i = 0; i < count; i++ )
+        {
+            PyObject* item = PyTuple_GET_ITEM(tuple, i);
+
+            if ( PyUnicode_Check(item) )
+            {
+                const char* str = PyUnicode_AsUTF8(item);
+                if ( !str ) return STR_ENCODING_FAILURE;
+
+                *sum += strtod(str, NULL);
+            }
+        }
+        return 0;
+    }
 
     for ( Py_ssize_t i = 0; i < count; i++ )
     {
@@ -193,9 +248,7 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
     if ( !kwargs_are_valid(state) )
         return NULL;
 
-    printf("you've passed %zu pos args\n", argc);
-    state.only_str ? puts("only_str is True") : puts("only str is False");
-
+    bool is_only_str = state.only_str;
     double sum = 0.0;
     int err;
 
@@ -205,12 +258,12 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 
         if ( PyList_Check(arg) )
         {
-            err = sum_list(arg, &sum);
+            err = sum_list(arg, is_only_str, &sum);
             if ( err ) return NULL;
         }
         else if ( PyTuple_Check(arg) )
         {
-            err = sum_tuple(arg, &sum);
+            err = sum_tuple(arg, is_only_str, &sum);
             if ( err ) return NULL;
         }
         else
@@ -218,7 +271,7 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
             PyObject* iter = PyObject_GetIter(arg);
             if ( !iter ) return NULL;
 
-            err = sum_iterable(arg, iter, &sum);
+            err = sum_iterable(iter, is_only_str, &sum);
             if ( err ) return NULL;
         }
     }
