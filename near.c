@@ -2,9 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
-#include "floatobject.h"
 #include "numagr.h"
-#include "pyerrors.h"
 
 #define PARSE_TARGET_VALUE                                              \
 do                                                                      \
