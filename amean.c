@@ -251,5 +251,8 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
         }
     }
 
-    return PyFloat_FromDouble(sum);
+    if ( !count )
+        return PyFloat_FromDouble(0.0);
+
+    return PyFloat_FromDouble(sum / count);
 }
