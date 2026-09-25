@@ -4,12 +4,14 @@
 #include "max.c"
 #include "min.c"
 #include "amean.c"
+#include "near.c"
 
 static PyMethodDef methods[] = {
     {"sum", (PyCFunction)sum, METH_VARARGS | METH_KEYWORDS, ""},
     {"max", (PyCFunction)max, METH_VARARGS | METH_KEYWORDS, ""},
     {"min", (PyCFunction)min, METH_VARARGS | METH_KEYWORDS, ""},
     {"amean", (PyCFunction)amean, METH_VARARGS | METH_KEYWORDS, ""},
+    //{"near", (PyCFunction)near, METH_VARARGS | METH_KEYWORDS, ""},
     // * * *
     {NULL, NULL, 0, NULL}
 };

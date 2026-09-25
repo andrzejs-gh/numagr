@@ -234,12 +234,10 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
         if ( PyList_Check(arg) )
         {
             ret = sum_and_count_list(arg, is_only_str, &sum, &count);
-            HANDLE_SUM_AND_COUNT_RET(ret);
         }
         else if ( PyTuple_Check(arg) )
         {
             ret = sum_and_count_tuple(arg, is_only_str, &sum, &count);
-            HANDLE_SUM_AND_COUNT_RET(ret);
         }
         else
         {
@@ -247,8 +245,8 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
             if ( !iter ) return NULL;
 
             ret = sum_and_count_iterable(iter, is_only_str, &sum, &count);
-            HANDLE_SUM_AND_COUNT_RET(ret);
         }
+        HANDLE_SUM_AND_COUNT_RET(ret);
     }
 
     if ( !count )

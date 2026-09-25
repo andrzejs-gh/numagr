@@ -181,12 +181,10 @@ static PyObject* max(PyObject* self, PyObject* args, PyObject* kwargs)
         if ( PyList_Check(arg) )
         {
             err = get_max_in_list(arg, is_only_str, &max);
-            if ( err ) return NULL;
         }
         else if ( PyTuple_Check(arg) )
         {
             err = get_max_in_tuple(arg, is_only_str, &max);
-            if ( err ) return NULL;
         }
         else
         {
@@ -194,8 +192,8 @@ static PyObject* max(PyObject* self, PyObject* args, PyObject* kwargs)
             if ( !iter ) return NULL;
 
             err = get_max_in_iterable(iter, is_only_str, &max);
-            if ( err ) return NULL;
         }
+        if ( err ) return NULL;
     }
 
     return PyFloat_FromDouble(max);

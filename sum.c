@@ -172,12 +172,10 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
         if ( PyList_Check(arg) )
         {
             err = sum_list(arg, is_only_str, &sum);
-            if ( err ) return NULL;
         }
         else if ( PyTuple_Check(arg) )
         {
             err = sum_tuple(arg, is_only_str, &sum);
-            if ( err ) return NULL;
         }
         else
         {
@@ -185,8 +183,8 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
             if ( !iter ) return NULL;
 
             err = sum_iterable(iter, is_only_str, &sum);
-            if ( err ) return NULL;
         }
+        if ( err ) return NULL;
     }
 
     return PyFloat_FromDouble(sum);
