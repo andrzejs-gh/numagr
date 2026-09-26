@@ -3,21 +3,6 @@
 #include <stdint.h>
 #include "../numagr.h"
 
-#define HANDLE_SUM_AND_COUNT_RET(return_code)                       \
-switch ( return_code )                                              \
-{                                                                   \
-    case 0:                                                         \
-        continue;                                                   \
-    case STR_ENCODING_FAILURE:                                      \
-        return NULL;                                                \
-    case COUNT_OVERFLOW:                                            \
-        PyErr_SetString(PyExc_RuntimeError,                         \
-                        "List contains too many elements");         \
-        return NULL;                                                \
-    case DOUBLE_OVERFLOW:                                           \
-        return NULL;                                                \
-}
-
 static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                                          double* sum, uint64_t* count)
 {
@@ -35,7 +20,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                     Py_DECREF(item); Py_DECREF(iter);
                     return STR_ENCODING_FAILURE;
                 }
-                else if ( (*count)++ == UINT64_MAX )
+                if ( (*count)++ == UINT64_MAX )
                 {
                     Py_DECREF(item); Py_DECREF(iter);
                     return COUNT_OVERFLOW;
@@ -58,7 +43,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return STR_ENCODING_FAILURE;
             }
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
             {
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
@@ -73,7 +58,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return DOUBLE_OVERFLOW;
             }
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
             {
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
@@ -112,7 +97,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
                 const char* str = PyUnicode_AsUTF8(item);
                 if ( !str )
                     return STR_ENCODING_FAILURE;
-                else if ( (*count)++ == UINT64_MAX )
+                if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
                 *sum += strtod(str, NULL);
@@ -130,7 +115,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
             const char* str = PyUnicode_AsUTF8(item);
             if ( !str )
                 return STR_ENCODING_FAILURE;
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
             *sum += strtod(str, NULL);
@@ -140,7 +125,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
             double value = PyLong_AsDouble(item);
             if ( PyErr_Occurred() )
                 return DOUBLE_OVERFLOW;
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
             *sum += value;
@@ -172,7 +157,7 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
                 const char* str = PyUnicode_AsUTF8(item);
                 if ( !str )
                     return STR_ENCODING_FAILURE;
-                else if ( (*count)++ == UINT64_MAX )
+                if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
                 *sum += strtod(str, NULL);
@@ -190,7 +175,7 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
             const char* str = PyUnicode_AsUTF8(item);
             if ( !str )
                 return STR_ENCODING_FAILURE;
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
             *sum += strtod(str, NULL);
@@ -200,7 +185,7 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
             double value = PyLong_AsDouble(item);
             if ( PyErr_Occurred() )
                 return DOUBLE_OVERFLOW;
-            else if ( (*count)++ == UINT64_MAX )
+            if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
             *sum += value;

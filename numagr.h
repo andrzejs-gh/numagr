@@ -59,6 +59,23 @@ do                                                                              
                                                                                     \
 } while (0);
 
+#define HANDLE_SUM_AND_COUNT_RET(return_code)                               \
+switch ( return_code )                                                      \
+{                                                                           \
+    case 0:                                                                 \
+        continue;                                                           \
+    case COUNT_OVERFLOW:                                                    \
+        PyErr_SetString(PyExc_RuntimeError,                                 \
+                        "The iterable contains too many elements");         \
+        return NULL;                                                        \
+    case NEGATIVE_VALUE:                                                    \
+        PyErr_SetString(PyExc_RuntimeError,                                 \
+                        "The iterable contains a negative value");          \
+        return NULL;                                                        \
+    default:                                                                \
+        return NULL;                                                        \
+}
+
 enum
 {
     FAILED_TO_GET_ITER = 1,

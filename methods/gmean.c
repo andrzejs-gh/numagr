@@ -3,14 +3,16 @@
 #include <stdint.h>
 #include <math.h>
 #include "../numagr.h"
+#include "abstract.h"
 
-static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_sum)
+static inline int get_log_sum_list(PyObject* list, bool only_str,
+                                   double* log_sum, uint64_t* count)
 {
-    Py_ssize_t count = PyList_GET_SIZE(list);
+    Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
     {
-        for ( Py_ssize_t i = 0; i < count; i++ )
+        for ( Py_ssize_t i = 0; i < list_len; i++ )
         {
             PyObject* item = PyList_GET_ITEM(list, i);
 
@@ -20,7 +22,10 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
                 if ( !str ) return STR_ENCODING_FAILURE;
 
                 double value = strtod(str, NULL);
-                if ( value < 0.0 ) return NEGATIVE_VALUE;
+                if ( value < 0.0 )
+                    return NEGATIVE_VALUE;
+                if ( (*count)++ == UINT64_MAX )
+                    return COUNT_OVERFLOW;
 
                 *log_sum += log(value);
             }
@@ -28,7 +33,7 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
         return 0;
     }
 
-    for ( Py_ssize_t i = 0; i < count; i++ )
+    for ( Py_ssize_t i = 0; i < list_len; i++ )
     {
         PyObject* item = PyList_GET_ITEM(list, i);
 
@@ -38,7 +43,10 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             if ( !str ) return STR_ENCODING_FAILURE;
 
             double value = strtod(str, NULL);
-            if ( value < 0.0 ) return NEGATIVE_VALUE;
+            if ( value < 0.0 )
+                return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -47,8 +55,10 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             double value = PyLong_AsDouble(item);
             if ( PyErr_Occurred() )
                 return DOUBLE_OVERFLOW;
-            else if ( value < 0.0 )
+            if ( value < 0.0 )
                 return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -57,6 +67,8 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             double value = PyFloat_AS_DOUBLE(item);
             if ( value < 0.0 )
                 return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -65,13 +77,14 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
     return 0;
 }
 
-static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_sum)
+static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
+                                    double* log_sum, uint64_t* count)
 {
-    Py_ssize_t count = PyTuple_GET_SIZE(tuple);
+    Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
     {
-        for ( Py_ssize_t i = 0; i < count; i++ )
+        for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
 
@@ -81,7 +94,10 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
                 if ( !str ) return STR_ENCODING_FAILURE;
 
                 double value = strtod(str, NULL);
-                if ( value < 0.0 ) return NEGATIVE_VALUE;
+                if ( value < 0.0 )
+                    return NEGATIVE_VALUE;
+                if ( (*count)++ == UINT64_MAX )
+                    return COUNT_OVERFLOW;
 
                 *log_sum += log(value);
             }
@@ -89,7 +105,7 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
         return 0;
     }
 
-    for ( Py_ssize_t i = 0; i < count; i++ )
+    for ( Py_ssize_t i = 0; i < tuple_len; i++ )
     {
         PyObject* item = PyTuple_GET_ITEM(tuple, i);
 
@@ -99,7 +115,10 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
             if ( !str ) return STR_ENCODING_FAILURE;
 
             double value = strtod(str, NULL);
-            if ( value < 0.0 ) return NEGATIVE_VALUE;
+            if ( value < 0.0 )
+                return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -108,8 +127,10 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
             double value = PyLong_AsDouble(item);
             if ( PyErr_Occurred() )
                 return DOUBLE_OVERFLOW;
-            else if ( value < 0.0 )
+            if ( value < 0.0 )
                 return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -118,6 +139,8 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
             double value = PyFloat_AS_DOUBLE(item);
             if ( value < 0.0 )
                 return NEGATIVE_VALUE;
+            if ( (*count)++ == UINT64_MAX )
+                return COUNT_OVERFLOW;
 
             *log_sum += log(value);
         }
@@ -126,7 +149,8 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_
     return 0;
 }
 
-static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* log_sum)
+static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
+                                       double* log_sum, uint64_t* count)
 {
     PyObject* item;
 
@@ -148,6 +172,11 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* lo
                 {
                     Py_DECREF(item); Py_DECREF(iter);
                     return NEGATIVE_VALUE;
+                }
+                if ( (*count)++ == UINT64_MAX )
+                {
+                    Py_DECREF(item); Py_DECREF(iter);
+                    return COUNT_OVERFLOW;
                 }
                 *log_sum += log(value);
             }
@@ -174,6 +203,11 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* lo
                 Py_DECREF(item); Py_DECREF(iter);
                 return NEGATIVE_VALUE;
             }
+            if ( (*count)++ == UINT64_MAX )
+            {
+                Py_DECREF(item); Py_DECREF(iter);
+                return COUNT_OVERFLOW;
+            }
             *log_sum += log(value);
         }
         else if ( PyLong_Check(item) )
@@ -184,10 +218,15 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* lo
                 Py_DECREF(item); Py_DECREF(iter);
                 return DOUBLE_OVERFLOW;
             }
-            else if ( value < 0.0 )
+            if ( value < 0.0 )
             {
                 Py_DECREF(item); Py_DECREF(iter);
                 return NEGATIVE_VALUE;
+            }
+            if ( (*count)++ == UINT64_MAX )
+            {
+                Py_DECREF(item); Py_DECREF(iter);
+                return COUNT_OVERFLOW;
             }
             *log_sum += log(value);
         }
@@ -198,6 +237,11 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* lo
             {
                 Py_DECREF(item); Py_DECREF(iter);
                 return NEGATIVE_VALUE;
+            }
+            if ( (*count)++ == UINT64_MAX )
+            {
+                Py_DECREF(item); Py_DECREF(iter);
+                return COUNT_OVERFLOW;
             }
             *log_sum += log(value);
         }
@@ -217,12 +261,32 @@ static PyObject* gmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
     double log_sum = 0.0;
     uint64_t count = 0;
+    int ret;
 
     for ( Py_ssize_t i = 0; i < argc; i++ )
     {
+        PyObject* arg = PyTuple_GET_ITEM(args, i);
 
+        if ( PyList_Check(arg) )
+        {
+            ret = get_log_sum_list(arg, is_only_str, &log_sum, &count);
+        }
+        else if ( PyTuple_Check(arg) )
+        {
+            ret = get_log_sum_tuple(arg, is_only_str, &log_sum, &count);
+        }
+        else
+        {
+            PyObject* iter = PyObject_GetIter(arg);
+            if ( !iter ) return NULL;
+
+            ret = get_log_sum_iterable(iter, is_only_str, &log_sum, &count);
+        }
+        HANDLE_SUM_AND_COUNT_RET(ret);
     }
 
-    return Py_None;
-    // return PyFloat_FromDouble();
+    if ( !count )
+        return PyFloat_FromDouble(0.0);
+
+    return PyFloat_FromDouble(exp(log_sum / count));
 }
