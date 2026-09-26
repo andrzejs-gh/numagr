@@ -1,6 +1,6 @@
 #include <Python.h>
 #include <stdbool.h>
-#include "numagr.h"
+#include "../numagr.h"
 
 static inline int sum_iterable(PyObject* iter, bool only_str, double* sum)
 {

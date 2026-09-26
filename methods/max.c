@@ -1,6 +1,6 @@
 #include <Python.h>
 #include <stdbool.h>
-#include "numagr.h"
+#include "../numagr.h"
 
 static inline int get_max_in_list(PyObject* list, bool only_str, double* max)
 {

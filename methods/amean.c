@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "numagr.h"
+#include "../numagr.h"
 
 #define HANDLE_SUM_AND_COUNT_RET(return_code)                       \
 switch ( return_code )                                              \

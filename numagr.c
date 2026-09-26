@@ -1,10 +1,5 @@
 #include <Python.h>
-
-#include "sum.c"
-#include "max.c"
-#include "min.c"
-#include "amean.c"
-#include "near.c"
+#include "methods.c"
 
 static PyMethodDef methods[] = {
     {"sum", (PyCFunction)sum, METH_VARARGS | METH_KEYWORDS, ""},

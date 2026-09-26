@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
-#include "numagr.h"
+#include "../numagr.h"
 
 #define PARSE_TARGET_VALUE                                              \
 do                                                                      \

@@ -1,0 +1,5 @@
+#include "methods/sum.c"
+#include "methods/max.c"
+#include "methods/min.c"
+#include "methods/amean.c"
+#include "methods/near.c"
