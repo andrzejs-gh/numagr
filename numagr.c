@@ -6,6 +6,7 @@ static PyMethodDef methods[] = {
     {"max", (PyCFunction)max, METH_VARARGS | METH_KEYWORDS, ""},
     {"min", (PyCFunction)min, METH_VARARGS | METH_KEYWORDS, ""},
     {"amean", (PyCFunction)amean, METH_VARARGS | METH_KEYWORDS, ""},
+    {"gmean", (PyCFunction)gmean, METH_VARARGS | METH_KEYWORDS, ""},
     {"near", (PyCFunction)near, METH_VARARGS | METH_KEYWORDS, ""},
     // * * *
     {NULL, NULL, 0, NULL}

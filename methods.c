@@ -2,4 +2,5 @@
 #include "methods/max.c"
 #include "methods/min.c"
 #include "methods/amean.c"
+#include "methods/gmean.c"
 #include "methods/near.c"
