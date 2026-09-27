@@ -76,6 +76,17 @@ switch ( return_code )                                                      \
         return NULL;                                                        \
 }
 
+#define SET_INV_STR_ERROR                                               \
+PyErr_Format                                                            \
+(                                                                       \
+    PyExc_RuntimeError,                                                 \
+    "The iterable contains a str that ",                                \
+    "cannot be evaluated to a positive value: %s. \n"                   \
+    "For geometric mean, all strings in the iterable "                  \
+    "must evaluate to positive values.",                                \
+    str                                                                 \
+);
+
 enum
 {
     FAILED_TO_GET_ITER = 1,
@@ -83,7 +94,8 @@ enum
     DOUBLE_OVERFLOW,
     COUNT_OVERFLOW,
     EXACT_MATCH_FOUND,
-    NEGATIVE_VALUE
+    NEGATIVE_VALUE,
+    INVALID_VALUE
 };
 
 #endif

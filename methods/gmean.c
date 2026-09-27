@@ -22,8 +22,11 @@ static inline int get_log_sum_list(PyObject* list, bool only_str,
                 if ( !str ) return STR_ENCODING_FAILURE;
 
                 double value = strtod(str, NULL);
-                if ( value < 0.0 )
-                    return NEGATIVE_VALUE;
+                if ( value <= 0.0 )
+                {
+                    SET_INV_STR_ERROR;
+                    return INVALID_VALUE;
+                }
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
@@ -43,8 +46,11 @@ static inline int get_log_sum_list(PyObject* list, bool only_str,
             if ( !str ) return STR_ENCODING_FAILURE;
 
             double value = strtod(str, NULL);
-            if ( value < 0.0 )
-                return NEGATIVE_VALUE;
+            if ( value <= 0.0 )
+            {
+                SET_INV_STR_ERROR;
+                return INVALID_VALUE;
+            }
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
@@ -94,8 +100,11 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
                 if ( !str ) return STR_ENCODING_FAILURE;
 
                 double value = strtod(str, NULL);
-                if ( value < 0.0 )
-                    return NEGATIVE_VALUE;
+                if ( value <= 0.0 )
+                {
+                    SET_INV_STR_ERROR;
+                    return INVALID_VALUE;
+                }
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
@@ -115,8 +124,11 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
             if ( !str ) return STR_ENCODING_FAILURE;
 
             double value = strtod(str, NULL);
-            if ( value < 0.0 )
-                return NEGATIVE_VALUE;
+            if ( value <= 0.0 )
+            {
+                SET_INV_STR_ERROR;
+                return INVALID_VALUE;
+            }
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
@@ -168,10 +180,11 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
                 }
 
                 double value = strtod(str, NULL);
-                if ( value < 0.0 )
+                if ( value <= 0.0 )
                 {
                     Py_DECREF(item); Py_DECREF(iter);
-                    return NEGATIVE_VALUE;
+                    SET_INV_STR_ERROR;
+                    return INVALID_VALUE;
                 }
                 if ( (*count)++ == UINT64_MAX )
                 {
@@ -198,10 +211,11 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
             }
 
             double value = strtod(str, NULL);
-            if ( value < 0.0 )
+            if ( value <= 0.0 )
             {
                 Py_DECREF(item); Py_DECREF(iter);
-                return NEGATIVE_VALUE;
+                SET_INV_STR_ERROR;
+                return INVALID_VALUE;
             }
             if ( (*count)++ == UINT64_MAX )
             {
