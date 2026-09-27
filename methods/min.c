@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <stdbool.h>
+#include <float.h>
 #include "../numagr.h"
 
 static inline int get_min_in_list(PyObject* list, bool only_str, double* min)
@@ -171,7 +172,7 @@ static PyObject* min(PyObject* self, PyObject* args, PyObject* kwargs)
 
     PARSE_ARGS_AND_KWARGS;
 
-    double min = 0.0;
+    double min = INFINITY;
     int err;
 
     for ( Py_ssize_t i = 0; i < argc; i++ )
