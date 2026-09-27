@@ -66,11 +66,11 @@ switch ( return_code )                                                      \
         continue;                                                           \
     case COUNT_OVERFLOW:                                                    \
         PyErr_SetString(PyExc_RuntimeError,                                 \
-                        "The iterable contains too many elements");         \
+                        "The iterable contains too many elements.");        \
         return NULL;                                                        \
     case NEGATIVE_VALUE:                                                    \
         PyErr_SetString(PyExc_RuntimeError,                                 \
-                        "The iterable contains a negative value");          \
+                        "The iterable contains a negative value.");         \
         return NULL;                                                        \
     default:                                                                \
         return NULL;                                                        \
@@ -80,8 +80,8 @@ switch ( return_code )                                                      \
 PyErr_Format                                                            \
 (                                                                       \
     PyExc_RuntimeError,                                                 \
-    "The iterable contains a str that ",                                \
-    "cannot be evaluated to a positive value: %s. \n"                   \
+    "The iterable contains a str that "                                 \
+    "cannot be evaluated to a positive value: \"%s\". \n"               \
     "For geometric mean, all strings in the iterable "                  \
     "must evaluate to positive values.",                                \
     str                                                                 \
