@@ -3,4 +3,7 @@
 #include "methods/min.c"
 #include "methods/amean.c"
 #include "methods/gmean.c"
+#include "methods/hmean.c"
 #include "methods/near.c"
+
+#include "methods/lgmean.c"

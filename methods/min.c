@@ -198,3 +198,8 @@ static PyObject* min(PyObject* self, PyObject* args, PyObject* kwargs)
 
     return PyFloat_FromDouble(min);
 }
+
+numagr_method get_min_method_ptr(void)
+{
+    return min;
+}

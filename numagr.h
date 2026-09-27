@@ -1,6 +1,8 @@
 #ifndef NUMAGR_H
 #define NUMAGR_H
 
+#include <Python.h>
+
 #define PARSE_ARGS_AND_KWARGS                                                       \
 do                                                                                  \
 {                                                                                   \
@@ -64,14 +66,22 @@ switch ( return_code )                                                      \
 {                                                                           \
     case 0:                                                                 \
         continue;                                                           \
+                                                                            \
     case COUNT_OVERFLOW:                                                    \
         PyErr_SetString(PyExc_RuntimeError,                                 \
                         "The iterable contains too many elements.");        \
         return NULL;                                                        \
+                                                                            \
+    case ZERO_VALUE:                                                        \
+        PyErr_SetString(PyExc_RuntimeError,                                 \
+                        "The iterable contains a zero value.");             \
+        return NULL;                                                        \
+                                                                            \
     case NEGATIVE_VALUE:                                                    \
         PyErr_SetString(PyExc_RuntimeError,                                 \
                         "The iterable contains a negative value.");         \
         return NULL;                                                        \
+                                                                            \
     default:                                                                \
         return NULL;                                                        \
 }
@@ -94,8 +104,13 @@ enum
     DOUBLE_OVERFLOW,
     COUNT_OVERFLOW,
     EXACT_MATCH_FOUND,
+    ZERO_VALUE,
     NEGATIVE_VALUE,
     INVALID_VALUE
 };
+
+typedef PyObject* (*numagr_method)(PyObject*, PyObject*, PyObject*);
+
+numagr_method get_min_method_ptr(void);
 
 #endif
