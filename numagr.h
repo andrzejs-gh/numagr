@@ -61,6 +61,17 @@ do                                                                              
                                                                                     \
 } while (0);
 
+#define KAHAN_SUM(sum_arg_name, value)                  \
+do                                                      \
+{                                                       \
+    double old_sum = *(sum_arg_name);                   \
+    double next = (value) - *correction;                \
+    double new_sum = old_sum + next;                    \
+    *correction = (new_sum - old_sum) - next;           \
+    *(sum_arg_name) = new_sum;                          \
+                                                        \
+} while (0);
+
 #define HANDLE_SUM_AND_COUNT_RET(return_code)                               \
 switch ( return_code )                                                      \
 {                                                                           \

@@ -7,3 +7,4 @@
 #include "methods/near.c"
 
 #include "methods/lgmean.c"
+#include "methods/ksum.c"

@@ -11,6 +11,7 @@ static PyMethodDef methods[] = {
     {"near", (PyCFunction)near, METH_VARARGS | METH_KEYWORDS, ""},
 
     {"gmean", (PyCFunction)lgmean, METH_VARARGS | METH_KEYWORDS, ""},
+    {"ksum", (PyCFunction)ksum, METH_VARARGS | METH_KEYWORDS, ""},
     // * * *
     {NULL, NULL, 0, NULL}
 };
