@@ -306,7 +306,7 @@ static inline int search_iterable(PyObject* iter, bool only_str, double target,
     return 0;
 }
 
-static PyObject* near(PyObject* self, PyObject* args, PyObject* kwargs)
+static PyObject* nearest(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
     bool is_only_str = false;

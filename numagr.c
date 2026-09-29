@@ -8,9 +8,8 @@ static PyMethodDef methods[] = {
     {"amean", (PyCFunction)amean, METH_VARARGS | METH_KEYWORDS, ""},
     {"gmean", (PyCFunction)gmean, METH_VARARGS | METH_KEYWORDS, ""},
     {"hmean", (PyCFunction)hmean, METH_VARARGS | METH_KEYWORDS, ""},
-    {"near", (PyCFunction)near, METH_VARARGS | METH_KEYWORDS, ""},
+    {"nearest", (PyCFunction)nearest, METH_VARARGS | METH_KEYWORDS, ""},
 
-    {"gmean", (PyCFunction)lgmean, METH_VARARGS | METH_KEYWORDS, ""},
     // * * *
     {NULL, NULL, 0, NULL}
 };
