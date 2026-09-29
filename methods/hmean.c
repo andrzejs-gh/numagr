@@ -4,7 +4,8 @@
 #include "../numagr.h"
 
 static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
-                                     double* recip_sum, uint64_t* count)
+                                     double* recip_sum, double* correction,
+                                     uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -25,7 +26,7 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *recip_sum += (min / value);
+                KAHAN_SUM(recip_sum, correction, min/value);
             }
         }
         return 0;
@@ -46,7 +47,7 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyLong_Check(item) )
         {
@@ -58,7 +59,7 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyFloat_Check(item) )
         {
@@ -68,7 +69,7 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
     }
 
@@ -76,7 +77,8 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, double min,
 }
 
 static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
-                                     double* recip_sum, uint64_t* count)
+                                      double* recip_sum, double* correction,
+                                      uint64_t* count)
 {
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(list);
 
@@ -97,7 +99,7 @@ static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *recip_sum += (min / value);
+                KAHAN_SUM(recip_sum, correction, min/value);
             }
         }
         return 0;
@@ -118,7 +120,7 @@ static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyLong_Check(item) )
         {
@@ -130,7 +132,7 @@ static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyFloat_Check(item) )
         {
@@ -140,7 +142,7 @@ static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
     }
 
@@ -148,7 +150,8 @@ static inline int get_recip_sum_tuple(PyObject* list, bool only_str, double min,
 }
 
 static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, double min,
-                                        double* recip_sum, uint64_t* count)
+                                         double* recip_sum, double* correction,
+                                         uint64_t* count)
 {
     PyObject* item;
 
@@ -176,7 +179,7 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, double m
                     Py_DECREF(item); Py_DECREF(iter);
                     return COUNT_OVERFLOW;
                 }
-                *recip_sum += (min / value);
+                KAHAN_SUM(recip_sum, correction, min/value);
             }
             Py_DECREF(item);
         }
@@ -206,7 +209,7 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, double m
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyLong_Check(item) )
         {
@@ -226,7 +229,7 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, double m
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         else if ( PyFloat_Check(item) )
         {
@@ -241,7 +244,7 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, double m
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *recip_sum += (min / value);
+            KAHAN_SUM(recip_sum, correction, min/value);
         }
         Py_DECREF(item);
     }
@@ -270,6 +273,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     double recip_sum = 0.0;
+    double correction = 0.0;
     uint64_t count = 0;
     int ret;
 
@@ -279,11 +283,13 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
         if ( PyList_Check(arg) )
         {
-            ret = get_recip_sum_list(arg, is_only_str, min_val, &recip_sum, &count);
+            ret = get_recip_sum_list(arg, is_only_str, min_val, &recip_sum,
+                                     &correction, &count);
         }
         else if ( PyTuple_Check(arg) )
         {
-            ret = get_recip_sum_tuple(arg, is_only_str, min_val, &recip_sum, &count);
+            ret = get_recip_sum_tuple(arg, is_only_str, min_val, &recip_sum,
+                                      &correction, &count);
         }
         else
         {
@@ -291,7 +297,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
             if ( !iter ) return NULL;
 
             ret = get_recip_sum_iterable(iter, is_only_str, min_val,
-                                         &recip_sum, &count);
+                                         &recip_sum, &correction, &count);
         }
         HANDLE_SUM_AND_COUNT_RET(ret);
     }

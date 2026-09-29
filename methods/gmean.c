@@ -5,7 +5,7 @@
 #include "../numagr.h"
 
 static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_sum,
-                                   uint64_t* count)
+                                   double* correction, uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -29,8 +29,7 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *log_sum += log(value);
-                // KAHAN_SUM(, , )
+                KAHAN_SUM(log_sum, correction, log(value));
             }
         }
         return 0;
@@ -54,7 +53,7 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyLong_Check(item) )
         {
@@ -66,7 +65,7 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyFloat_Check(item) )
         {
@@ -76,15 +75,15 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_su
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
     }
 
     return 0;
 }
 
-static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
-                                    double* log_sum, uint64_t* count)
+static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, double* log_sum,
+                                    double* correction, uint64_t* count)
 {
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
@@ -108,7 +107,7 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *log_sum += log(value);
+                KAHAN_SUM(log_sum, correction, log(value));
             }
         }
         return 0;
@@ -132,7 +131,7 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyLong_Check(item) )
         {
@@ -144,7 +143,7 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyFloat_Check(item) )
         {
@@ -154,15 +153,15 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
     }
 
     return 0;
 }
 
-static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
-                                       double* log_sum, uint64_t* count)
+static inline int get_log_sum_iterable(PyObject* iter, bool only_str, double* log_sum,
+                                       double* correction, uint64_t* count)
 {
     PyObject* item;
 
@@ -191,7 +190,7 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
                     Py_DECREF(item); Py_DECREF(iter);
                     return COUNT_OVERFLOW;
                 }
-                *log_sum += log(value);
+                KAHAN_SUM(log_sum, correction, log(value));
             }
             Py_DECREF(item);
         }
@@ -222,7 +221,7 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyLong_Check(item) )
         {
@@ -242,7 +241,7 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         else if ( PyFloat_Check(item) )
         {
@@ -257,7 +256,7 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *log_sum += log(value);
+            KAHAN_SUM(log_sum, correction, log(value));
         }
         Py_DECREF(item);
     }
@@ -274,6 +273,7 @@ static PyObject* gmean(PyObject* self, PyObject* args, PyObject* kwargs)
     PARSE_ARGS_AND_KWARGS;
 
     double log_sum = 0.0;
+    double correction = 0.0;
     uint64_t count = 0;
     int ret;
 
@@ -283,18 +283,19 @@ static PyObject* gmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
         if ( PyList_Check(arg) )
         {
-            ret = get_log_sum_list(arg, is_only_str, &log_sum, &count);
+            ret = get_log_sum_list(arg, is_only_str, &log_sum, &correction, &count);
         }
         else if ( PyTuple_Check(arg) )
         {
-            ret = get_log_sum_tuple(arg, is_only_str, &log_sum, &count);
+            ret = get_log_sum_tuple(arg, is_only_str, &log_sum, &correction, &count);
         }
         else
         {
             PyObject* iter = PyObject_GetIter(arg);
             if ( !iter ) return NULL;
 
-            ret = get_log_sum_iterable(iter, is_only_str, &log_sum, &count);
+            ret = get_log_sum_iterable(iter, is_only_str, &log_sum, &correction,
+                                       &count);
         }
         HANDLE_SUM_AND_COUNT_RET(ret);
     }
