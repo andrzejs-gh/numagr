@@ -61,14 +61,14 @@ do                                                                              
                                                                                     \
 } while (0);
 
-#define KAHAN_SUM(sum_arg_name, value)                  \
+#define KAHAN_SUM(sum_ptr, correction_ptr, value)       \
 do                                                      \
 {                                                       \
-    double old_sum = *(sum_arg_name);                   \
-    double next = (value) - *correction;                \
+    double old_sum = *(sum_ptr);                        \
+    double next = (value) - *correction_ptr;            \
     double new_sum = old_sum + next;                    \
-    *correction = (new_sum - old_sum) - next;           \
-    *(sum_arg_name) = new_sum;                          \
+    *correction_ptr = (new_sum - old_sum) - next;       \
+    *(sum_ptr) = new_sum;                               \
                                                         \
 } while (0);
 

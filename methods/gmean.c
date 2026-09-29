@@ -4,8 +4,8 @@
 #include <math.h>
 #include "../numagr.h"
 
-static inline int get_log_sum_list(PyObject* list, bool only_str,
-                                   double* log_sum, uint64_t* count)
+static inline int get_log_sum_list(PyObject* list, bool only_str, double* log_sum,
+                                   uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -30,6 +30,7 @@ static inline int get_log_sum_list(PyObject* list, bool only_str,
                     return COUNT_OVERFLOW;
 
                 *log_sum += log(value);
+                // KAHAN_SUM(, , )
             }
         }
         return 0;

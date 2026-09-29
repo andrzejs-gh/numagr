@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include "../numagr.h"
 
-static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
-                                         double* sum, uint64_t* count)
+static inline int sum_and_count_iterable(PyObject* iter, bool only_str, double* sum,
+                                         double* correction, uint64_t* count)
 {
     PyObject* item;
 
@@ -25,7 +25,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                     Py_DECREF(item); Py_DECREF(iter);
                     return COUNT_OVERFLOW;
                 }
-                *sum += strtod(str, NULL);
+                KAHAN_SUM(sum, correction, strtod(str, NULL));
             }
             Py_DECREF(item);
         }
@@ -48,7 +48,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *sum += strtod(str, NULL);
+            KAHAN_SUM(sum, correction, strtod(str, NULL));
         }
         else if ( PyLong_Check(item) )
         {
@@ -63,7 +63,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *sum += value;
+            KAHAN_SUM(sum, correction, value);
         }
         else if ( PyFloat_Check(item) )
         {
@@ -72,7 +72,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                 Py_DECREF(item); Py_DECREF(iter);
                 return COUNT_OVERFLOW;
             }
-            *sum += PyFloat_AS_DOUBLE(item);
+            KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));
         }
         Py_DECREF(item);
     }
@@ -82,7 +82,7 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
 }
 
 static inline int sum_and_count_list(PyObject* list, bool only_str,
-                                      double* sum, uint64_t* count)
+                                      double* sum, double* correction, uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -100,7 +100,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *sum += strtod(str, NULL);
+                KAHAN_SUM(sum, correction, strtod(str, NULL));
             }
         }
         return 0;
@@ -118,7 +118,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *sum += strtod(str, NULL);
+            KAHAN_SUM(sum, correction, strtod(str, NULL));
         }
         else if ( PyLong_Check(item) )
         {
@@ -128,13 +128,13 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *sum += value;
+            KAHAN_SUM(sum, correction, value);
         }
         else if ( PyFloat_Check(item) )
         {
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
-            *sum += PyFloat_AS_DOUBLE(item);
+            KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));
         }
     }
 
@@ -142,7 +142,7 @@ static inline int sum_and_count_list(PyObject* list, bool only_str,
 }
 
 static inline int sum_and_count_tuple(PyObject* list, bool only_str,
-                                        double* sum, uint64_t* count)
+                                        double* sum, double* correction, uint64_t* count)
 {
     Py_ssize_t tupl_len = PyTuple_GET_SIZE(list);
 
@@ -160,7 +160,7 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
                 if ( (*count)++ == UINT64_MAX )
                     return COUNT_OVERFLOW;
 
-                *sum += strtod(str, NULL);
+                KAHAN_SUM(sum, correction, strtod(str, NULL));
             }
         }
         return 0;
@@ -178,7 +178,7 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *sum += strtod(str, NULL);
+            KAHAN_SUM(sum, correction, strtod(str, NULL));
         }
         else if ( PyLong_Check(item) )
         {
@@ -188,13 +188,13 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str,
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
 
-            *sum += value;
+            KAHAN_SUM(sum, correction, value);
         }
         else if ( PyFloat_Check(item) )
         {
             if ( (*count)++ == UINT64_MAX )
                 return COUNT_OVERFLOW;
-            *sum += PyFloat_AS_DOUBLE(item);
+            KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));
         }
     }
 
@@ -209,6 +209,7 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
     PARSE_ARGS_AND_KWARGS;
 
     double sum = 0.0;
+    double correction = 0.0;
     uint64_t count = 0;
     int ret;
 
@@ -218,18 +219,18 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
 
         if ( PyList_Check(arg) )
         {
-            ret = sum_and_count_list(arg, is_only_str, &sum, &count);
+            ret = sum_and_count_list(arg, is_only_str, &sum, &correction, &count);
         }
         else if ( PyTuple_Check(arg) )
         {
-            ret = sum_and_count_tuple(arg, is_only_str, &sum, &count);
+            ret = sum_and_count_tuple(arg, is_only_str, &sum, &correction, &count);
         }
         else
         {
             PyObject* iter = PyObject_GetIter(arg);
             if ( !iter ) return NULL;
 
-            ret = sum_and_count_iterable(iter, is_only_str, &sum, &count);
+            ret = sum_and_count_iterable(iter, is_only_str, &sum, &correction, &count);
         }
         HANDLE_SUM_AND_COUNT_RET(ret);
     }
