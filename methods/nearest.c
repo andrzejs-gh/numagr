@@ -4,43 +4,6 @@
 #include <math.h>
 #include "../numagr.h"
 
-#define PARSE_TARGET_VALUE                                              \
-do                                                                      \
-{                                                                       \
-    if ( argc < 2 )                                                     \
-    {                                                                   \
-        PyErr_SetString                                                 \
-        (                                                               \
-            PyExc_TypeError,                                            \
-            "Missing positional arguments. "                            \
-            "Enter the target value followed by iterable(s)."           \
-        );                                                              \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-    PyObject* arg = PyTuple_GET_ITEM(args, 0);                          \
-    if ( PyLong_Check(arg) )                                            \
-    {                                                                   \
-        target = PyLong_AsDouble(arg);                                  \
-        if ( PyErr_Occurred() ) return NULL;                            \
-    }                                                                   \
-    else if ( PyFloat_Check(arg) )                                      \
-    {                                                                   \
-        target = PyFloat_AsDouble(arg);                                 \
-        if ( PyErr_Occurred() ) return NULL;                            \
-    }                                                                   \
-    else                                                                \
-    {                                                                   \
-        PyErr_SetString                                                 \
-        (                                                               \
-            PyExc_TypeError,                                            \
-            "Invalid target value. Must be either int or float."        \
-        );                                                              \
-        return NULL;                                                    \
-    }                                                                   \
-                                                                        \
-} while (0);
-
 #define UPDATE_CUR_GAP_AND_VALUE_IF_STR(item)                   \
 do                                                              \
 {                                                               \
