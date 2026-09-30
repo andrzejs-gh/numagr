@@ -3,6 +3,15 @@
 
 #include <Python.h>
 
+#define SET_INV_KWARG_VAL_ERR(kwarg_name)                           \
+PyErr_Format                                                        \
+(                                                                   \
+    PyExc_TypeError,                                                \
+    "Invalid keyword argument value, "                              \
+    "\"%s\" value must evaluate to either True or False",           \
+    (kwarg_name)                                                    \
+);
+
 #define PARSE_ARGS_AND_KWARGS                                                       \
 do                                                                                  \
 {                                                                                   \
@@ -20,6 +29,7 @@ do                                                                              
         PyObject* value;                                                            \
         Py_ssize_t pos = 0;                                                         \
         bool only_str_found = false;                                                \
+        bool only_num_found = false;                                                \
                                                                                     \
         while ( PyDict_Next(kwargs, &pos, &key, &value) )                           \
         {                                                                           \
@@ -36,24 +46,30 @@ do                                                                              
                 int ret = PyObject_IsTrue(value);                                   \
                 if ( ret < 0 )                                                      \
                 {                                                                   \
-                    PyErr_SetString                                                 \
-                    (                                                               \
-                    PyExc_TypeError,                                                \
-                    "Invalid keyword argument value, "                              \
-                    "\"only_str\" value must evaluate to either True or False"      \
-                    );                                                              \
+                    SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
                     return NULL;                                                    \
                 }                                                                   \
                 is_only_str = ret;                                                  \
                 only_str_found = true;                                              \
             }                                                                       \
+            else if ( !only_num_found && !strcmp(kwarg_name, "only_num") )          \
+            {                                                                       \
+                int ret = PyObject_IsTrue(value);                                   \
+                if ( ret < 0 )                                                      \
+                {                                                                   \
+                    SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
+                    return NULL;                                                    \
+                }                                                                   \
+                is_only_num = ret;                                                  \
+                only_num_found = true;                                              \
+            }                                                                       \
             else                                                                    \
             {                                                                       \
-                PyErr_SetString                                                     \
+                PyErr_Format                                                        \
                 (                                                                   \
-                PyExc_TypeError,                                                    \
-                "Invalid keyword argument name. "                                   \
-                "The only allowed kwarg is: \"only_str\"."                          \
+                    PyExc_TypeError,                                                \
+                    "Invalid keyword argument name. \"%s\".",                       \
+                    kwarg_name                                                      \
                 );                                                                  \
                 return NULL;                                                        \
             }                                                                       \
