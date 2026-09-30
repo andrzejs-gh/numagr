@@ -5,8 +5,6 @@
 
 static inline uint64_t get_hash(double key)
 {
-    if ( !key ) key = 0.0; // normalize negative zero just in case
-
     unsigned char* bytes = (unsigned char*)&key;
     uint64_t hash = FNV_OFFSET_BASIS;
 
@@ -82,6 +80,8 @@ static inline fhtable* fhtable_grow(fhtable* fht)
 
 int fhtable_inc(fhtable* fht, double key)
 {
+    if ( !key ) key = 0.0; // normalize negative zero just in case
+
     size_t fht_capacity = fht->capacity;
     uint64_t hash = get_hash(key);
     size_t index = hash % fht_capacity;
@@ -112,6 +112,8 @@ int fhtable_inc(fhtable* fht, double key)
 
 size_t fhtable_get_count(fhtable* fht, double key)
 {
+    if ( !key ) key = 0.0; // normalize negative zero just in case
+
     size_t fht_capacity  = fht->capacity;
     size_t index = get_hash(key) % fht_capacity;
     fhtable_entry* table = fht->table;
