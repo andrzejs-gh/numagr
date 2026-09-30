@@ -12,69 +12,80 @@ PyErr_Format                                                        \
     (kwarg_name)                                                    \
 );
 
-#define PARSE_ARGS_AND_KWARGS                                                       \
-do                                                                                  \
-{                                                                                   \
-    if ( !argc )                                                                    \
-    {                                                                               \
-        PyErr_SetString(PyExc_TypeError,                                            \
-        "Expected at least one positional argument.");                              \
-        return NULL;                                                                \
-    }                                                                               \
-                                                                                    \
-    if ( !kwargs )                                                                  \
-        break;                                                                      \
-                                                                                    \
-        PyObject* key;                                                              \
-        PyObject* value;                                                            \
-        Py_ssize_t pos = 0;                                                         \
-        bool only_str_found = false;                                                \
-        bool only_num_found = false;                                                \
-                                                                                    \
-        while ( PyDict_Next(kwargs, &pos, &key, &value) )                           \
-        {                                                                           \
-            const char* kwarg_name = PyUnicode_AsUTF8(key);                         \
-            if ( !kwarg_name )                                                      \
-            {                                                                       \
-                PyErr_SetString(PyExc_TypeError,                                    \
-                "Keyword name UTF8-encoding failure.");                             \
-                return NULL;                                                        \
-            }                                                                       \
-                                                                                    \
-            if ( !only_str_found && !strcmp(kwarg_name, "only_str") )               \
-            {                                                                       \
-                int ret = PyObject_IsTrue(value);                                   \
-                if ( ret < 0 )                                                      \
-                {                                                                   \
-                    SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
-                    return NULL;                                                    \
-                }                                                                   \
-                is_only_str = ret;                                                  \
-                only_str_found = true;                                              \
-            }                                                                       \
-            else if ( !only_num_found && !strcmp(kwarg_name, "only_num") )          \
-            {                                                                       \
-                int ret = PyObject_IsTrue(value);                                   \
-                if ( ret < 0 )                                                      \
-                {                                                                   \
-                    SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
-                    return NULL;                                                    \
-                }                                                                   \
-                is_only_num = ret;                                                  \
-                only_num_found = true;                                              \
-            }                                                                       \
-            else                                                                    \
-            {                                                                       \
-                PyErr_Format                                                        \
-                (                                                                   \
-                    PyExc_TypeError,                                                \
-                    "Invalid keyword argument name. \"%s\".",                       \
-                    kwarg_name                                                      \
-                );                                                                  \
-                return NULL;                                                        \
-            }                                                                       \
-        }                                                                           \
-                                                                                    \
+#define PARSE_ARGS_AND_KWARGS                                                   \
+do                                                                              \
+{                                                                               \
+    if ( !argc )                                                                \
+    {                                                                           \
+        PyErr_SetString(PyExc_TypeError,                                        \
+        "Expected at least one positional argument.");                          \
+        return NULL;                                                            \
+    }                                                                           \
+                                                                                \
+    if ( !kwargs )                                                              \
+        break;                                                                  \
+                                                                                \
+    PyObject* key;                                                              \
+    PyObject* value;                                                            \
+    Py_ssize_t pos = 0;                                                         \
+    bool only_str_found = false;                                                \
+    bool only_num_found = false;                                                \
+                                                                                \
+    while ( PyDict_Next(kwargs, &pos, &key, &value) )                           \
+    {                                                                           \
+        const char* kwarg_name = PyUnicode_AsUTF8(key);                         \
+        if ( !kwarg_name )                                                      \
+        {                                                                       \
+            PyErr_SetString(PyExc_TypeError,                                    \
+            "Keyword name UTF8-encoding failure.");                             \
+            return NULL;                                                        \
+        }                                                                       \
+                                                                                \
+        if ( !only_str_found && !strcmp(kwarg_name, "only_str") )               \
+        {                                                                       \
+            int ret = PyObject_IsTrue(value);                                   \
+            if ( ret < 0 )                                                      \
+            {                                                                   \
+                SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
+                return NULL;                                                    \
+            }                                                                   \
+            is_only_str = ret;                                                  \
+            only_str_found = true;                                              \
+        }                                                                       \
+        else if ( !only_num_found && !strcmp(kwarg_name, "only_num") )          \
+        {                                                                       \
+            int ret = PyObject_IsTrue(value);                                   \
+            if ( ret < 0 )                                                      \
+            {                                                                   \
+                SET_INV_KWARG_VAL_ERR(kwarg_name);                              \
+                return NULL;                                                    \
+            }                                                                   \
+            is_only_num = ret;                                                  \
+            only_num_found = true;                                              \
+        }                                                                       \
+        else                                                                    \
+        {                                                                       \
+            PyErr_Format                                                        \
+            (                                                                   \
+                PyExc_TypeError,                                                \
+                "Invalid keyword argument name. \"%s\".",                       \
+                kwarg_name                                                      \
+            );                                                                  \
+            return NULL;                                                        \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+    if ( is_only_str && is_only_num )                                           \
+    {                                                                           \
+        PyErr_SetString                                                         \
+        (                                                                       \
+            PyExc_TypeError,                                                    \
+            "Keyword arguments \"str_only\" and \"num_only\" "                  \
+            "are mutually exclusive."                                           \
+        );                                                                      \
+        return NULL;                                                            \
+    }                                                                           \
+                                                                                \
 } while (0);
 
 #define KAHAN_SUM(sum_ptr, correction_ptr, value)       \
