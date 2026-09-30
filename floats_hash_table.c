@@ -5,6 +5,8 @@
 
 static inline uint64_t get_hash(double key)
 {
+    if ( !key ) key = 0.0; // normalize negative zero just in case
+
     unsigned char* bytes = (unsigned char*)&key;
     uint64_t hash = FNV_OFFSET_BASIS;
 
