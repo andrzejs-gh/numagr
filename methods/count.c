@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "../numagr.h"
 
-#define UPDATE_CUR_GAP_AND_VALUE_IF_STR(item)                   \
+#define COUNT_IF_STR(item)                                      \
 do                                                              \
 {                                                               \
     if ( PyUnicode_Check(item) )                                \
@@ -10,51 +10,31 @@ do                                                              \
         const char* str = PyUnicode_AsUTF8(item);               \
         if ( !str ) return STR_ENCODING_FAILURE;                \
                                                                 \
-        double value = strtod(str, NULL);                       \
-        if ( value == target ) return EXACT_MATCH_FOUND;        \
-                                                                \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+        if ( strtod(str, NULL) == target )                      \
+            (*count)++;                                         \
     }                                                           \
-    \
+                                                                \
 } while (0);
 
-#define UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item)                   \
+#define COUNT_IF_NUM(item)                                      \
 do                                                              \
 {                                                               \
     if ( PyLong_Check(item) )                                   \
     {                                                           \
         double value = PyLong_AsDouble(item);                   \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;         \
-        if ( value == target ) return EXACT_MATCH_FOUND;        \
-                                                                \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+        if ( value == target )                                  \
+            (*count)++;                                         \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        double value = PyFloat_AS_DOUBLE(item);                 \
-        if ( value == target ) return EXACT_MATCH_FOUND;        \
-                                                                \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+        if ( PyFloat_AS_DOUBLE(item) == target )                \
+            (*count)++;                                         \
     }                                                           \
                                                                 \
 } while (0);
 
-#define iter_UPDATE_CUR_GAP_AND_VALUE_IF_STR(item)              \
+#define iter_COUNT_IF_STR(item)                                 \
 do                                                              \
 {                                                               \
     if ( PyUnicode_Check(item) )                                \
@@ -65,25 +45,14 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return STR_ENCODING_FAILURE;                        \
         }                                                       \
-        \
-        double value = strtod(str, NULL);                       \
-        if ( value == target )                                  \
-        {                                                       \
-            Py_DECREF(item); Py_DECREF(iter);                   \
-            return EXACT_MATCH_FOUND;                           \
-        }                                                       \
-        \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+                                                                \
+        if ( strtod(str, NULL) == target )                      \
+            (*count)++;                                         \
     }                                                           \
-    \
+                                                                \
 } while (0);
 
-#define iter_UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item)              \
+#define iter_COUNT_IF_NUM(item)                                 \
 do                                                              \
 {                                                               \
     if ( PyLong_Check(item) )                                   \
@@ -95,40 +64,19 @@ do                                                              \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
         if ( value == target )                                  \
-        {                                                       \
-            Py_DECREF(item); Py_DECREF(iter);                   \
-            return EXACT_MATCH_FOUND;                           \
-        }                                                       \
-        \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+            (*count)++;                                         \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
         double value = PyFloat_AS_DOUBLE(item);                 \
         if ( value == target )                                  \
-        {                                                       \
-            Py_DECREF(item); Py_DECREF(iter);                   \
-            return EXACT_MATCH_FOUND;                           \
-        }                                                       \
-        \
-        double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
-        {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
-        }                                                       \
+            (*count)++;                                         \
     }                                                           \
-    \
+                                                                \
 } while (0);
 
-static inline int search_list(PyObject* list, bool only_str, bool only_num,
-                              double target, double* nearest_value,
-                              double* current_gap)
+static inline int count_in_list(PyObject* list, bool only_str, bool only_num,
+                                double target, uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -137,7 +85,7 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
         for ( Py_ssize_t i = 0; i < list_len; i++ )
         {
             PyObject* item = PyList_GET_ITEM(list, i);
-            UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
+            COUNT_IF_STR(item);
         }
         return 0;
     }
@@ -147,7 +95,7 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
         for ( Py_ssize_t i = 0; i < list_len; i++ )
         {
             PyObject* item = PyList_GET_ITEM(list, i);
-            UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+            COUNT_IF_NUM(item);
         }
         return 0;
     }
@@ -155,16 +103,15 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
     for ( Py_ssize_t i = 0; i < list_len; i++ )
     {
         PyObject* item = PyList_GET_ITEM(list, i);
-        UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
-        UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+        COUNT_IF_STR(item);
+        COUNT_IF_NUM(item);
     }
 
     return 0;
 }
 
-static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
-                               double target, double* nearest_value,
-                               double* current_gap)
+static inline int count_in_tuple(PyObject* tuple, bool only_str, bool only_num,
+                                 double target, uint64_t* count)
 {
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
@@ -173,7 +120,7 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
         for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
-            UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
+            COUNT_IF_STR(item);
         }
         return 0;
     }
@@ -183,7 +130,7 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
         for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
-            UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+            COUNT_IF_NUM(item);
         }
         return 0;
     }
@@ -191,16 +138,15 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
     for ( Py_ssize_t i = 0; i < tuple_len; i++ )
     {
         PyObject* item = PyTuple_GET_ITEM(tuple, i);
-        UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
-        UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+        COUNT_IF_STR(item);
+        COUNT_IF_NUM(item);
     }
 
     return 0;
 }
 
-static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
-                                  double target, double* nearest_value,
-                                  double* current_gap)
+static inline int count_in_iterable(PyObject* iter, bool only_str, bool only_num,
+                                    double target, uint64_t* count)
 {
     PyObject* item;
 
@@ -208,7 +154,7 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
     {
         while ( (item = PyIter_Next(iter)) )
         {
-            iter_UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
+            iter_COUNT_IF_STR(item);
             Py_DECREF(item);
         }
         Py_DECREF(iter);
@@ -219,7 +165,7 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
     {
         while ( (item = PyIter_Next(iter)) )
         {
-            iter_UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+            iter_COUNT_IF_NUM(item);
             Py_DECREF(item);
         }
         Py_DECREF(iter);
@@ -228,8 +174,8 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
 
     while ( (item = PyIter_Next(iter)) )
     {
-        iter_UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
-        iter_UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
+        iter_COUNT_IF_STR(item);
+        iter_COUNT_IF_NUM(item);
         Py_DECREF(item);
     }
     Py_DECREF(iter);
@@ -237,7 +183,7 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
     return 0;
 }
 
-static PyObject* nearest(PyObject* self, PyObject* args, PyObject* kwargs)
+static PyObject* count(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
     bool is_only_str = false;
@@ -246,9 +192,8 @@ static PyObject* nearest(PyObject* self, PyObject* args, PyObject* kwargs)
 
     PARSE_TARGET_VALUE;
     PARSE_ARGS_AND_KWARGS;
-
-    double nearest_value = INFINITY;
-    double current_gap = INFINITY;
+    // printf("target = %.16f\n", target);
+    uint64_t count = 0;
     int ret;
 
     for ( Py_ssize_t i = 1; i < argc; i++ )
@@ -257,29 +202,22 @@ static PyObject* nearest(PyObject* self, PyObject* args, PyObject* kwargs)
 
         if ( PyList_Check(arg) )
         {
-            ret = search_list(arg, is_only_str, is_only_num, target,
-                              &nearest_value, &current_gap);
+            ret = count_in_list(arg, is_only_str, is_only_num, target, &count);
         }
         else if ( PyTuple_Check(arg) )
         {
-            ret = search_tuple(arg, is_only_str, is_only_num, target,
-                               &nearest_value, &current_gap);
+            ret = count_in_tuple(arg, is_only_str, is_only_num, target, &count);
         }
         else
         {
             PyObject* iter = PyObject_GetIter(arg);
             if ( !iter ) return NULL;
 
-            ret = search_iterable(iter, is_only_str, is_only_num, target,
-                                  &nearest_value, &current_gap);
+            ret = count_in_iterable(iter, is_only_str, is_only_num, target, &count);
         }
-        switch ( ret )
-        {
-            case                 0: continue;
-            case EXACT_MATCH_FOUND: return PyFloat_FromDouble(target);
-            default:                return NULL;
-        }
+
+        if ( ret ) return NULL;
     }
 
-    return PyFloat_FromDouble(nearest_value);
+    return PyLong_FromUInt64(count);
 }

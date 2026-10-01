@@ -5,3 +5,4 @@
 #include "methods/gmean.c"
 #include "methods/hmean.c"
 #include "methods/nearest.c"
+#include "methods/count.c"
