@@ -68,8 +68,7 @@ do                                                              \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        double value = PyFloat_AS_DOUBLE(item);                 \
-        if ( value == target )                                  \
+        if ( PyFloat_AS_DOUBLE(item) == target )                \
             (*count)++;                                         \
     }                                                           \
                                                                 \
