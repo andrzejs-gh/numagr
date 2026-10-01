@@ -77,6 +77,9 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
+        if ( (*count)++ == UINT64_MAX )                         \
+            return COUNT_OVERFLOW;                              \
+                                                                \
         if ( value > target )                                   \
             (*above_count)++;                                   \
     }                                                           \

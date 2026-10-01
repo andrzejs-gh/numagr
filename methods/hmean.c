@@ -279,7 +279,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         }
         HANDLE_SUM_AND_COUNT_RET(ret);
     }
-
+    printf("jelloł, count = %" PRIu64 "\n", count); fflush(stdout);
     if ( !count )
         return PyFloat_FromDouble(0.0);
 

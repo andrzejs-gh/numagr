@@ -1,5 +1,6 @@
 #include <Python.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../numagr.h"
 
 #define COUNT_IF_STR(item)                                      \
@@ -11,7 +12,10 @@ do                                                              \
         if ( !str ) return STR_ENCODING_FAILURE;                \
                                                                 \
         if ( strtod(str, NULL) == target )                      \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
                                                                 \
 } while (0);
@@ -24,12 +28,18 @@ do                                                              \
         double value = PyLong_AsDouble(item);                   \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;         \
         if ( value == target )                                  \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
         if ( PyFloat_AS_DOUBLE(item) == target )                \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
                                                                 \
 } while (0);
@@ -47,7 +57,10 @@ do                                                              \
         }                                                       \
                                                                 \
         if ( strtod(str, NULL) == target )                      \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
                                                                 \
 } while (0);
@@ -64,12 +77,18 @@ do                                                              \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
         if ( value == target )                                  \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
         if ( PyFloat_AS_DOUBLE(item) == target )                \
-            (*count)++;                                         \
+        {                                                       \
+            if ( (*count)++ == UINT64_MAX )                     \
+                return COUNT_OVERFLOW;                          \
+        }                                                       \
     }                                                           \
                                                                 \
 } while (0);
