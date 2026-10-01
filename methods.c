@@ -6,3 +6,5 @@
 #include "methods/hmean.c"
 #include "methods/nearest.c"
 #include "methods/count.c"
+#include "methods/frac_below.c"
+#include "methods/frac_above.c"

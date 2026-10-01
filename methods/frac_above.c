@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "../numagr.h"
 
-#define COUNT_IF_BELOW_IF_STR(item)                             \
+#define COUNT_IF_ABOVE_IF_STR(item)                             \
 do                                                              \
 {                                                               \
     if ( PyUnicode_Check(item) )                                \
@@ -20,7 +20,7 @@ do                                                              \
                                                                 \
 } while (0);
 
-#define COUNT_IF_BELOW_IF_NUM(item)                             \
+#define COUNT_IF_ABOVE_IF_NUM(item)                             \
 do                                                              \
 {                                                               \
     if ( PyLong_Check(item) )                                   \
@@ -45,7 +45,7 @@ do                                                              \
                                                                 \
 } while (0);
 
-#define iter_COUNT_IF_BELOW_IF_STR(item)                        \
+#define iter_COUNT_IF_ABOVE_IF_STR(item)                        \
 do                                                              \
 {                                                               \
     if ( PyUnicode_Check(item) )                                \
@@ -66,7 +66,7 @@ do                                                              \
                                                                 \
 } while (0);
 
-#define iter_COUNT_IF_BELOW_IF_NUM(item)                        \
+#define iter_COUNT_IF_ABOVE_IF_NUM(item)                        \
 do                                                              \
 {                                                               \
     if ( PyLong_Check(item) )                                   \
@@ -102,7 +102,7 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
         for ( Py_ssize_t i = 0; i < list_len; i++ )
         {
             PyObject* item = PyList_GET_ITEM(list, i);
-            COUNT_IF_BELOW_IF_STR(item);
+            COUNT_IF_ABOVE_IF_STR(item);
         }
         return 0;
     }
@@ -112,7 +112,7 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
         for ( Py_ssize_t i = 0; i < list_len; i++ )
         {
             PyObject* item = PyList_GET_ITEM(list, i);
-            COUNT_IF_BELOW_IF_NUM(item);
+            COUNT_IF_ABOVE_IF_NUM(item);
         }
         return 0;
     }
@@ -120,8 +120,8 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
     for ( Py_ssize_t i = 0; i < list_len; i++ )
     {
         PyObject* item = PyList_GET_ITEM(list, i);
-        COUNT_IF_BELOW_IF_STR(item);
-        COUNT_IF_BELOW_IF_NUM(item);
+        COUNT_IF_ABOVE_IF_STR(item);
+        COUNT_IF_ABOVE_IF_NUM(item);
     }
 
     return 0;
@@ -138,7 +138,7 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
         for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
-            COUNT_IF_BELOW_IF_STR(item);
+            COUNT_IF_ABOVE_IF_STR(item);
         }
         return 0;
     }
@@ -148,7 +148,7 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
         for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
-            COUNT_IF_BELOW_IF_NUM(item);
+            COUNT_IF_ABOVE_IF_NUM(item);
         }
         return 0;
     }
@@ -156,8 +156,8 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
     for ( Py_ssize_t i = 0; i < tuple_len; i++ )
     {
         PyObject* item = PyTuple_GET_ITEM(tuple, i);
-        COUNT_IF_BELOW_IF_STR(item);
-        COUNT_IF_BELOW_IF_NUM(item);
+        COUNT_IF_ABOVE_IF_STR(item);
+        COUNT_IF_ABOVE_IF_NUM(item);
     }
 
     return 0;
@@ -173,7 +173,7 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
     {
         while ( (item = PyIter_Next(iter)) )
         {
-            iter_COUNT_IF_BELOW_IF_STR(item);
+            iter_COUNT_IF_ABOVE_IF_STR(item);
             Py_DECREF(item);
         }
         Py_DECREF(iter);
@@ -184,7 +184,7 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
     {
         while ( (item = PyIter_Next(iter)) )
         {
-            iter_COUNT_IF_BELOW_IF_NUM(item);
+            iter_COUNT_IF_ABOVE_IF_NUM(item);
             Py_DECREF(item);
         }
         Py_DECREF(iter);
@@ -193,8 +193,8 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
 
     while ( (item = PyIter_Next(iter)) )
     {
-        iter_COUNT_IF_BELOW_IF_STR(item);
-        iter_COUNT_IF_BELOW_IF_NUM(item);
+        iter_COUNT_IF_ABOVE_IF_STR(item);
+        iter_COUNT_IF_ABOVE_IF_NUM(item);
         Py_DECREF(item);
     }
     Py_DECREF(iter);

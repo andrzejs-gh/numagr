@@ -10,7 +10,8 @@ static PyMethodDef methods[] = {
     {"hmean", (PyCFunction)hmean, METH_VARARGS | METH_KEYWORDS, ""},
     {"nearest", (PyCFunction)nearest, METH_VARARGS | METH_KEYWORDS, ""},
     {"count", (PyCFunction)count, METH_VARARGS | METH_KEYWORDS, ""},
-
+    {"frac_below", (PyCFunction)frac_below, METH_VARARGS | METH_KEYWORDS, ""},
+    {"frac_above", (PyCFunction)frac_above, METH_VARARGS | METH_KEYWORDS, ""},
     // * * *
     {NULL, NULL, 0, NULL}
 };
