@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #include "../numagr.h"
 
 #define COUNT_IF_BELOW_IF_STR(item)                             \
@@ -77,6 +78,10 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
+                                                                \
+        if ( (*count)++ == UINT64_MAX )                         \
+            return COUNT_OVERFLOW;                              \
+                                                                \
         if ( value < target )                                   \
             (*below_count)++;                                   \
     }                                                           \
@@ -242,7 +247,7 @@ static PyObject* frac_below(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     if ( !count )
-        return PyFloat_FromDouble(0.0);
+        return PyFloat_FromDouble(INFINITY);
 
     return PyFloat_FromDouble( (double)below_count / count );
 }
