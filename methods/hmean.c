@@ -1,7 +1,12 @@
 #include <Python.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #include "../numagr.h"
+#include "abstract.h"
+#include "pyerrors.h"
+#include "refcount.h"
+#include "tupleobject.h"
 
 #define ADD_RECIP_AND_COUNT_IF_STR(item)                    \
 do                                                          \
@@ -208,7 +213,7 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, bool onl
         return 0;
     }
 
-    if ( only_str )
+    if ( only_num )
     {
         while ( (item = PyIter_Next(iter)) )
         {
@@ -230,23 +235,62 @@ static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, bool onl
     return 0;
 }
 
+static inline PyObject* get_normalized_args(Py_ssize_t argc, PyObject* args)
+{
+    PyObject* normalized_args = PyTuple_New(argc);
+    if ( !normalized_args )
+        return NULL;
+
+    for ( Py_ssize_t i = 0; i < argc; i++ )
+    {
+        PyObject* arg = PyTuple_GET_ITEM(args, i);
+
+        if ( PyList_Check(arg) || PyTuple_Check(arg) )
+        {
+            Py_INCREF(arg);
+            PyTuple_SET_ITEM(normalized_args, i, arg);
+        }
+        else
+        {
+            PyObject* tuple = PySequence_Tuple(arg);
+            if ( !tuple )
+            {
+                Py_DECREF(normalized_args);
+                return NULL;
+            }
+            PyTuple_SET_ITEM(normalized_args, i, tuple);
+        }
+    }
+
+    return normalized_args;
+}
+
 static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
+
     bool is_only_str = false;
     bool is_only_num = false;
 
     PARSE_ARGS_AND_KWARGS;
 
-    PyObject* py_float = get_min_method_ptr()(self, args, kwargs);
-    if ( !py_float )
+    PyObject* normalized_args = get_normalized_args(argc, args);
+    if ( !normalized_args )
         return NULL;
+
+    PyObject* py_float = get_min_method_ptr()(self, normalized_args, kwargs);
+    if ( !py_float )
+    {
+        Py_DECREF(normalized_args);
+        return NULL;
+    }
 
     double min_val = PyFloat_AS_DOUBLE(py_float);
     if ( min_val <= 0.0 )
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "The iterable contains a non-positive value.");
+        Py_DECREF(normalized_args);
         return NULL;
     }
 
@@ -257,31 +301,24 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
     for ( Py_ssize_t i = 0; i < argc; i++ )
     {
-        PyObject* arg = PyTuple_GET_ITEM(args, i);
+        PyObject* arg = PyTuple_GET_ITEM(normalized_args, i);
 
         if ( PyList_Check(arg) )
         {
             ret = get_recip_sum_list(arg, is_only_str, is_only_num, min_val,
                                      &recip_sum, &correction, &count);
         }
-        else if ( PyTuple_Check(arg) )
+        else
         {
             ret = get_recip_sum_tuple(arg, is_only_str, is_only_num, min_val,
                                       &recip_sum, &correction, &count);
         }
-        else
-        {
-            PyObject* iter = PyObject_GetIter(arg);
-            if ( !iter ) return NULL;
-
-            ret = get_recip_sum_iterable(iter, is_only_str, is_only_num, min_val,
-                                         &recip_sum, &correction, &count);
-        }
         HANDLE_SUM_AND_COUNT_RET(ret);
     }
-    printf("jelloł, count = %" PRIu64 "\n", count); fflush(stdout);
+    Py_DECREF(normalized_args);
+
     if ( !count )
-        return PyFloat_FromDouble(0.0);
+        return PyFloat_FromDouble(INFINITY);
 
     return PyFloat_FromDouble((min_val*count)/recip_sum);
 }

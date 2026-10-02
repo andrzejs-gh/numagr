@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #include "../numagr.h"
 
 #define iter_ADD_AND_COUNT_IF_STR(item)                     \
@@ -106,8 +107,8 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        return 0;
     }
-    return 0;
 
     if ( only_num )
     {
@@ -117,8 +118,8 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        return 0;
     }
-    return 0;
 
     while ( (item = PyIter_Next(iter)) )
     {
@@ -243,7 +244,7 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     if ( !count )
-        return PyFloat_FromDouble(0.0);
+        return PyFloat_FromDouble(INFINITY);
 
     return PyFloat_FromDouble(sum / count);
 }
