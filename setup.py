@@ -1,10 +1,20 @@
 from setuptools import setup, Extension
 
-setup(
+src = [
+	"numagr.c",
+	"floats_hash_table.c"
+]
 
-    name="numagr",
-    ext_modules=[
-		   Extension("numagr", sources=["numagr.c"], extra_compile_args=["-O3", 
-										 "-fno-fast-math"])
+extra_comp_flags = [
+	"-O3",
+	"-fno-fast-math"
+]
+
+setup(
+    name = "numagr",
+    ext_modules = [Extension("numagr",
+						sources = src,
+						extra_compile_args = extra_comp_flags
+					)
 		]
 )

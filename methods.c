@@ -8,3 +8,4 @@
 #include "methods/count.c"
 #include "methods/frac_below.c"
 #include "methods/frac_above.c"
+#include "methods/mode.c"

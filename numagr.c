@@ -12,6 +12,8 @@ static PyMethodDef methods[] = {
     {"count", (PyCFunction)count, METH_VARARGS | METH_KEYWORDS, ""},
     {"frac_below", (PyCFunction)frac_below, METH_VARARGS | METH_KEYWORDS, ""},
     {"frac_above", (PyCFunction)frac_above, METH_VARARGS | METH_KEYWORDS, ""},
+    {"mode", (PyCFunction)mode, METH_VARARGS | METH_KEYWORDS, ""},
+
     // * * *
     {NULL, NULL, 0, NULL}
 };

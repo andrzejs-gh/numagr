@@ -187,5 +187,6 @@ enum
 typedef PyObject* (*numagr_method)(PyObject*, PyObject*, PyObject*);
 
 numagr_method get_min_method_ptr(void);
+numagr_method get_amean_method_ptr(void);
 
 #endif

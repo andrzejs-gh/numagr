@@ -3,10 +3,6 @@
 #include <stdint.h>
 #include <math.h>
 #include "../numagr.h"
-#include "abstract.h"
-#include "pyerrors.h"
-#include "refcount.h"
-#include "tupleobject.h"
 
 #define ADD_RECIP_AND_COUNT_IF_STR(item)                    \
 do                                                          \

@@ -248,3 +248,8 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
 
     return PyFloat_FromDouble(sum / count);
 }
+
+numagr_method get_amean_method_ptr(void)
+{
+    return amean;
+}
