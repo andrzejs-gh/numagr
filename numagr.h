@@ -136,7 +136,7 @@ do                                                      \
                                                         \
 } while (0);
 
-#define HANDLE_SUM_AND_COUNT_RET(return_code)                               \
+#define HANDLE_RETURN_CODES(return_code)                               \
 switch ( return_code )                                                      \
 {                                                                           \
     case 0:                                                                 \

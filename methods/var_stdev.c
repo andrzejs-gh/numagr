@@ -4,23 +4,23 @@
 #include <math.h>
 #include "../numagr.h"
 
-#define ADD_RECIP_AND_COUNT_IF_STR(item)                    \
-do                                                          \
-{                                                           \
-    if ( PyUnicode_Check(item) )                            \
-    {                                                       \
-        const char* str = PyUnicode_AsUTF8(item);           \
-        if ( !str ) return STR_ENCODING_FAILURE;            \
-            \
-            double value = strtod(str, NULL);                   \
-            if ( !value )                                       \
-                return ZERO_VALUE;                              \
-                if ( (*count)++ == UINT64_MAX )                     \
-                    return COUNT_OVERFLOW;                          \
-                    \
-                    KAHAN_SUM(recip_sum, correction, min/value);        \
-    }                                                       \
-    \
+#define ADD_RECIP_AND_COUNT_IF_STR(item)                            \
+do                                                                  \
+{                                                                   \
+    if ( PyUnicode_Check(item) )                                    \
+    {                                                               \
+        const char* str = PyUnicode_AsUTF8(item);                   \
+        if ( !str ) return STR_ENCODING_FAILURE;                    \
+                                                                    \
+        double value = strtod(str, NULL);                           \
+        if ( !value )                                               \
+            return ZERO_VALUE;                                      \
+        if ( (*count)++ == UINT64_MAX )                             \
+            return COUNT_OVERFLOW;                                  \
+                                                                    \
+        KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);     \
+    }                                                               \
+                                                                    \
 } while (0);
 
 #define ADD_RECIP_AND_COUNT_IF_NUM(item)                    \
@@ -36,7 +36,7 @@ do                                                          \
                 if ( (*count)++ == UINT64_MAX )                     \
                     return COUNT_OVERFLOW;                          \
                     \
-                    KAHAN_SUM(recip_sum, correction, min/value);        \
+                    KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);        \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -46,7 +46,7 @@ do                                                          \
             if ( (*count)++ == UINT64_MAX )                     \
                 return COUNT_OVERFLOW;                          \
                 \
-                KAHAN_SUM(recip_sum, correction, min/value);        \
+                KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);        \
     }                                                       \
     \
 } while (0);
@@ -74,7 +74,7 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+        KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);        \
     }                                                       \
     \
 } while (0);
@@ -100,7 +100,7 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+        KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);        \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -115,13 +115,69 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+        KAHAN_SUM(sq_deviations_sum, correction, a_mean/value);        \
     }                                                       \
     \
 } while (0);
 
-static inline int get_recip_sum_list(PyObject* list, bool only_str, bool only_num,
-                                     double min, double* recip_sum, double* correction,
+#define GET_SQ_DEVIATIONS_SUM                                                       \
+do                                                                                  \
+{                                                                                   \
+    Py_ssize_t argc = PyTuple_GET_SIZE(args);                                       \
+                                                                                    \
+    bool is_only_str = false;                                                       \
+    bool is_only_num = false;                                                       \
+                                                                                    \
+    PARSE_ARGS_AND_KWARGS;                                                          \
+                                                                                    \
+    PyObject* normalized_args = get_normalized_args(argc, args);                    \
+    if ( !normalized_args )                                                         \
+        return NULL;                                                                \
+                                                                                    \
+    PyObject* py_float = get_amean_method_ptr()(self, normalized_args, kwargs);     \
+    if ( !py_float )                                                                \
+    {                                                                               \
+        Py_DECREF(normalized_args);                                                 \
+        return NULL;                                                                \
+    }                                                                               \
+                                                                                    \
+    a_mean = PyFloat_AS_DOUBLE(py_float);                                           \
+    if ( a_mean == INFINITY )                                                       \
+    {                                                                               \
+        PyErr_SetString(PyExc_RuntimeError,                                         \
+                        "The iterable is empty.");                                  \
+        Py_DECREF(normalized_args);                                                 \
+        Py_DECREF(py_float);                                                        \
+        return NULL;                                                                \
+    }                                                                               \
+                                                                                    \
+    int ret;                                                                        \
+                                                                                    \
+    for ( Py_ssize_t i = 0; i < argc; i++ )                                         \
+    {                                                                               \
+        PyObject* arg = PyTuple_GET_ITEM(normalized_args, i);                       \
+                                                                                    \
+        if ( PyList_Check(arg) )                                                    \
+        {                                                                           \
+            ret = get_sq_deviations_sum_list(arg, is_only_str, is_only_num,         \
+                                             a_mean, &sq_deviations_sum,            \
+                                             &correction, &count);                  \
+        }                                                                           \
+        else                                                                        \
+        {                                                                           \
+            ret = get_sq_deviations_sum_tuple(arg, is_only_str, is_only_num,        \
+                                              a_mean,&sq_deviations_sum,            \
+                                              &correction, &count);                 \
+        }                                                                           \
+        HANDLE_SUM_AND_COUNT_RET(ret);                                              \
+    }                                                                               \
+    Py_DECREF(normalized_args);                                                     \
+    Py_DECREF(py_float);                                                            \
+                                                                                    \
+} while (0);
+
+static inline int get_sq_deviations_sum_list(PyObject* list, bool only_str, bool only_num,
+                                     double a_mean, double* sq_deviations_sum, double* correction,
                                      uint64_t* count)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
@@ -156,8 +212,8 @@ static inline int get_recip_sum_list(PyObject* list, bool only_str, bool only_nu
     return 0;
 }
 
-static inline int get_recip_sum_tuple(PyObject* tuple, bool only_str, bool only_num,
-                                      double min, double* recip_sum,
+static inline int get_sq_deviations_sum_tuple(PyObject* tuple, bool only_str, bool only_num,
+                                      double a_mean, double* sq_deviations_sum,
                                       double* correction, uint64_t* count)
 {
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
@@ -192,8 +248,8 @@ static inline int get_recip_sum_tuple(PyObject* tuple, bool only_str, bool only_
     return 0;
 }
 
-static inline int get_recip_sum_iterable(PyObject* iter, bool only_str, bool only_num,
-                                         double min, double* recip_sum,
+static inline int get_sq_deviations_sum_iterable(PyObject* iter, bool only_str, bool only_num,
+                                         double a_mean, double* sq_deviations_sum,
                                          double* correction, uint64_t* count)
 {
     PyObject* item;
@@ -261,60 +317,17 @@ static inline PyObject* get_normalized_args(Py_ssize_t argc, PyObject* args)
     return normalized_args;
 }
 
-static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
+static PyObject* variance(PyObject* self, PyObject* args, PyObject* kwargs)
 {
-    Py_ssize_t argc = PyTuple_GET_SIZE(args);
-
-    bool is_only_str = false;
-    bool is_only_num = false;
-
-    PARSE_ARGS_AND_KWARGS;
-
-    PyObject* normalized_args = get_normalized_args(argc, args);
-    if ( !normalized_args )
-        return NULL;
-
-    PyObject* py_float = get_min_method_ptr()(self, normalized_args, kwargs);
-    if ( !py_float )
-    {
-        Py_DECREF(normalized_args);
-        return NULL;
-    }
-
-    double min_val = PyFloat_AS_DOUBLE(py_float);
-    if ( min_val <= 0.0 )
-    {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "The iterable contains a non-positive value.");
-        Py_DECREF(normalized_args);
-        return NULL;
-    }
-
-    double recip_sum = 0.0;
+    double a_mean;
+    double sq_deviations_sum = 0.0;
     double correction = 0.0;
     uint64_t count = 0;
-    int ret;
 
-    for ( Py_ssize_t i = 0; i < argc; i++ )
-    {
-        PyObject* arg = PyTuple_GET_ITEM(normalized_args, i);
-
-        if ( PyList_Check(arg) )
-        {
-            ret = get_recip_sum_list(arg, is_only_str, is_only_num, min_val,
-                                     &recip_sum, &correction, &count);
-        }
-        else
-        {
-            ret = get_recip_sum_tuple(arg, is_only_str, is_only_num, min_val,
-                                      &recip_sum, &correction, &count);
-        }
-        HANDLE_SUM_AND_COUNT_RET(ret);
-    }
-    Py_DECREF(normalized_args);
+    GET_SQ_DEVIATIONS_SUM;
 
     if ( !count )
         return PyFloat_FromDouble(INFINITY);
 
-    return PyFloat_FromDouble((min_val*count)/recip_sum);
+    return PyFloat_FromDouble((a_mean*count)/sq_deviations_sum);
 }

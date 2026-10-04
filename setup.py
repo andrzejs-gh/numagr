@@ -1,8 +1,9 @@
 from setuptools import setup, Extension
 
 src = [
-	"numagr.c",
-	"floats_hash_table.c"
+		"numagr.c",
+		"floats_hash_table.c",
+		"floats_array.c"
 ]
 
 extra_comp_flags = [

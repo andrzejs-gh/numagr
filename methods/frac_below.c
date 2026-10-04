@@ -243,7 +243,7 @@ static PyObject* frac_below(PyObject* self, PyObject* args, PyObject* kwargs)
             ret = below_count_in_iterable(iter, is_only_str, is_only_num, target,
                                           &below_count, &count);
         }
-        HANDLE_SUM_AND_COUNT_RET(ret);
+        HANDLE_RETURN_CODES(ret);
     }
 
     if ( !count )

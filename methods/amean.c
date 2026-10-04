@@ -240,7 +240,7 @@ static PyObject* amean(PyObject* self, PyObject* args, PyObject* kwargs)
             ret = sum_and_count_iterable(iter, is_only_str, is_only_num, &sum,
                                          &correction, &count);
         }
-        HANDLE_SUM_AND_COUNT_RET(ret);
+        HANDLE_RETURN_CODES(ret);
     }
 
     if ( !count )

@@ -1,3 +1,6 @@
+#ifndef FLOATS_HASH_TABLE_H
+#define FLOATS_HASH_TABLE_H
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -34,3 +37,5 @@ fhtable fhtable_new(size_t init_est_count);
 void fhtable_free(fhtable* fht);
 int fhtable_inc(fhtable* fht, double key);
 size_t fhtable_get_count(fhtable* fht, double key);
+
+#endif

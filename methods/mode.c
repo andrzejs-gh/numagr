@@ -102,7 +102,7 @@ do                                                          \
     {                                                       \
         PyErr_SetString(PyExc_RuntimeError,                 \
                         "Memory allocation failure.");      \
-        return NULL;                                        \
+        break;                                              \
     }                                                       \
     table_allocated = true;                                 \
                                                             \
@@ -257,14 +257,20 @@ static PyObject* mode(PyObject* self, PyObject* args, PyObject* kwargs)
         if ( PyList_Check(arg) )
         {
             if ( !table_allocated )
+            {
                 ALLOC_FTABLE(PyList_GET_SIZE(arg));
+                if ( !table_allocated ) return NULL;
+            }
 
             ret = hash_values_list(arg, is_only_str, is_only_num, &table);
         }
         else if ( PyTuple_Check(arg) )
         {
             if ( !table_allocated )
+            {
                 ALLOC_FTABLE(PyTuple_GET_SIZE(arg));
+                if ( !table_allocated ) return NULL;
+            }
 
             ret = hash_values_tuple(arg, is_only_str, is_only_num, &table);
         }
@@ -275,7 +281,15 @@ static PyObject* mode(PyObject* self, PyObject* args, PyObject* kwargs)
                 return NULL;
 
             if ( !table_allocated )
-                ALLOC_FTABLE(1024);
+            {
+                Py_ssize_t size = PyObject_LengthHint(iter, 1024);
+                ALLOC_FTABLE(size);
+                if ( !table_allocated )
+                {
+                    Py_DECREF(iter);
+                    return NULL;
+                }
+            }
 
             ret = hash_values_iterable(iter, is_only_str, is_only_num, &table);
         }

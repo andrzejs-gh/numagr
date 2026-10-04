@@ -270,7 +270,7 @@ static PyObject* gmean(PyObject* self, PyObject* args, PyObject* kwargs)
             ret = get_log_sum_iterable(iter, is_only_str, is_only_num,
                                        &log_sum, &correction, &count);
         }
-        HANDLE_SUM_AND_COUNT_RET(ret);
+        HANDLE_RETURN_CODES(ret);
     }
 
     if ( !count )

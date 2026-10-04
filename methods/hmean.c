@@ -287,6 +287,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         PyErr_SetString(PyExc_RuntimeError,
                         "The iterable contains a non-positive value.");
         Py_DECREF(normalized_args);
+        Py_DECREF(py_float);
         return NULL;
     }
 
@@ -309,9 +310,10 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
             ret = get_recip_sum_tuple(arg, is_only_str, is_only_num, min_val,
                                       &recip_sum, &correction, &count);
         }
-        HANDLE_SUM_AND_COUNT_RET(ret);
+        HANDLE_RETURN_CODES(ret);
     }
     Py_DECREF(normalized_args);
+    Py_DECREF(py_float);
 
     if ( !count )
         return PyFloat_FromDouble(INFINITY);
