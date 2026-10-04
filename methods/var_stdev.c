@@ -169,7 +169,7 @@ do                                                                              
                                               a_mean,&sq_deviations_sum,            \
                                               &correction, &count);                 \
         }                                                                           \
-        HANDLE_SUM_AND_COUNT_RET(ret);                                              \
+        HANDLE_RETURN_CODES(ret);                                              \
     }                                                                               \
     Py_DECREF(normalized_args);                                                     \
     Py_DECREF(py_float);                                                            \

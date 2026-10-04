@@ -4,6 +4,7 @@
 #include <math.h>
 #include "../numagr.h"
 #include "../floats_array.h"
+#include "floatobject.h"
 
 #define ADD_TO_ARRAY_IF_STR(item)                           \
 do                                                          \
@@ -17,13 +18,14 @@ do                                                          \
         if ( !value )                                       \
             return ZERO_VALUE;                              \
                                                             \
-        int ret = fdarray_add(&array, value);               \
+        int ret = fdarray_push(array, value);               \
         if ( ret ) return ret;                              \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
                                                             \
 } while (0);
 
-#define ADD_TO_ARRAY_IF_NUM(item)                    \
+#define ADD_TO_ARRAY_IF_NUM(item)                           \
 do                                                          \
 {                                                           \
     if ( PyLong_Check(item) )                               \
@@ -33,25 +35,29 @@ do                                                          \
             return DOUBLE_OVERFLOW;                         \
         if ( !value )                                       \
             return ZERO_VALUE;                              \
-        if ( (*count)++ == UINT64_MAX )                     \
-            return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+        int ret = fdarray_push(array, value);               \
+        if ( ret )                                          \
+            return ret;                                     \
+                                                            \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
         double value = PyFloat_AS_DOUBLE(item);             \
         if ( !value )                                       \
             return ZERO_VALUE;                              \
-        if ( (*count)++ == UINT64_MAX )                     \
-            return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+        int ret = fdarray_push(array, value);               \
+        if ( ret )                                          \
+            return ret;                                     \
+                                                            \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
                                                             \
 } while (0);
 
-#define iter_ADD_TO_ARRAY_IF_STR(item)               \
+#define iter_ADD_TO_ARRAY_IF_STR(item)                      \
 do                                                          \
 {                                                           \
     if ( PyUnicode_Check(item) )                            \
@@ -69,17 +75,20 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return ZERO_VALUE;                              \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+                                                            \
+        int ret = fdarray_push(array, value);               \
+        if ( ret )                                          \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
-            return COUNT_OVERFLOW;                          \
+            return ret;                                     \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+                                                            \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
                                                             \
 } while (0);
 
-#define iter_ADD_TO_ARRAY_IF_NUM(item)               \
+#define iter_ADD_TO_ARRAY_IF_NUM(item)                      \
 do                                                          \
 {                                                           \
     if ( PyLong_Check(item) )                               \
@@ -95,12 +104,15 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return ZERO_VALUE;                              \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+                                                            \
+        int ret = fdarray_push(array, value);               \
+        if ( ret )                                          \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
-            return COUNT_OVERFLOW;                          \
+            return ret;                                     \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+                                                            \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -110,12 +122,15 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return ZERO_VALUE;                              \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+                                                            \
+        int ret = fdarray_push(array, value);               \
+        if ( ret )                                          \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
-            return COUNT_OVERFLOW;                          \
+            return ret;                                     \
         }                                                   \
-        KAHAN_SUM(recip_sum, correction, min/value);        \
+                                                            \
+        if ( value < *min ) *min = value;                   \
     }                                                       \
                                                             \
 } while (0);
@@ -135,8 +150,7 @@ do                                                          \
 } while (0);
 
 static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num,
-                                     double min, double* recip_sum, double* correction,
-                                     uint64_t* count)
+                                    double* min, fdarray* array)
 {
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
@@ -171,8 +185,7 @@ static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num
 }
 
 static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_num,
-                                      double min, double* recip_sum,
-                                      double* correction, uint64_t* count)
+                                     double* min, fdarray* array)
 {
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
@@ -207,8 +220,7 @@ static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_n
 }
 
 static inline int add_to_array_iterable(PyObject* iter, bool only_str, bool only_num,
-                                         double min, double* recip_sum,
-                                         double* correction, uint64_t* count)
+                                        double* min, fdarray* array)
 {
     PyObject* item;
 
@@ -255,9 +267,9 @@ static PyObject* hmean_arr(PyObject* self, PyObject* args, PyObject* kwargs)
     PARSE_ARGS_AND_KWARGS;
 
     fdarray array;
-    double min_val;
     bool array_allocated = false;
 
+    double min = INFINITY;
     int ret;
 
     for ( Py_ssize_t i = 0; i < argc; i++ )
@@ -272,7 +284,7 @@ static PyObject* hmean_arr(PyObject* self, PyObject* args, PyObject* kwargs)
                 if ( !array_allocated ) return NULL;
             }
 
-            ret = add_to_array_list(arg, is_only_str, is_only_num, &array);
+            ret = add_to_array_list(arg, is_only_str, is_only_num, &min, &array);
         }
         else if ( PyTuple_Check(arg) )
         {
@@ -282,7 +294,7 @@ static PyObject* hmean_arr(PyObject* self, PyObject* args, PyObject* kwargs)
                 if ( !array_allocated ) return NULL;
             }
 
-            ret = add_to_array_tuple(arg, is_only_str, is_only_num, &array);
+            ret = add_to_array_tuple(arg, is_only_str, is_only_num, &min, &array);
         }
         else
         {
@@ -300,19 +312,29 @@ static PyObject* hmean_arr(PyObject* self, PyObject* args, PyObject* kwargs)
                 }
             }
 
-            ret = add_to_array_iterable(iter, is_only_str, is_only_num, &array);
+            ret = add_to_array_iterable(iter, is_only_str, is_only_num, &min, &array);
         }
-        switch ( ret )
-        {
-            ;
-        }
+        HANDLE_RETURN_CODES(ret);
     }
 
-    double recip_sum = 0.0;
-    double correction = 0.0;
 
+    size_t count = array.count;
     if ( !count )
         return PyFloat_FromDouble(INFINITY);
 
-    return PyFloat_FromDouble((min_val*count)/recip_sum);
+    double* array_addr = array.addr;
+    double recip_sum = 0.0;
+    double correction = 0.0;
+
+    for ( size_t i = 0; i < count; i++ )
+    {
+        double old_sum = recip_sum;
+        double next = (min / array_addr[i]) - correction;
+        double new_sum = old_sum + next;
+        correction = (new_sum - old_sum) - next;
+        recip_sum = new_sum;
+    }
+    free(array.addr);
+
+    return PyFloat_FromDouble((min*count)/recip_sum);
 }

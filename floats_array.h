@@ -18,6 +18,6 @@ enum fdarray_err_codes
 };
 
 fdarray fdarray_new(size_t init_capacity);
-int add_value(fdarray* array, double value);
+int fdarray_push(fdarray* array, double value);
 
 #endif

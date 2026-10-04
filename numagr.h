@@ -1,6 +1,7 @@
 #ifndef NUMAGR_H
 #define NUMAGR_H
 
+#include "floats_array.h"
 #include <Python.h>
 
 #define SET_INV_KWARG_VAL_ERR(kwarg_name)                           \
@@ -136,7 +137,7 @@ do                                                      \
                                                         \
 } while (0);
 
-#define HANDLE_RETURN_CODES(return_code)                               \
+#define HANDLE_RETURN_CODES(return_code)                                    \
 switch ( return_code )                                                      \
 {                                                                           \
     case 0:                                                                 \
@@ -155,6 +156,16 @@ switch ( return_code )                                                      \
     case NEGATIVE_VALUE:                                                    \
         PyErr_SetString(PyExc_RuntimeError,                                 \
                         "The iterable contains a negative value.");         \
+        return NULL;                                                        \
+                                                                            \
+    case ARR_SIZE_OVERFLOW:                                                 \
+        PyErr_SetString(PyExc_RuntimeError,                                 \
+                        "The iterable contains too many elements.");        \
+        return NULL;                                                        \
+                                                                            \
+    case ARR_REALLOC_FAILURE:                                               \
+        PyErr_SetString(PyExc_RuntimeError,                                 \
+                        "Memory reallocation failure.");                    \
         return NULL;                                                        \
                                                                             \
     default:                                                                \
