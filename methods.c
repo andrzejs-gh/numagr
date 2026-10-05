@@ -9,6 +9,6 @@
 #include "methods/frac_below.c"
 #include "methods/frac_above.c"
 #include "methods/mode.c"
+#include "methods/var_stdev.c"
 
 //
-#include "methods/hmean_arr.c"

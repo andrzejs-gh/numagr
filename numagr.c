@@ -13,7 +13,10 @@ static PyMethodDef methods[] = {
     {"frac_below", (PyCFunction)frac_below, METH_VARARGS | METH_KEYWORDS, ""},
     {"frac_above", (PyCFunction)frac_above, METH_VARARGS | METH_KEYWORDS, ""},
     {"mode", (PyCFunction)mode, METH_VARARGS | METH_KEYWORDS, ""},
-    {"hmean_arr", (PyCFunction)hmean_arr, METH_VARARGS | METH_KEYWORDS, ""},
+    {"var", (PyCFunction)variance, METH_VARARGS | METH_KEYWORDS, ""},
+    {"pvar", (PyCFunction)pvariance, METH_VARARGS | METH_KEYWORDS, ""},
+    {"stdev", (PyCFunction)stdev, METH_VARARGS | METH_KEYWORDS, ""},
+    {"pstdev", (PyCFunction)pstdev, METH_VARARGS | METH_KEYWORDS, ""},
 
     // * * *
     {NULL, NULL, 0, NULL}

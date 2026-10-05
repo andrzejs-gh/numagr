@@ -8,7 +8,8 @@ src = [
 
 extra_comp_flags = [
 	"-O3",
-	"-fno-fast-math"
+	"-fno-fast-math",
+	"-lm"
 ]
 
 setup(
