@@ -34,6 +34,8 @@ do                                                          \
         double value = PyLong_AsDouble(item);               \
         if ( PyErr_Occurred() )                             \
             return DOUBLE_OVERFLOW;                         \
+        if ( !value )                                       \
+            return ZERO_IN_ITERABLE;                        \
         if ( value < 0.0 )                                  \
             return NEGATIVE_VALUE;                          \
         if ( (*count)++ == UINT64_MAX )                     \
@@ -44,6 +46,8 @@ do                                                          \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
         double value = PyFloat_AS_DOUBLE(item);             \
+        if ( !value )                                       \
+            return ZERO_IN_ITERABLE;                        \
         if ( value < 0.0 )                                  \
             return NEGATIVE_VALUE;                          \
         if ( (*count)++ == UINT64_MAX )                     \
@@ -94,6 +98,11 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return DOUBLE_OVERFLOW;                         \
         }                                                   \
+        if ( !value )                                       \
+        {                                                   \
+            Py_DECREF(item); Py_DECREF(iter);               \
+            return ZERO_IN_ITERABLE;                        \
+        }                                                   \
         if ( value < 0.0 )                                  \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
@@ -109,6 +118,11 @@ do                                                          \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
         double value = PyFloat_AS_DOUBLE(item);             \
+        if ( !value )                                       \
+        {                                                   \
+            Py_DECREF(item); Py_DECREF(iter);               \
+            return ZERO_IN_ITERABLE;                        \
+        }                                                   \
         if ( value < 0.0 )                                  \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \

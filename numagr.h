@@ -158,6 +158,9 @@ switch ( return_code )                                                      \
                         "The iterable contains a negative value.");         \
         return NULL;                                                        \
                                                                             \
+    case ZERO_IN_ITERABLE:                                                  \
+        return PyFloat_FromDouble(0.0);                                     \
+                                                                            \
     case ARR_SIZE_OVERFLOW:                                                 \
         PyErr_SetString(PyExc_RuntimeError,                                 \
                         "The iterable contains too many elements.");        \
@@ -192,7 +195,8 @@ enum
     EXACT_MATCH_FOUND,
     ZERO_VALUE,
     NEGATIVE_VALUE,
-    INVALID_VALUE
+    INVALID_VALUE,
+    ZERO_IN_ITERABLE
 };
 
 typedef PyObject* (*numagr_method)(PyObject*, PyObject*, PyObject*);
