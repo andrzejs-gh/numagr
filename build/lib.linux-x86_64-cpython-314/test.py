@@ -970,7 +970,8 @@ def main_test():
 
 	tests = (sum_test, min_test, max_test, amean_test,
 			 gmean_test, hmean_test, nearest_test, count_test,
-			 fraction_below_test, fraction_above_test, mode_test)
+			 fraction_below_test, fraction_above_test, mode_test,
+			 variance_test, pvariance_test, stdev_test, pstdev_test)
 
 	for test in tests:
 		print(CYAN("* * *"))
@@ -981,10 +982,6 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	# main_test()
-	variance_test()
-	pvariance_test()
-	stdev_test()
-	pstdev_test()
+	main_test()
 
 	sys.exit(0)
