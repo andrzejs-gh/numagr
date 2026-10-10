@@ -361,5 +361,5 @@ static PyObject* pstdev(PyObject* self, PyObject* args, PyObject* kwargs)
 
     GET_DEVS_SUM_SQUARED;
 
-    return PyFloat_FromDouble( sqrt(devs_sum_sq / (count - 1)) );
+    return PyFloat_FromDouble( sqrt(devs_sum_sq / count) );
 }

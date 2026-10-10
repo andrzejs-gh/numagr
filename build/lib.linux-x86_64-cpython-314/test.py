@@ -132,6 +132,11 @@ def normalize_mixed(mixed_list, ph_value = 0.0, only_nums = False):
 
 		return normalized_list
 
+def std_variance(iterable, count):
+
+		 mean = sum(iterable) / count
+		 return sum((x - mean)**2 for x in iterable) / count
+
 def sum_test():
 
 	print(YELLOW("Sum benchmark..."))
@@ -709,6 +714,258 @@ def mode_test():
 
 	print("Mode benchmark completed", OK)
 
+def variance_test():
+
+	print(YELLOW("Variance benchmark..."))
+
+	# defining std variance ================================
+	std_var = lambda X: std_variance(X, len(X) - 1)
+	# ======================================================
+
+	std_var_ints, std_var_ints_time = benchmark(
+		std_var, INTS)
+	stat_var_ints, stat_var_ints_time = benchmark(
+		statistics.variance, INTS)
+	numpy_var_ints, numpy_var_ints_time = benchmark(
+		numpy.var, INTS, ddof = 1)
+	numagr_var_ints, numagr_var_ints_time = benchmark(
+		numagr.var, INTS)
+
+	print(LIGHT_BLUE("Finding variance in integers:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_ints_time}\n{std_var_ints}")
+	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_ints_time}\n{stat_var_ints}")
+	print(f"{LIGHT_YELLOW('numpy.var(X, ddof = 1)        ')} t = {numpy_var_ints_time}\n{numpy_var_ints}")
+	print(f"{LIGHT_GREEN( 'numagr.var                    ')} t = {numagr_var_ints_time} {LIGHT_GREEN('<-')}\n{numagr_var_ints}")
+
+	std_var_floats, std_var_floats_time = benchmark(
+	std_variance, FLOATS, len(FLOATS) - 1)
+	stat_var_floats, stat_var_floats_time = benchmark(
+		statistics.variance, FLOATS)
+	numpy_var_floats, numpy_var_floats_time = benchmark(
+		numpy.var, FLOATS, ddof=1)
+	numagr_var_floats, numagr_var_floats_time = benchmark(
+		numagr.var, FLOATS)
+
+	print(LIGHT_BLUE("Finding variance in floats:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_floats_time}\n{std_var_floats}")
+	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_floats_time}\n{stat_var_floats}")
+	print(f"{LIGHT_YELLOW('numpy.var(X, ddof=1)          ')} t = {numpy_var_floats_time}\n{numpy_var_floats}")
+	print(f"{LIGHT_GREEN( 'numagr.var                    ')} t = {numagr_var_floats_time} {LIGHT_GREEN('<-')}\n{numagr_var_floats}")
+
+	# get normalized MIXED_HAZ ==========================================
+	normalized_MIXED, normal_time = get_xtime(
+		normalize_mixed, MIXED_HAZ, only_nums=True)
+	# ==================================================================
+
+	std_var_mixed, std_var_mixed_time = benchmark(
+		std_variance, normalized_MIXED, len(normalized_MIXED) - 1)
+	stat_var_mixed, stat_var_mixed_time = benchmark(
+		statistics.variance, normalized_MIXED)
+	numpy_var_mixed, numpy_var_mixed_time = benchmark(
+		numpy.var, normalized_MIXED, ddof=1)
+	numagr_var_mixed, numagr_var_mixed_time = benchmark(
+		numagr.var, MIXED_HAZ, only_num=True)
+
+	print(LIGHT_BLUE("Finding variance in mixed values:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_mixed_time + normal_time}\n{std_var_mixed}")
+	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_mixed_time + normal_time}\n{stat_var_mixed}")
+	print(f"{LIGHT_YELLOW('numpy.var(X, ddof=1)          ')} t = {numpy_var_mixed_time + normal_time}\n{numpy_var_mixed}")
+	print(f"{LIGHT_GREEN( 'numagr.var                    ')} t = {numagr_var_mixed_time} {LIGHT_GREEN('<-')}\n{numagr_var_mixed}")
+
+	print("Variance benchmark completed", OK)
+
+def pvariance_test():
+
+	print(YELLOW("Population variance benchmark..."))
+
+	# defining std population variance ======================
+	std_pvar = lambda X: std_variance(X, len(X))
+	# ======================================================
+
+	std_pvar_ints, std_pvar_ints_time = benchmark(
+		std_pvar, INTS)
+	stat_pvar_ints, stat_pvar_ints_time = benchmark(
+		statistics.pvariance, INTS)
+	numpy_pvar_ints, numpy_pvar_ints_time = benchmark(
+		numpy.var, INTS)
+	numagr_pvar_ints, numagr_pvar_ints_time = benchmark(
+		numagr.pvar, INTS)
+
+	print(LIGHT_BLUE("Finding population variance in integers:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_ints_time}\n{std_pvar_ints}")
+	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_ints_time}\n{stat_pvar_ints}")
+	print(f"{LIGHT_YELLOW('numpy.var               ')} t = {numpy_pvar_ints_time}\n{numpy_pvar_ints}")
+	print(f"{LIGHT_GREEN( 'numagr.pvar             ')} t = {numagr_pvar_ints_time} {LIGHT_GREEN('<-')}\n{numagr_pvar_ints}")
+
+	std_pvar_floats, std_pvar_floats_time = benchmark(
+		std_pvar, FLOATS)
+	stat_pvar_floats, stat_pvar_floats_time = benchmark(
+		statistics.pvariance, FLOATS)
+	numpy_pvar_floats, numpy_pvar_floats_time = benchmark(
+		numpy.var, FLOATS)
+	numagr_pvar_floats, numagr_pvar_floats_time = benchmark(
+		numagr.pvar, FLOATS)
+
+	print(LIGHT_BLUE("Finding population variance in floats:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_floats_time}\n{std_pvar_floats}")
+	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_floats_time}\n{stat_pvar_floats}")
+	print(f"{LIGHT_YELLOW('numpy.var               ')} t = {numpy_pvar_floats_time}\n{numpy_pvar_floats}")
+	print(f"{LIGHT_GREEN( 'numagr.pvar             ')} t = {numagr_pvar_floats_time} {LIGHT_GREEN('<-')}\n{numagr_pvar_floats}")
+
+	# get normalized MIXED_HAZ ==========================================
+	normalized_MIXED, normal_time = get_xtime(
+		normalize_mixed, MIXED_HAZ, only_nums=True)
+	# ==================================================================
+
+	std_pvar_mixed, std_pvar_mixed_time = benchmark(
+		std_pvar, normalized_MIXED)
+	stat_pvar_mixed, stat_pvar_mixed_time = benchmark(
+		statistics.pvariance, normalized_MIXED)
+	numpy_pvar_mixed, numpy_pvar_mixed_time = benchmark(
+		numpy.var, normalized_MIXED)
+	numagr_pvar_mixed, numagr_pvar_mixed_time = benchmark(
+		numagr.pvar, MIXED_HAZ, only_num=True)
+
+	print(LIGHT_BLUE("Finding population variance in mixed values:"))
+
+	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_mixed_time + normal_time}\n{std_pvar_mixed}")
+	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_mixed_time + normal_time}\n{stat_pvar_mixed}")
+	print(f"{LIGHT_YELLOW('numpy.var               ')} t = {numpy_pvar_mixed_time + normal_time}\n{numpy_pvar_mixed}")
+	print(f"{LIGHT_GREEN( 'numagr.pvar             ')} t = {numagr_pvar_mixed_time} {LIGHT_GREEN('<-')}\n{numagr_pvar_mixed}")
+
+	print("Population variance benchmark completed", OK)
+
+def stdev_test():
+
+	print(YELLOW("Standard deviation benchmark..."))
+
+	# defining std standard deviation ========================
+	std_stdev = lambda X: math.sqrt(std_variance(X, len(X) - 1))
+	# ========================================================
+
+	std_stdev_ints, std_stdev_ints_time = benchmark(
+		std_stdev, INTS)
+	stat_stdev_ints, stat_stdev_ints_time = benchmark(
+		statistics.stdev, INTS)
+	numpy_stdev_ints, numpy_stdev_ints_time = benchmark(
+		numpy.std, INTS, ddof=1)
+	numagr_stdev_ints, numagr_stdev_ints_time = benchmark(
+		numagr.stdev, INTS)
+
+	print(LIGHT_BLUE("Finding standard deviation in integers:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_ints_time}\n{std_stdev_ints}")
+	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_ints_time}\n{stat_stdev_ints}")
+	print(f"{LIGHT_YELLOW('numpy.std(X, ddof=1)                ')} t = {numpy_stdev_ints_time}\n{numpy_stdev_ints}")
+	print(f"{LIGHT_GREEN( 'numagr.stdev                        ')} t = {numagr_stdev_ints_time} {LIGHT_GREEN('<-')}\n{numagr_stdev_ints}")
+
+	std_stdev_floats, std_stdev_floats_time = benchmark(
+		std_stdev, FLOATS)
+	stat_stdev_floats, stat_stdev_floats_time = benchmark(
+		statistics.stdev, FLOATS)
+	numpy_stdev_floats, numpy_stdev_floats_time = benchmark(
+		numpy.std, FLOATS, ddof=1)
+	numagr_stdev_floats, numagr_stdev_floats_time = benchmark(
+		numagr.stdev, FLOATS)
+
+	print(LIGHT_BLUE("Finding standard deviation in floats:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_floats_time}\n{std_stdev_floats}")
+	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_floats_time}\n{stat_stdev_floats}")
+	print(f"{LIGHT_YELLOW('numpy.std(X, ddof=1)                ')} t = {numpy_stdev_floats_time}\n{numpy_stdev_floats}")
+	print(f"{LIGHT_GREEN( 'numagr.stdev                        ')} t = {numagr_stdev_floats_time} {LIGHT_GREEN('<-')}\n{numagr_stdev_floats}")
+
+	# get normalized MIXED_HAZ ==========================================
+	normalized_MIXED, normal_time = get_xtime(
+		normalize_mixed, MIXED_HAZ, only_nums=True)
+	# ==================================================================
+
+	std_stdev_mixed, std_stdev_mixed_time = benchmark(
+		std_stdev, normalized_MIXED)
+	stat_stdev_mixed, stat_stdev_mixed_time = benchmark(
+		statistics.stdev, normalized_MIXED)
+	numpy_stdev_mixed, numpy_stdev_mixed_time = benchmark(
+		numpy.std, normalized_MIXED, ddof=1)
+	numagr_stdev_mixed, numagr_stdev_mixed_time = benchmark(
+		numagr.stdev, MIXED_HAZ, only_num=True)
+
+	print(LIGHT_BLUE("Finding standard deviation in mixed values:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_mixed_time + normal_time}\n{std_stdev_mixed}")
+	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_mixed_time + normal_time}\n{stat_stdev_mixed}")
+	print(f"{LIGHT_YELLOW('numpy.std(X, ddof=1)                ')} t = {numpy_stdev_mixed_time + normal_time}\n{numpy_stdev_mixed}")
+	print(f"{LIGHT_GREEN( 'numagr.stdev                        ')} t = {numagr_stdev_mixed_time} {LIGHT_GREEN('<-')}\n{numagr_stdev_mixed}")
+
+	print("Standard deviation benchmark completed", OK)
+
+def pstdev_test():
+
+	print(YELLOW("Population standard deviation benchmark..."))
+
+	# defining std population standard deviation =============
+	std_pstdev = lambda X: math.sqrt(std_variance(X, len(X)))
+	# ========================================================
+
+	std_pstdev_ints, std_pstdev_ints_time = benchmark(
+		std_pstdev, INTS)
+	stat_pstdev_ints, stat_pstdev_ints_time = benchmark(
+		statistics.pstdev, INTS)
+	numpy_pstdev_ints, numpy_pstdev_ints_time = benchmark(
+		numpy.std, INTS)
+	numagr_pstdev_ints, numagr_pstdev_ints_time = benchmark(
+		numagr.pstdev, INTS)
+
+	print(LIGHT_BLUE("Finding population standard deviation in integers:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_ints_time}\n{std_pstdev_ints}")
+	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_ints_time}\n{stat_pstdev_ints}")
+	print(f"{LIGHT_YELLOW('numpy.std                     ')} t = {numpy_pstdev_ints_time}\n{numpy_pstdev_ints}")
+	print(f"{LIGHT_GREEN( 'numagr.pstdev                 ')} t = {numagr_pstdev_ints_time} {LIGHT_GREEN('<-')}\n{numagr_pstdev_ints}")
+
+	std_pstdev_floats, std_pstdev_floats_time = benchmark(
+		std_pstdev, FLOATS)
+	stat_pstdev_floats, stat_pstdev_floats_time = benchmark(
+		statistics.pstdev, FLOATS)
+	numpy_pstdev_floats, numpy_pstdev_floats_time = benchmark(
+		numpy.std, FLOATS)
+	numagr_pstdev_floats, numagr_pstdev_floats_time = benchmark(
+		numagr.pstdev, FLOATS)
+
+	print(LIGHT_BLUE("Finding population standard deviation in floats:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_floats_time}\n{std_pstdev_floats}")
+	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_floats_time}\n{stat_pstdev_floats}")
+	print(f"{LIGHT_YELLOW('numpy.std                     ')} t = {numpy_pstdev_floats_time}\n{numpy_pstdev_floats}")
+	print(f"{LIGHT_GREEN( 'numagr.pstdev                 ')} t = {numagr_pstdev_floats_time} {LIGHT_GREEN('<-')}\n{numagr_pstdev_floats}")
+
+	# get normalized MIXED_HAZ ==========================================
+	normalized_MIXED, normal_time = get_xtime(
+		normalize_mixed, MIXED_HAZ, only_nums=True)
+	# ==================================================================
+
+	std_pstdev_mixed, std_pstdev_mixed_time = benchmark(
+		std_pstdev, normalized_MIXED)
+	stat_pstdev_mixed, stat_pstdev_mixed_time = benchmark(
+		statistics.pstdev, normalized_MIXED)
+	numpy_pstdev_mixed, numpy_pstdev_mixed_time = benchmark(
+		numpy.std, normalized_MIXED)
+	numagr_pstdev_mixed, numagr_pstdev_mixed_time = benchmark(
+		numagr.pstdev, MIXED_HAZ, only_num=True)
+
+	print(LIGHT_BLUE("Finding population standard deviation in mixed values:"))
+
+	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_mixed_time + normal_time}\n{std_pstdev_mixed}")
+	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_mixed_time + normal_time}\n{stat_pstdev_mixed}")
+	print(f"{LIGHT_YELLOW('numpy.std                     ')} t = {numpy_pstdev_mixed_time + normal_time}\n{numpy_pstdev_mixed}")
+	print(f"{LIGHT_GREEN( 'numagr.pstdev                 ')} t = {numagr_pstdev_mixed_time} {LIGHT_GREEN('<-')}\n{numagr_pstdev_mixed}")
+
+	print("Population standard deviation benchmark completed", OK)
+
 def main_test():
 
 	tests = (sum_test, min_test, max_test, amean_test,
@@ -724,6 +981,10 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	main_test()
+	# main_test()
+	variance_test()
+	pvariance_test()
+	stdev_test()
+	pstdev_test()
 
 	sys.exit(0)
