@@ -982,6 +982,13 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	main_test()
+	# main_test()
+	ITERATIONS = 100
+	# ret, t = benchmark(numagr.hmean, FLOATS)
+	# print(f"time = {t}")
+	# ret, t = benchmark(numagr.hmean, (x for x in MIXED_SAFE))
+	ret = numagr.hmean((x for x in MIXED_SAFE))
+	print(ret)
+	# print(f"time = {t}")
 
 	sys.exit(0)

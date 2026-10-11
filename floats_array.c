@@ -29,7 +29,9 @@ int fdarray_push(fdarray* array, double value)
 
     if ( count == array->capacity )
     {
-        double* new_addr = realloc(array->addr, 2*array->capacity*sizeof(double));
+        size_t new_capacity = 2*array->capacity*sizeof(double);
+
+        double* new_addr = realloc(array->addr, new_capacity);
         if ( !new_addr )
         {
             free(array->addr);
@@ -37,6 +39,7 @@ int fdarray_push(fdarray* array, double value)
         }
 
         array->addr = new_addr;
+        array->capacity = new_capacity;
     }
     array->addr[count] = value;
     array->count++;

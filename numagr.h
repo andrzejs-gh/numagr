@@ -186,6 +186,38 @@ PyErr_Format                                                            \
     str                                                                 \
 );
 
+#define FDARRAY_PUSH(array, value, ret)                                             \
+do                                                                                  \
+{                                                                                   \
+    size_t count = array->count;                                                    \
+                                                                                    \
+    if ( count == SIZE_MAX )                                                        \
+    {                                                                               \
+        free(array->addr);                                                          \
+        ret = ARR_SIZE_OVERFLOW;                                                    \
+        break;                                                                      \
+    }                                                                               \
+                                                                                    \
+    if ( count == array->capacity )                                                 \
+    {                                                                               \
+        size_t new_capacity = 2*array->capacity*sizeof(double);                     \
+                                                                                    \
+        double* new_addr = realloc(array->addr, new_capacity);                      \
+        if ( !new_addr )                                                            \
+        {                                                                           \
+            free(array->addr);                                                      \
+            ret = ARR_REALLOC_FAILURE;                                              \
+            break;                                                                  \
+        }                                                                           \
+                                                                                    \
+        array->addr = new_addr;                                                     \
+        array->capacity = new_capacity;                                             \
+    }                                                                               \
+    array->addr[count] = value;                                                     \
+    array->count++;                                                                 \
+                                                                                    \
+} while (0);
+
 enum
 {
     FAILED_TO_GET_ITER = 1,
