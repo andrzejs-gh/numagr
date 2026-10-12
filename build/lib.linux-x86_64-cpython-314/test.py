@@ -43,7 +43,7 @@ def LIGHT_YELLOW(txt):
 	return f"\033[93m{txt}\033[0m"
 
 OK = f"[ {GREEN('OK')} ]"
-ERR = f"[ {RED('OK')} ]"
+ERR = f"[ {RED('ERROR')} ]"
 
 def NEW_LINE():
 	print("\n")
@@ -966,6 +966,95 @@ def pstdev_test():
 
 	print("Population standard deviation benchmark completed", OK)
 
+def numagr_method_test(method, *args, ret_table):
+
+	print(f"Testing {method.__name__} ...", end = "", flush = True)
+	err = False
+
+	def print_value_error(mode):
+
+		print(f"\n{ERR} {LIGHT_BLUE({method.__name__})} failed test for \"{mode}\" case.")
+		print("Value mismatch.")
+
+	def print_exception(mode, exception):
+		print(f"\n{ERR} {LIGHT_BLUE({method.__name__})} failed test for \"{mode}\" case.")
+		print(exception)
+
+	try:
+		ret = method(*args)
+		if ret != ret_table[method]["both"]:
+			print_value_error("both")
+			err = True
+	except Exception as e:
+		print_exception("both", e)
+		err = True
+
+	try:
+		ret = method(*args, only_str = True)
+		if ret != ret_table[method]["only_str"]:
+			print_value_error("only_str")
+			err = True
+	except Exception as e:
+		print_exception("only_str", e)
+		err = True
+
+	try:
+		ret = method(*args, only_num = True)
+		if ret != ret_table[method]["only_num"]:
+			print_value_error("only_num")
+			err = True
+	except Exception as e:
+		print_exception("only_num", e)
+		err = True
+
+	if not err:
+		print(f"{OK} {LIGHT_BLUE({method.__name__})} passed the test")
+	else:
+		print(f"{ERR} {LIGHT_BLUE({method.__name__})} failed the test.")
+
+def numagr_correctness_test():
+
+	numagr_methods = (numagr.sum, numagr.min, numagr.max,
+					  numagr.amean, nmagr.gmean, numagr.hmean,
+					  numagr.nearest, numagr.count, numagr.frac_below,
+					  numagr.frac_above, numagr.mode, numagr.var,
+					  numagr.pvar, numagr.stdev, numagr.pstdev)
+
+	STRS, num_STRS, NUMS, even = [], [], [], True
+
+	for x in INTS:
+		if even:
+			STRS.append(str(i))
+			num_STRS.append(i)
+			even = False
+		else:
+			NUMS.append(i)
+			even = True
+
+	mode = choice(INTS)
+	WEIGHT = ([mode] * 1_000)
+	ITERABLE = STRS + NUMS + WEIGHT
+
+	ret_table = {m : dict() for m in methods}
+
+	# sum
+	ret_table[numagr.sum]["both"] = sum(INTS) + sum(WEIGHT)
+	ret_table[numagr.sum]["only_str"] = sum(num_STRS)
+	ret_table[numagr.sum]["only_num"] = sum(NUMS) + sum(WEIGHT)
+
+	# min
+	ret_table[numagr.min]["both"] = min(INTS)
+	ret_table[numagr.min]["only_str"] = min(num_STR)
+	ret_table[numagr.min]["only_num"] = min(NUMS)
+
+	# max
+	ret_table[numagr.max]["both"] = max(INTS)
+	ret_table[numagr.max]["only_str"] = max(num_STR)
+	ret_table[numagr.max]["only_num"] = max(NUMS)
+
+
+	# for m in numagr_methods:
+
 def main_test():
 
 	tests = (sum_test, min_test, max_test, amean_test,
@@ -978,17 +1067,15 @@ def main_test():
 		test()
 		print(CYAN("* * *"))
 
+	print(f"Performance test completed. {OK}")
+	print(CYAN("* * *"))
+
+
 if __name__ == "__main__":
 
 	load_lists()
 
 	main_test()
-	# ITERATIONS = 100
-	# ret, t = benchmark(numagr.stdev, FLOATS)
-	# print(f"numagr ret = {ret}, time = {t}")
- #
-	# ITERATIONS = 1
-	# ret, t = benchmark(statistics.stdev, FLOATS)
-	# print(f"stat ret =   {ret}, time = {t}")
+
 
 	sys.exit(0)
