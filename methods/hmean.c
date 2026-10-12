@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include "../numagr.h"
 #include "../floats_array.h"
-#include "floatobject.h"
 
 #define ADD_TO_ARRAY_IF_STR(item)                           \
 do                                                          \
