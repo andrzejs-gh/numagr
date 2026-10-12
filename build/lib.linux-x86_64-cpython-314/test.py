@@ -208,7 +208,7 @@ def min_test():
 	print(f"{LIGHT_YELLOW('numpy.min ')} t = {numpy_min_floats_time}\n{numpy_min_floats}")
 	print(f"{LIGHT_GREEN( 'numagr.min')} t = {numagr_min_floats_time} {LIGHT_GREEN('<-')}\n{numagr_min_floats}")
 
-	# get normalized MIXED_SAFE============================================
+	# get normalized MIXED_HAZ=============================================
 	normalized_MIXED, normal_time = get_xtime(normalize_mixed, MIXED_HAZ)
 	# =====================================================================
 	min_mixed, min_mixed_time = benchmark(min, normalized_MIXED)
@@ -248,7 +248,7 @@ def max_test():
 	print(f"{LIGHT_YELLOW('numpy.max ')} t = {numpy_max_floats_time}\n{numpy_max_floats}")
 	print(f"{LIGHT_GREEN( 'numagr.max')} t = {numagr_max_floats_time} {LIGHT_GREEN('<-')}\n{numagr_max_floats}")
 
-	# get normalized MIXED_HAZ============================================
+	# get normalized MIXED_SAFE============================================
 	normalized_MIXED, normal_time = get_xtime(normalize_mixed, MIXED_SAFE)
 	# =====================================================================
 	max_mixed, max_mixed_time = benchmark(max, normalized_MIXED)
@@ -982,13 +982,13 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	# main_test()
-	ITERATIONS = 100
-	ret, t = benchmark(numagr.stdev, FLOATS)
-	print(f"numagr ret = {ret}, time = {t}")
-
-	ITERATIONS = 1
-	ret, t = benchmark(statistics.stdev, FLOATS)
-	print(f"stat ret =   {ret}, time = {t}")
+	main_test()
+	# ITERATIONS = 100
+	# ret, t = benchmark(numagr.stdev, FLOATS)
+	# print(f"numagr ret = {ret}, time = {t}")
+ #
+	# ITERATIONS = 1
+	# ret, t = benchmark(statistics.stdev, FLOATS)
+	# print(f"stat ret =   {ret}, time = {t}")
 
 	sys.exit(0)
