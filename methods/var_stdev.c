@@ -2,9 +2,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../numagr.h"
 #include "../floats_array.h"
-#include "floatobject.h"
 
 #define iter_ADD_AND_PUSH_IF_STR(item)                      \
 do                                                          \
@@ -21,7 +21,8 @@ do                                                          \
         double value = strtod(str, NULL);                   \
         KAHAN_SUM(sum, correction, value);                  \
                                                             \
-        int ret = fdarray_push(array, value);               \
+        int ret = 0;                                        \
+        FDARRAY_PUSH(array, value, ret);                    \
         if ( ret )                                          \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
@@ -45,7 +46,8 @@ do                                                              \
                                                                 \
         KAHAN_SUM(sum, correction, value);                      \
                                                                 \
-        int ret = fdarray_push(array, value);                   \
+        int ret = 0;                                            \
+        FDARRAY_PUSH(array, value, ret);                        \
         if ( ret )                                              \
         {                                                       \
             Py_DECREF(item); Py_DECREF(iter);                   \
@@ -58,7 +60,8 @@ do                                                              \
                                                                 \
         KAHAN_SUM(sum, correction, value);                      \
                                                                 \
-        int ret = fdarray_push(array, value);                   \
+        int ret = 0;                                            \
+        FDARRAY_PUSH(array, value, ret);                        \
         if ( ret )                                              \
         {                                                       \
             Py_DECREF(item); Py_DECREF(iter);                   \
@@ -80,7 +83,8 @@ do                                                          \
         double value = strtod(str, NULL);                   \
         KAHAN_SUM(sum, correction, value);                  \
                                                             \
-        int ret = fdarray_push(array, value);               \
+        int ret = 0;                                        \
+        FDARRAY_PUSH(array, value, ret);                    \
         if ( ret ) return ret;                              \
     }                                                       \
                                                             \
@@ -97,7 +101,8 @@ do                                                              \
                                                                 \
         KAHAN_SUM(sum, correction, value);                      \
                                                                 \
-        int ret = fdarray_push(array, value);                   \
+        int ret = 0;                                            \
+        FDARRAY_PUSH(array, value, ret);                        \
         if ( ret ) return ret;                                  \
                                                                 \
     }                                                           \
@@ -106,7 +111,8 @@ do                                                              \
         double value = PyFloat_AS_DOUBLE(item);                 \
         KAHAN_SUM(sum, correction, value);                      \
                                                                 \
-        int ret = fdarray_push(array, value);                   \
+        int ret = 0;                                            \
+        FDARRAY_PUSH(array, value, ret);                        \
         if ( ret ) return ret;                                  \
     }                                                           \
                                                                 \

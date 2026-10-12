@@ -984,11 +984,11 @@ if __name__ == "__main__":
 
 	# main_test()
 	ITERATIONS = 100
-	ret, t = benchmark(numagr.hmean, FLOATS)
+	ret, t = benchmark(numagr.stdev, FLOATS)
 	print(f"numagr ret = {ret}, time = {t}")
 
 	ITERATIONS = 1
-	ret, t = benchmark(statistics.harmonic_mean, FLOATS)
+	ret, t = benchmark(statistics.stdev, FLOATS)
 	print(f"stat ret =   {ret}, time = {t}")
 
 	sys.exit(0)
