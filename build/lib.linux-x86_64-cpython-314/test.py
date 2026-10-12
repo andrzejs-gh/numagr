@@ -984,11 +984,11 @@ if __name__ == "__main__":
 
 	# main_test()
 	ITERATIONS = 100
-	ret, t = get_xtime(numagr.hmean, (x for x in MIXED_SAFE), only_num=True)
-	print(f"numagr ret, time = {ret}, {t}")
+	ret, t = benchmark(numagr.hmean, FLOATS)
+	print(f"numagr ret = {ret}, time = {t}")
 
-	# norm_mixed_gen = (x for x in normalize_mixed(MIXED_SAFE, only_nums=True))
-	# ret, t = benchmark(statistics.harmonic_mean, list(norm_mixed_gen))
-	# print(f"stat ret, time = {ret}, {t}")
+	ITERATIONS = 1
+	ret, t = benchmark(statistics.harmonic_mean, FLOATS)
+	print(f"stat ret =   {ret}, time = {t}")
 
 	sys.exit(0)

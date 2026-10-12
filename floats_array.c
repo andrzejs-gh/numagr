@@ -1,7 +1,8 @@
+#include "numagr.h"
+#include "floats_array.h"
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "floats_array.h"
 
 fdarray fdarray_new(size_t init_capacity)
 {
@@ -35,7 +36,7 @@ int fdarray_push(fdarray* array, double value)
         if ( !new_addr )
         {
             free(array->addr);
-            return ARR_REALLOC_FAILURE;
+            return REALLOC_FAILURE;
         }
 
         array->addr = new_addr;

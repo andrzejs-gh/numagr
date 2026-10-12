@@ -1,8 +1,9 @@
 #ifndef NUMAGR_H
 #define NUMAGR_H
 
-#include "floats_array.h"
 #include <Python.h>
+#include "floats_array.h"
+#include "floats_hash_table.h"
 
 #define SET_INV_KWARG_VAL_ERR(kwarg_name)                           \
 PyErr_Format                                                        \
@@ -166,7 +167,7 @@ switch ( return_code )                                                      \
                         "The iterable contains too many elements.");        \
         return NULL;                                                        \
                                                                             \
-    case ARR_REALLOC_FAILURE:                                               \
+    case REALLOC_FAILURE:                                                   \
         PyErr_SetString(PyExc_RuntimeError,                                 \
                         "Memory reallocation failure.");                    \
         return NULL;                                                        \
@@ -200,13 +201,13 @@ do                                                                              
                                                                                     \
     if ( count == array->capacity )                                                 \
     {                                                                               \
-        size_t new_capacity = 2*count*sizeof(double);                               \
+        size_t new_capacity = 2*count;                                              \
                                                                                     \
         double* new_addr = realloc(array->addr, new_capacity*sizeof(double));       \
         if ( !new_addr )                                                            \
         {                                                                           \
             free(array->addr);                                                      \
-            ret = ARR_REALLOC_FAILURE;                                              \
+            ret = REALLOC_FAILURE;                                                  \
             break;                                                                  \
         }                                                                           \
                                                                                     \
@@ -228,7 +229,9 @@ enum
     ZERO_VALUE,
     NEGATIVE_VALUE,
     INVALID_VALUE,
-    ZERO_IN_ITERABLE
+    ZERO_IN_ITERABLE,
+    REALLOC_FAILURE,
+    ARR_SIZE_OVERFLOW
 };
 
 typedef PyObject* (*numagr_method)(PyObject*, PyObject*, PyObject*);

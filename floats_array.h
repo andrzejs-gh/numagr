@@ -11,12 +11,6 @@ typedef struct
 
 } fdarray;
 
-enum fdarray_err_codes
-{
-    ARR_SIZE_OVERFLOW = 1,
-    ARR_REALLOC_FAILURE
-};
-
 fdarray fdarray_new(size_t init_capacity);
 int fdarray_push(fdarray* array, double value);
 

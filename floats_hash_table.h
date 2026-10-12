@@ -28,11 +28,6 @@ typedef struct
 
 } fhtable;
 
-enum fhtable_error_codes
-{
-    REALLOC_FAILURE = 1
-};
-
 fhtable fhtable_new(size_t init_est_count);
 void fhtable_free(fhtable* fht);
 int fhtable_inc(fhtable* fht, double key);

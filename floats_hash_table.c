@@ -1,7 +1,8 @@
+#include "numagr.h"
+#include "floats_hash_table.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "floats_hash_table.h"
 
 static inline uint64_t get_hash(double key)
 {
