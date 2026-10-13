@@ -15,6 +15,14 @@ INTS = []
 MIXED_SAFE = []
 MIXED_HAZ = []
 
+class gen_maker():
+
+	def __init__(self, iterable):
+		self.iterable = iterable
+
+	def return_gen(self):
+		return (x for x in self.iterable)
+
 def RED(txt):
 	return f"\033[31m{txt}\033[0m"
 
@@ -966,94 +974,240 @@ def pstdev_test():
 
 	print("Population standard deviation benchmark completed", OK)
 
-def numagr_method_test(method, *args, ret_table):
+def test_method(method, *args, ret_table, mk_gen = False):
 
-	print(f"Testing {method.__name__} ...", end = "", flush = True)
-	err = False
+	if mk_gen:
+		args = list(args)
+		for i, j in enumerate(args):
+			try:
+				iter(j)
+				args[i] = gen_maker(j)
+			except:
+				continue
 
-	def print_value_error(mode):
+	print(f"Testing {LIGHT_BLUE(method.__name__)} ...", end = "", flush = True)
+	errors = []
 
-		print(f"\n{ERR} {LIGHT_BLUE({method.__name__})} failed test for \"{mode}\" case.")
-		print("Value mismatch.")
+	def append_value_error(mode, ret, expected):
+		errors.append(f"{RED("***")} {LIGHT_BLUE(method.__name__)} failed test for \"{mode}\" case.\n{RED("*** Value mismatch:")} ret = {ret}, expected = {expected}")
 
-	def print_exception(mode, exception):
-		print(f"\n{ERR} {LIGHT_BLUE({method.__name__})} failed test for \"{mode}\" case.")
-		print(exception)
+	def append_exception(mode, exception):
+		errors.append(f"{RED("***")} {LIGHT_BLUE(method.__name__)} failed test for \"{mode}\" case.\n{RED("*** Exception:")} {exception}")
 
-	try:
-		ret = method(*args)
-		if ret != ret_table[method]["both"]:
-			print_value_error("both")
-			err = True
-	except Exception as e:
-		print_exception("both", e)
-		err = True
-
-	try:
-		ret = method(*args, only_str = True)
-		if ret != ret_table[method]["only_str"]:
-			print_value_error("only_str")
-			err = True
-	except Exception as e:
-		print_exception("only_str", e)
-		err = True
+	def cmp(x, y):
+		if method == numagr.var or method == numagr.pvar:
+			return (round(x, 3) == round(y, 3))
+		else:
+			return (round(x, 6) == round(y, 6))
 
 	try:
-		ret = method(*args, only_num = True)
-		if ret != ret_table[method]["only_num"]:
-			print_value_error("only_num")
-			err = True
+		if mk_gen:
+			ARGS = [i.return_gen() if isinstance(i, gen_maker) else i for i in args]
+			ret = method(*ARGS)
+		else:
+			ret = method(*args)
+		if not cmp(ret, ret_table["both"]):
+			append_value_error("both", ret, ret_table["both"])
 	except Exception as e:
-		print_exception("only_num", e)
-		err = True
+		append_exception("both", e)
 
-	if not err:
-		print(f"{OK} {LIGHT_BLUE({method.__name__})} passed the test")
+	try:
+		if mk_gen:
+			ARGS = [i.return_gen() if isinstance(i, gen_maker) else i for i in args]
+			ret = method(*ARGS, only_str = True)
+		else:
+			ret = method(*args, only_str = True)
+		if not cmp(ret, ret_table["only_str"]):
+			append_value_error("only_str", ret, ret_table["only_str"])
+	except Exception as e:
+		append_exception("only_str", e)
+
+	try:
+		if mk_gen:
+			ARGS = [i.return_gen() if isinstance(i, gen_maker) else i for i in args]
+			ret = method(*ARGS, only_num = True)
+		else:
+			ret = method(*args, only_num = True)
+		if not cmp(ret, ret_table["only_num"]):
+			append_value_error("only_num", ret, ret_table["only_num"])
+	except Exception as e:
+		append_exception("only_num", e)
+
+	if not errors:
+		print(f"{OK}\n{LIGHT_BLUE(method.__name__)} passed the test.")
 	else:
-		print(f"{ERR} {LIGHT_BLUE({method.__name__})} failed the test.")
+		print(ERR)
+		[print(err) for err in errors]
 
-def numagr_correctness_test():
+def numagr_methods_test():
 
 	numagr_methods = (numagr.sum, numagr.min, numagr.max,
-					  numagr.amean, nmagr.gmean, numagr.hmean,
+					  numagr.amean, numagr.gmean, numagr.hmean,
 					  numagr.nearest, numagr.count, numagr.frac_below,
 					  numagr.frac_above, numagr.mode, numagr.var,
 					  numagr.pvar, numagr.stdev, numagr.pstdev)
+
+# 	def test_list_tuple_gen(method, *args):
+#
 
 	STRS, num_STRS, NUMS, even = [], [], [], True
 
 	for x in INTS:
 		if even:
-			STRS.append(str(i))
-			num_STRS.append(i)
+			STRS.append(str(x))
+			num_STRS.append(x)
 			even = False
 		else:
-			NUMS.append(i)
+			NUMS.append(x)
 			even = True
 
-	mode = choice(INTS)
-	WEIGHT = ([mode] * 1_000)
-	ITERABLE = STRS + NUMS + WEIGHT
-
-	ret_table = {m : dict() for m in methods}
+	ITERABLE = STRS + NUMS
+	ret_table = dict()
 
 	# sum
-	ret_table[numagr.sum]["both"] = sum(INTS) + sum(WEIGHT)
-	ret_table[numagr.sum]["only_str"] = sum(num_STRS)
-	ret_table[numagr.sum]["only_num"] = sum(NUMS) + sum(WEIGHT)
+	ret_table["both"] = sum(INTS)
+	ret_table["only_str"] = sum(num_STRS)
+	ret_table["only_num"] = sum(NUMS)
+	test_method(numagr.sum, ITERABLE, ret_table = ret_table)
+	test_method(numagr.sum, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.sum, ITERABLE, ret_table = ret_table, mk_gen = True)
 
 	# min
-	ret_table[numagr.min]["both"] = min(INTS)
-	ret_table[numagr.min]["only_str"] = min(num_STR)
-	ret_table[numagr.min]["only_num"] = min(NUMS)
+	ret_table["both"] = min(INTS)
+	ret_table["only_str"] = min(num_STRS)
+	ret_table["only_num"] = min(NUMS)
+	test_method(numagr.min, ITERABLE, ret_table = ret_table)
+	test_method(numagr.min, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.min, ITERABLE, ret_table = ret_table, mk_gen = True)
 
 	# max
-	ret_table[numagr.max]["both"] = max(INTS)
-	ret_table[numagr.max]["only_str"] = max(num_STR)
-	ret_table[numagr.max]["only_num"] = max(NUMS)
+	ret_table["both"] = max(INTS)
+	ret_table["only_str"] = max(num_STRS)
+	ret_table["only_num"] = max(NUMS)
+	test_method(numagr.max, ITERABLE, ret_table = ret_table)
+	test_method(numagr.max, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.max, ITERABLE, ret_table = ret_table, mk_gen = True)
 
+	# amean
+	ret_table["both"] = statistics.mean(INTS)
+	ret_table["only_str"] = statistics.mean(num_STRS)
+	ret_table["only_num"] = statistics.mean(NUMS)
+	test_method(numagr.amean, ITERABLE, ret_table = ret_table)
+	test_method(numagr.amean, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.amean, ITERABLE, ret_table = ret_table, mk_gen = True)
 
-	# for m in numagr_methods:
+	# gmean
+	ret_table["both"] = statistics.geometric_mean(INTS)
+	ret_table["only_str"] = statistics.geometric_mean(num_STRS)
+	ret_table["only_num"] = statistics.geometric_mean(NUMS)
+	test_method(numagr.gmean, ITERABLE, ret_table = ret_table)
+	test_method(numagr.gmean, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.gmean, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# hmean
+	ret_table["both"] = statistics.harmonic_mean(INTS)
+	ret_table["only_str"] = statistics.harmonic_mean(num_STRS)
+	ret_table["only_num"] = statistics.harmonic_mean(NUMS)
+	test_method(numagr.hmean, ITERABLE, ret_table = ret_table)
+	test_method(numagr.hmean, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.hmean, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# nearest
+	# defining std nearest and target value ================================
+	std_nearest = lambda target, X: min(X, key = lambda v: abs(v - target))
+	target_value = choice(INTS)
+	# ======================================================================
+	ret_table["both"] = std_nearest(target_value, INTS)
+	ret_table["only_str"] = std_nearest(target_value, num_STRS)
+	ret_table["only_num"] = std_nearest(target_value, NUMS)
+	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table)
+	test_method(numagr.nearest, target_value, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# count
+	# defining std count ==========================================
+	std_count = lambda target, X: X.count(target)
+	target_value = choice(INTS)
+	# =============================================================
+	ret_table["both"] = std_count(target_value, INTS)
+	ret_table["only_str"] = std_count(target_value, num_STRS)
+	ret_table["only_num"] = std_count(target_value, NUMS)
+	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table)
+	test_method(numagr.count, target_value, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# frac below
+	# defining std frac below and target value =========================
+	std_frac_below = lambda target, X: sum(v < target for v in X) / len(X)
+	target_value = choice(INTS)
+	# ==================================================================
+	ret_table["both"] = std_frac_below(target_value, INTS)
+	ret_table["only_str"] = std_frac_below(target_value, num_STRS)
+	ret_table["only_num"] = std_frac_below(target_value, NUMS)
+	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table)
+	test_method(numagr.frac_below, target_value, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# frac above
+	# defining std frac above and target value ===========================
+	std_frac_above = lambda target, X: sum(v > target for v in X) / len(X)
+	target_value = choice(INTS)
+	# ====================================================================
+	ret_table["both"] = std_frac_above(target_value, INTS)
+	ret_table["only_str"] = std_frac_above(target_value, num_STRS)
+	ret_table["only_num"] = std_frac_above(target_value, NUMS)
+	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table)
+	test_method(numagr.frac_above, target_value, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# mode
+	# defining mode with Counter and allocating the WEIGHT ===============
+	counter_mode = lambda X: Counter(X).most_common(1)[0][0]
+	mode = choice(INTS)
+	WEIGHT = ([mode] * 1_000)
+	str_WEIGHT = ([str(mode)] * 1_000)
+	# ====================================================================
+	ret_table["both"] = counter_mode(ITERABLE + WEIGHT)
+	ret_table["only_str"] = counter_mode(num_STRS + WEIGHT)
+	ret_table["only_num"] = counter_mode(NUMS + WEIGHT)
+	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table)
+	test_method(numagr.mode, (*ITERABLE, *WEIGHT, *str_WEIGHT), ret_table = ret_table)
+	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table,
+															mk_gen = True)
+
+	# variance
+	ret_table["both"] = statistics.variance(INTS)
+	ret_table["only_str"] = statistics.variance(num_STRS)
+	ret_table["only_num"] = statistics.variance(NUMS)
+	test_method(numagr.var, ITERABLE, ret_table = ret_table)
+	test_method(numagr.var, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.var, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# pvariance
+	ret_table["both"] = statistics.pvariance(INTS)
+	ret_table["only_str"] = statistics.pvariance(num_STRS)
+	ret_table["only_num"] = statistics.pvariance(NUMS)
+	test_method(numagr.pvar, ITERABLE, ret_table = ret_table)
+	test_method(numagr.pvar, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.pvar, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# stdev
+	ret_table["both"] = statistics.stdev(INTS)
+	ret_table["only_str"] = statistics.stdev(num_STRS)
+	ret_table["only_num"] = statistics.stdev(NUMS)
+	test_method(numagr.stdev, ITERABLE, ret_table = ret_table)
+	test_method(numagr.stdev, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.stdev, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	# pstdev
+	ret_table["both"] = statistics.pstdev(INTS)
+	ret_table["only_str"] = statistics.pstdev(num_STRS)
+	ret_table["only_num"] = statistics.pstdev(NUMS)
+	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table)
+	test_method(numagr.pstdev, tuple(ITERABLE), ret_table = ret_table)
+	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table, mk_gen = True)
+
+	print("Method test completed", OK)
 
 def main_test():
 
@@ -1075,7 +1229,7 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	main_test()
-
+	# main_test()
+	numagr_methods_test()
 
 	sys.exit(0)
