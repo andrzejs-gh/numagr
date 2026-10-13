@@ -974,7 +974,7 @@ def pstdev_test():
 
 	print("Population standard deviation benchmark completed", OK)
 
-def test_method(method, *args, ret_table, mk_gen = False):
+def test_method(method, *args, ret_table, mk_gen = False, mode):
 
 	if mk_gen:
 		args = list(args)
@@ -985,7 +985,7 @@ def test_method(method, *args, ret_table, mk_gen = False):
 			except:
 				continue
 
-	print(f"Testing {LIGHT_BLUE(method.__name__)} ...", end = "", flush = True)
+	print(f"Testing {LIGHT_BLUE(method.__name__)} ({mode}) ...", end = "", flush = True)
 	errors = []
 
 	def append_value_error(mode, ret, expected):
@@ -1007,9 +1007,9 @@ def test_method(method, *args, ret_table, mk_gen = False):
 		else:
 			ret = method(*args)
 		if not cmp(ret, ret_table["both"]):
-			append_value_error("both", ret, ret_table["both"])
+			append_value_error(mode, ret, ret_table["both"])
 	except Exception as e:
-		append_exception("both", e)
+		append_exception(mode, e)
 
 	try:
 		if mk_gen:
@@ -1018,9 +1018,9 @@ def test_method(method, *args, ret_table, mk_gen = False):
 		else:
 			ret = method(*args, only_str = True)
 		if not cmp(ret, ret_table["only_str"]):
-			append_value_error("only_str", ret, ret_table["only_str"])
+			append_value_error(mode, ret, ret_table["only_str"])
 	except Exception as e:
-		append_exception("only_str", e)
+		append_exception(mode, e)
 
 	try:
 		if mk_gen:
@@ -1029,12 +1029,12 @@ def test_method(method, *args, ret_table, mk_gen = False):
 		else:
 			ret = method(*args, only_num = True)
 		if not cmp(ret, ret_table["only_num"]):
-			append_value_error("only_num", ret, ret_table["only_num"])
+			append_value_error(mode, ret, ret_table["only_num"])
 	except Exception as e:
-		append_exception("only_num", e)
+		append_exception(mode, e)
 
 	if not errors:
-		print(f"{OK}\n{LIGHT_BLUE(method.__name__)} passed the test.")
+		print(f"{OK}\n{LIGHT_BLUE(method.__name__)} ({mode}) passed the test.")
 	else:
 		print(ERR)
 		[print(err) for err in errors]
@@ -1068,49 +1068,49 @@ def numagr_methods_test():
 	ret_table["both"] = sum(INTS)
 	ret_table["only_str"] = sum(num_STRS)
 	ret_table["only_num"] = sum(NUMS)
-	test_method(numagr.sum, ITERABLE, ret_table = ret_table)
-	test_method(numagr.sum, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.sum, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.sum, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.sum, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.sum, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# min
 	ret_table["both"] = min(INTS)
 	ret_table["only_str"] = min(num_STRS)
 	ret_table["only_num"] = min(NUMS)
-	test_method(numagr.min, ITERABLE, ret_table = ret_table)
-	test_method(numagr.min, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.min, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.min, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.min, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.min, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# max
 	ret_table["both"] = max(INTS)
 	ret_table["only_str"] = max(num_STRS)
 	ret_table["only_num"] = max(NUMS)
-	test_method(numagr.max, ITERABLE, ret_table = ret_table)
-	test_method(numagr.max, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.max, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.max, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.max, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.max, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# amean
 	ret_table["both"] = statistics.mean(INTS)
 	ret_table["only_str"] = statistics.mean(num_STRS)
 	ret_table["only_num"] = statistics.mean(NUMS)
-	test_method(numagr.amean, ITERABLE, ret_table = ret_table)
-	test_method(numagr.amean, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.amean, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.amean, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.amean, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.amean, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# gmean
 	ret_table["both"] = statistics.geometric_mean(INTS)
 	ret_table["only_str"] = statistics.geometric_mean(num_STRS)
 	ret_table["only_num"] = statistics.geometric_mean(NUMS)
-	test_method(numagr.gmean, ITERABLE, ret_table = ret_table)
-	test_method(numagr.gmean, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.gmean, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.gmean, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.gmean, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.gmean, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# hmean
 	ret_table["both"] = statistics.harmonic_mean(INTS)
 	ret_table["only_str"] = statistics.harmonic_mean(num_STRS)
 	ret_table["only_num"] = statistics.harmonic_mean(NUMS)
-	test_method(numagr.hmean, ITERABLE, ret_table = ret_table)
-	test_method(numagr.hmean, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.hmean, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.hmean, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.hmean, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.hmean, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# nearest
 	# defining std nearest and target value ================================
@@ -1120,9 +1120,9 @@ def numagr_methods_test():
 	ret_table["both"] = std_nearest(target_value, INTS)
 	ret_table["only_str"] = std_nearest(target_value, num_STRS)
 	ret_table["only_num"] = std_nearest(target_value, NUMS)
-	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table)
-	test_method(numagr.nearest, target_value, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.nearest, target_value, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.nearest, target_value, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# count
 	# defining std count ==========================================
@@ -1132,9 +1132,9 @@ def numagr_methods_test():
 	ret_table["both"] = std_count(target_value, INTS)
 	ret_table["only_str"] = std_count(target_value, num_STRS)
 	ret_table["only_num"] = std_count(target_value, NUMS)
-	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table)
-	test_method(numagr.count, target_value, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.count, target_value, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.count, target_value, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# frac below
 	# defining std frac below and target value =========================
@@ -1144,9 +1144,9 @@ def numagr_methods_test():
 	ret_table["both"] = std_frac_below(target_value, INTS)
 	ret_table["only_str"] = std_frac_below(target_value, num_STRS)
 	ret_table["only_num"] = std_frac_below(target_value, NUMS)
-	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table)
-	test_method(numagr.frac_below, target_value, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.frac_below, target_value, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.frac_below, target_value, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# frac above
 	# defining std frac above and target value ===========================
@@ -1156,9 +1156,9 @@ def numagr_methods_test():
 	ret_table["both"] = std_frac_above(target_value, INTS)
 	ret_table["only_str"] = std_frac_above(target_value, num_STRS)
 	ret_table["only_num"] = std_frac_above(target_value, NUMS)
-	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table)
-	test_method(numagr.frac_above, target_value, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.frac_above, target_value, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.frac_above, target_value, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# mode
 	# defining mode with Counter and allocating the WEIGHT ===============
@@ -1170,42 +1170,41 @@ def numagr_methods_test():
 	ret_table["both"] = counter_mode(ITERABLE + WEIGHT)
 	ret_table["only_str"] = counter_mode(num_STRS + WEIGHT)
 	ret_table["only_num"] = counter_mode(NUMS + WEIGHT)
-	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table)
-	test_method(numagr.mode, (*ITERABLE, *WEIGHT, *str_WEIGHT), ret_table = ret_table)
-	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table,
-															mk_gen = True)
+	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table, mode = "both")
+	test_method(numagr.mode, (*ITERABLE, *WEIGHT, *str_WEIGHT), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.mode, ITERABLE, WEIGHT, str_WEIGHT, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# variance
 	ret_table["both"] = statistics.variance(INTS)
 	ret_table["only_str"] = statistics.variance(num_STRS)
 	ret_table["only_num"] = statistics.variance(NUMS)
-	test_method(numagr.var, ITERABLE, ret_table = ret_table)
-	test_method(numagr.var, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.var, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.var, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.var, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.var, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# pvariance
 	ret_table["both"] = statistics.pvariance(INTS)
 	ret_table["only_str"] = statistics.pvariance(num_STRS)
 	ret_table["only_num"] = statistics.pvariance(NUMS)
-	test_method(numagr.pvar, ITERABLE, ret_table = ret_table)
-	test_method(numagr.pvar, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.pvar, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.pvar, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.pvar, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.pvar, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# stdev
 	ret_table["both"] = statistics.stdev(INTS)
 	ret_table["only_str"] = statistics.stdev(num_STRS)
 	ret_table["only_num"] = statistics.stdev(NUMS)
-	test_method(numagr.stdev, ITERABLE, ret_table = ret_table)
-	test_method(numagr.stdev, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.stdev, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.stdev, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.stdev, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.stdev, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	# pstdev
 	ret_table["both"] = statistics.pstdev(INTS)
 	ret_table["only_str"] = statistics.pstdev(num_STRS)
 	ret_table["only_num"] = statistics.pstdev(NUMS)
-	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table)
-	test_method(numagr.pstdev, tuple(ITERABLE), ret_table = ret_table)
-	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table, mk_gen = True)
+	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table, mode = "both")
+	test_method(numagr.pstdev, tuple(ITERABLE), ret_table = ret_table, mode = "only_str")
+	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "only_num")
 
 	print("Method test completed", OK)
 
