@@ -127,6 +127,24 @@ do                                                                      \
                                                                         \
 } while (0);
 
+#define DEREFERENCE(sum_ptr, correction_ptr)   \
+double sum_val = *(sum_ptr);                   \
+double correction_val = *(correction_ptr);
+
+#define REASSIGN(sum_ptr, correction_ptr)      \
+*(sum_ptr) = sum_val;                          \
+*(correction_ptr) = correction_val;
+
+#define KAHAN_SUM_ADD(value)                         \
+do                                                   \
+{                                                    \
+    double next = (value) - correction_val;          \
+    double new_sum = sum_val + next;                 \
+    correction_val = (new_sum - sum_val) - next;     \
+    sum_val = new_sum;                               \
+                                                     \
+} while (0);
+
 #define KAHAN_SUM(sum_ptr, correction_ptr, value)       \
 do                                                      \
 {                                                       \

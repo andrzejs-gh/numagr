@@ -182,16 +182,16 @@ static inline int hash_values_list(PyObject* list, bool only_str, bool only_num,
     return 0;
 }
 
-static inline int hash_values_tuple(PyObject* list, bool only_str, bool only_num,
+static inline int hash_values_tuple(PyObject* tuple, bool only_str, bool only_num,
                                     fhtable* table)
 {
-    Py_ssize_t tupl_len = PyTuple_GET_SIZE(list);
+    Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
     {
-        for ( Py_ssize_t i = 0; i < tupl_len; i++ )
+        for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
-            PyObject* item = PyTuple_GET_ITEM(list, i);
+            PyObject* item = PyTuple_GET_ITEM(tuple, i);
             HASH_IF_STR(item);
         }
         return 0;
@@ -199,17 +199,17 @@ static inline int hash_values_tuple(PyObject* list, bool only_str, bool only_num
 
     if ( only_num )
     {
-        for ( Py_ssize_t i = 0; i < tupl_len; i++ )
+        for ( Py_ssize_t i = 0; i < tuple_len; i++ )
         {
-            PyObject* item = PyTuple_GET_ITEM(list, i);
+            PyObject* item = PyTuple_GET_ITEM(tuple, i);
             HASH_IF_NUM(item);
         }
         return 0;
     }
 
-    for ( Py_ssize_t i = 0; i < tupl_len; i++ )
+    for ( Py_ssize_t i = 0; i < tuple_len; i++ )
     {
-        PyObject* item = PyTuple_GET_ITEM(list, i);
+        PyObject* item = PyTuple_GET_ITEM(tuple, i);
 
         HASH_IF_STR(item);
         HASH_IF_NUM(item);

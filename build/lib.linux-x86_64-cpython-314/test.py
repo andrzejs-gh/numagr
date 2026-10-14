@@ -1218,11 +1218,31 @@ def main_test():
 	print("Performance test completed.", OK)
 	print(CYAN("* * *"))
 
+def spec_test(method):
+
+	print(method.__name__)
+
+	S = [str(i) for i in range(1, LIMIT)]
+	N = [i for i in range(1, LIMIT)]
+	tS, tN = tuple(S), tuple(N)
+	genS, genN = (x for x in S), (x for x in N)
+	target = 500_000
+
+	ret, xt = benchmark(method, S, N)
+	print(f"LISTS: ret = {ret}, xt = {xt}")
+
+	ret, xt = benchmark(method, tS, tN)
+	print(f"TUPLES: ret = {ret}, xt = {xt}")
+
+	ret, xt = get_xtime(method, genS, genN)
+	print(f"GENERATORS: ret = {ret}, xt = {xt}")
 
 if __name__ == "__main__":
 
-	load_lists()
+	ITERATIONS = 10
+	spec_test(numagr.sum)
+	# load_lists()
 
-	main_test()
+	# main_test()
 
 	sys.exit(0)

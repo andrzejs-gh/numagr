@@ -18,10 +18,10 @@ do                                                          \
             SET_INV_STR_ERROR;                              \
             return INVALID_VALUE;                           \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
                                                             \
 } while (0);
@@ -38,10 +38,10 @@ do                                                          \
             return ZERO_IN_ITERABLE;                        \
         if ( value < 0.0 )                                  \
             return NEGATIVE_VALUE;                          \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -50,10 +50,10 @@ do                                                          \
             return ZERO_IN_ITERABLE;                        \
         if ( value < 0.0 )                                  \
             return NEGATIVE_VALUE;                          \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
                                                             \
 } while (0);
@@ -77,12 +77,12 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return INVALID_VALUE;                           \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
                                                             \
 } while (0);
@@ -108,12 +108,12 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return NEGATIVE_VALUE;                          \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -128,12 +128,12 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return NEGATIVE_VALUE;                          \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(log_sum, correction, log(value));         \
+        KAHAN_SUM_ADD(log(value));                          \
     }                                                       \
                                                             \
 } while (0);
@@ -142,6 +142,9 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, bool only_num,
                                    double* log_sum, double* correction,
                                    uint64_t* count)
 {
+    DEREFERENCE(log_sum, correction);
+    uint64_t count_val = *count;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -151,6 +154,8 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_LOG_IF_STR(item);
         }
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -161,6 +166,8 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_LOG_IF_NUM(item);
         }
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -171,6 +178,8 @@ static inline int get_log_sum_list(PyObject* list, bool only_str, bool only_num,
         ADD_LOG_IF_NUM(item);
     }
 
+    REASSIGN(log_sum, correction);
+    *count = count_val;
     return 0;
 }
 
@@ -178,6 +187,9 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, bool only_nu
                                     double* log_sum, double* correction,
                                     uint64_t* count)
 {
+    DEREFERENCE(log_sum, correction);
+    uint64_t count_val = *count;
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -187,6 +199,8 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, bool only_nu
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_LOG_IF_STR(item);
         }
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -197,6 +211,8 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, bool only_nu
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_LOG_IF_NUM(item);
         }
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -207,6 +223,8 @@ static inline int get_log_sum_tuple(PyObject* tuple, bool only_str, bool only_nu
         ADD_LOG_IF_NUM(item);
     }
 
+    REASSIGN(log_sum, correction);
+    *count = count_val;
     return 0;
 }
 
@@ -214,6 +232,9 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, bool only_
                                        double* log_sum, double* correction,
                                        uint64_t* count)
 {
+    DEREFERENCE(log_sum, correction);
+    uint64_t count_val = *count;
+
     PyObject* item;
 
     if ( only_str )
@@ -224,6 +245,9 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, bool only_
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -235,6 +259,9 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, bool only_
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(log_sum, correction);
+        *count = count_val;
         return 0;
     }
 
@@ -246,6 +273,8 @@ static inline int get_log_sum_iterable(PyObject* iter, bool only_str, bool only_
     }
     Py_DECREF(iter);
 
+    REASSIGN(log_sum, correction);
+    *count = count_val;
     return 0;
 }
 

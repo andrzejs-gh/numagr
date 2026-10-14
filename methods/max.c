@@ -12,7 +12,7 @@ do                                                      \
         if ( !str ) return STR_ENCODING_FAILURE;        \
                                                         \
         double value = strtod(str, NULL);               \
-        if ( value > *max ) *max = value;               \
+        if ( value > max_val ) max_val = value;         \
     }                                                   \
                                                         \
 } while (0);
@@ -25,12 +25,12 @@ do                                                          \
         double value = PyLong_AsDouble(item);               \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;     \
                                                             \
-        if ( value > *max ) *max = value;                   \
+        if ( value > max_val ) max_val = value;             \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
         double value = PyFloat_AS_DOUBLE(item);             \
-        if ( value > *max ) *max = value;                   \
+        if ( value > max_val ) max_val = value;             \
     }                                                       \
                                                             \
 } while (0);
@@ -47,7 +47,7 @@ do                                                          \
             return STR_ENCODING_FAILURE;                    \
         }                                                   \
         double value = strtod(str, NULL);                   \
-        if ( value > *max ) *max = value;                   \
+        if ( value > max_val ) max_val = value;             \
     }                                                       \
                                                             \
 } while (0);
@@ -63,12 +63,12 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return DOUBLE_OVERFLOW;                         \
         }                                                   \
-        if ( value > *max ) *max = value;                   \
+        if ( value > max_val ) max_val = value;             \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
         double value = PyFloat_AS_DOUBLE(item);             \
-        if ( value > *max ) *max = value;                   \
+        if ( value > max_val ) max_val = value;             \
     }                                                       \
                                                             \
 } while (0);
@@ -76,6 +76,8 @@ do                                                          \
 static inline int get_max_in_list(PyObject* list, bool only_str, bool only_num,
                                   double* max)
 {
+    double max_val = *max;
+
     Py_ssize_t count = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -85,6 +87,7 @@ static inline int get_max_in_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             UPDATE_MAX_VALUE_IF_STR(item);
         }
+        *max = max_val;
         return 0;
     }
 
@@ -95,6 +98,7 @@ static inline int get_max_in_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             UPDATE_MAX_VALUE_IF_NUM(item);
         }
+        *max = max_val;
         return 0;
     }
 
@@ -106,12 +110,15 @@ static inline int get_max_in_list(PyObject* list, bool only_str, bool only_num,
         UPDATE_MAX_VALUE_IF_NUM(item);
     }
 
+    *max = max_val;
     return 0;
 }
 
 static inline int get_max_in_tuple(PyObject* tuple, bool only_str, bool only_num,
                                    double* max)
 {
+    double max_val = *max;
+
     Py_ssize_t count = PyList_GET_SIZE(tuple);
 
     if ( only_str )
@@ -121,6 +128,7 @@ static inline int get_max_in_tuple(PyObject* tuple, bool only_str, bool only_num
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             UPDATE_MAX_VALUE_IF_STR(item);
         }
+        *max = max_val;
         return 0;
     }
 
@@ -131,6 +139,7 @@ static inline int get_max_in_tuple(PyObject* tuple, bool only_str, bool only_num
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             UPDATE_MAX_VALUE_IF_NUM(item);
         }
+        *max = max_val;
         return 0;
     }
 
@@ -142,12 +151,15 @@ static inline int get_max_in_tuple(PyObject* tuple, bool only_str, bool only_num
         UPDATE_MAX_VALUE_IF_NUM(item);
     }
 
+    *max = max_val;
     return 0;
 }
 
 static inline int get_max_in_iterable(PyObject* iter, bool only_str, bool only_num,
                                       double* max)
 {
+    double max_val = *max;
+
     PyObject* item;
 
     if ( only_str )
@@ -158,6 +170,7 @@ static inline int get_max_in_iterable(PyObject* iter, bool only_str, bool only_n
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        *max = max_val;
         return 0;
     }
 
@@ -169,6 +182,7 @@ static inline int get_max_in_iterable(PyObject* iter, bool only_str, bool only_n
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        *max = max_val;
         return 0;
     }
 
@@ -180,6 +194,7 @@ static inline int get_max_in_iterable(PyObject* iter, bool only_str, bool only_n
     }
     Py_DECREF(iter);
 
+    *max = max_val;
     return 0;
 }
 

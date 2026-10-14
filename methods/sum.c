@@ -13,7 +13,7 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return STR_ENCODING_FAILURE;                        \
         }                                                       \
-        KAHAN_SUM(sum, correction, strtod(str, NULL));          \
+        KAHAN_SUM_ADD(strtod(str, NULL));                       \
     }                                                           \
                                                                 \
 } while (0);
@@ -29,11 +29,11 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value);                                   \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));    \
+        KAHAN_SUM_ADD(PyFloat_AS_DOUBLE(item));                 \
     }                                                           \
                                                                 \
 } while (0);
@@ -46,7 +46,7 @@ do                                                              \
         const char* str = PyUnicode_AsUTF8(item);               \
         if ( !str ) return STR_ENCODING_FAILURE;                \
                                                                 \
-        KAHAN_SUM(sum, correction, strtod(str, NULL));          \
+        KAHAN_SUM_ADD(strtod(str, NULL));                       \
     }                                                           \
                                                                 \
 } while (0);
@@ -59,11 +59,11 @@ do                                                              \
         double value = PyLong_AsDouble(item);                   \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;         \
                                                                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value);                                   \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));    \
+        KAHAN_SUM_ADD(PyFloat_AS_DOUBLE(item));                 \
     }                                                           \
                                                                 \
 } while (0);
@@ -71,6 +71,8 @@ do                                                              \
 static inline int sum_iterable(PyObject* iter, bool only_str, bool only_num,
                                double* sum, double* correction)
 {
+    DEREFERENCE(sum, correction);
+
     PyObject* item;
 
     if ( only_str )
@@ -81,6 +83,8 @@ static inline int sum_iterable(PyObject* iter, bool only_str, bool only_num,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -92,6 +96,8 @@ static inline int sum_iterable(PyObject* iter, bool only_str, bool only_num,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -103,12 +109,15 @@ static inline int sum_iterable(PyObject* iter, bool only_str, bool only_num,
     }
     Py_DECREF(iter);
 
+    REASSIGN(sum, correction);
     return 0;
 }
 
 static inline int sum_list(PyObject* list, bool only_str, bool only_num,
                            double* sum, double* correction)
 {
+    DEREFERENCE(sum, correction);
+
     Py_ssize_t count = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -118,6 +127,7 @@ static inline int sum_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_IF_STR(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -128,6 +138,7 @@ static inline int sum_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_IF_NUM(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -138,12 +149,15 @@ static inline int sum_list(PyObject* list, bool only_str, bool only_num,
         ADD_IF_NUM(item);
     }
 
+    REASSIGN(sum, correction);
     return 0;
 }
 
 static inline int sum_tuple(PyObject* tuple, bool only_str, bool only_num,
                             double* sum, double* correction)
 {
+    DEREFERENCE(sum, correction);
+
     Py_ssize_t count = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -153,6 +167,7 @@ static inline int sum_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_IF_STR(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -163,6 +178,7 @@ static inline int sum_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_IF_NUM(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -173,6 +189,7 @@ static inline int sum_tuple(PyObject* tuple, bool only_str, bool only_num,
         ADD_IF_NUM(item);
     }
 
+    REASSIGN(sum, correction);
     return 0;
 }
 

@@ -23,7 +23,7 @@ do                                                          \
         if ( ret )                                          \
             return ret;                                     \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
                                                             \
 } while (0);
@@ -44,7 +44,7 @@ do                                                          \
         if ( ret )                                          \
             return ret;                                     \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -57,7 +57,7 @@ do                                                          \
         if ( ret )                                          \
             return ret;                                     \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
                                                             \
 } while (0);
@@ -89,7 +89,7 @@ do                                                          \
             return ret;                                     \
         }                                                   \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
                                                             \
 } while (0);
@@ -119,7 +119,7 @@ do                                                          \
             return ret;                                     \
         }                                                   \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -138,7 +138,7 @@ do                                                          \
             return ret;                                     \
         }                                                   \
                                                             \
-        if ( value < *min ) *min = value;                   \
+        if ( value < min_value ) min_value = value;         \
     }                                                       \
                                                             \
 } while (0);
@@ -160,6 +160,8 @@ do                                                          \
 static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num,
                                     double* min, fdarray* array)
 {
+    double min_value = *min;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -169,6 +171,7 @@ static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_TO_ARRAY_IF_STR(item);
         }
+        *min = min_value;
         return 0;
     }
 
@@ -179,6 +182,7 @@ static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_TO_ARRAY_IF_NUM(item);
         }
+        *min = min_value;
         return 0;
     }
 
@@ -189,12 +193,15 @@ static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num
         ADD_TO_ARRAY_IF_NUM(item);
     }
 
+    *min = min_value;
     return 0;
 }
 
 static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_num,
                                      double* min, fdarray* array)
 {
+    double min_value = *min;
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -204,6 +211,7 @@ static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_TO_ARRAY_IF_STR(item);
         }
+        *min = min_value;
         return 0;
     }
 
@@ -214,6 +222,7 @@ static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_TO_ARRAY_IF_NUM(item);
         }
+        *min = min_value;
         return 0;
     }
 
@@ -224,12 +233,15 @@ static inline int add_to_array_tuple(PyObject* tuple, bool only_str, bool only_n
         ADD_TO_ARRAY_IF_NUM(item);
     }
 
+    *min = min_value;
     return 0;
 }
 
 static inline int add_to_array_iterable(PyObject* iter, bool only_str, bool only_num,
                                         double* min, fdarray* array)
 {
+    double min_value = *min;
+
     PyObject* item;
 
     if ( only_str )
@@ -240,6 +252,7 @@ static inline int add_to_array_iterable(PyObject* iter, bool only_str, bool only
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        *min = min_value;
         return 0;
     }
 
@@ -251,6 +264,7 @@ static inline int add_to_array_iterable(PyObject* iter, bool only_str, bool only
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+        *min = min_value;
         return 0;
     }
 
@@ -262,6 +276,7 @@ static inline int add_to_array_iterable(PyObject* iter, bool only_str, bool only
     }
     Py_DECREF(iter);
 
+    *min = min_value;
     return 0;
 }
 
@@ -298,7 +313,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         {
             if ( !array_allocated )
             {
-                ALLOC_ARRAY(PyList_GET_SIZE(arg));
+                ALLOC_ARRAY(PyTuple_GET_SIZE(arg));
                 if ( !array_allocated ) return NULL;
             }
 
@@ -342,18 +357,14 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     double* array_addr = array.addr;
-    double recip_sum = 0.0;
-    double correction = 0.0;
 
+    double sum_val = 0.0;
+    double correction_val = 0.0;
     for ( size_t i = 0; i < count; i++ )
     {
-        double old_sum = recip_sum;
-        double next = (min / array_addr[i]) - correction;
-        double new_sum = old_sum + next;
-        correction = (new_sum - old_sum) - next;
-        recip_sum = new_sum;
+        KAHAN_SUM_ADD(min / array_addr[i])
     }
     free(array.addr);
 
-    return PyFloat_FromDouble((min*count)/recip_sum);
+    return PyFloat_FromDouble((min*count)/sum_val);
 }

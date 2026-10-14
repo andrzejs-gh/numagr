@@ -11,11 +11,11 @@ do                                                              \
         const char* str = PyUnicode_AsUTF8(item);               \
         if ( !str ) return STR_ENCODING_FAILURE;                \
                                                                 \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( strtod(str, NULL) > target )                       \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
                                                                 \
 } while (0);
@@ -28,19 +28,19 @@ do                                                              \
         double value = PyLong_AsDouble(item);                   \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;         \
                                                                 \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( value > target )                                   \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( PyFloat_AS_DOUBLE(item) > target )                 \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
                                                                 \
 } while (0);
@@ -57,11 +57,11 @@ do                                                              \
             return STR_ENCODING_FAILURE;                        \
         }                                                       \
                                                                 \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( strtod(str, NULL) > target )                       \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
                                                                 \
 } while (0);
@@ -77,19 +77,19 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( value > target )                                   \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
         if ( PyFloat_AS_DOUBLE(item) > target )                 \
-            (*above_count)++;                                   \
+            above_count_val++;                                  \
     }                                                           \
                                                                 \
 } while (0);
@@ -98,6 +98,9 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
                                       double target, uint64_t* above_count,
                                       uint64_t* count)
 {
+    uint64_t above_count_val = *above_count;
+    uint64_t count_val = *count;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -107,6 +110,8 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
             PyObject* item = PyList_GET_ITEM(list, i);
             COUNT_IF_ABOVE_IF_STR(item);
         }
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -117,6 +122,8 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
             PyObject* item = PyList_GET_ITEM(list, i);
             COUNT_IF_ABOVE_IF_NUM(item);
         }
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -127,6 +134,8 @@ static inline int above_count_in_list(PyObject* list, bool only_str, bool only_n
         COUNT_IF_ABOVE_IF_NUM(item);
     }
 
+    *above_count = above_count_val;
+    *count = count_val;
     return 0;
 }
 
@@ -134,6 +143,9 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
                                        double target, uint64_t* above_count,
                                        uint64_t* count)
 {
+    uint64_t above_count_val = *above_count;
+    uint64_t count_val = *count;
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -143,6 +155,8 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             COUNT_IF_ABOVE_IF_STR(item);
         }
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -153,6 +167,8 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             COUNT_IF_ABOVE_IF_NUM(item);
         }
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -163,6 +179,8 @@ static inline int above_count_in_tuple(PyObject* tuple, bool only_str, bool only
         COUNT_IF_ABOVE_IF_NUM(item);
     }
 
+    *above_count = above_count_val;
+    *count = count_val;
     return 0;
 }
 
@@ -170,6 +188,9 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
                                           double target, uint64_t* above_count,
                                           uint64_t* count)
 {
+    uint64_t above_count_val = *above_count;
+    uint64_t count_val = *count;
+
     PyObject* item;
 
     if ( only_str )
@@ -180,6 +201,9 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -191,6 +215,9 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *above_count = above_count_val;
+        *count = count_val;
         return 0;
     }
 
@@ -202,6 +229,8 @@ static inline int above_count_in_iterable(PyObject* iter, bool only_str, bool on
     }
     Py_DECREF(iter);
 
+    *above_count = above_count_val;
+    *count = count_val;
     return 0;
 }
 

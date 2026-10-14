@@ -15,12 +15,12 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return STR_ENCODING_FAILURE;                    \
         }                                                   \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM(sum, correction, strtod(str, NULL));      \
+        KAHAN_SUM_ADD(strtod(str, NULL));                   \
     }                                                       \
                                                             \
 } while (0);
@@ -36,21 +36,21 @@ do                                                              \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
         {                                                       \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return COUNT_OVERFLOW;                              \
         }                                                       \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value)                                    \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
         {                                                       \
             Py_DECREF(item); Py_DECREF(iter);                   \
             return COUNT_OVERFLOW;                              \
         }                                                       \
-        KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));    \
+        KAHAN_SUM_ADD(PyFloat_AS_DOUBLE(item));                 \
     }                                                           \
                                                                 \
 } while (0);
@@ -63,10 +63,10 @@ do                                                          \
         const char* str = PyUnicode_AsUTF8(item);           \
         if ( !str )                                         \
             return STR_ENCODING_FAILURE;                    \
-        if ( (*count)++ == UINT64_MAX )                     \
+        if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM(sum, correction, strtod(str, NULL));      \
+        KAHAN_SUM_ADD(strtod(str, NULL));                   \
     }                                                       \
                                                             \
 } while (0);
@@ -79,16 +79,16 @@ do                                                              \
         double value = PyLong_AsDouble(item);                   \
         if ( PyErr_Occurred() )                                 \
             return DOUBLE_OVERFLOW;                             \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
                                                                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value)                                    \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
-        if ( (*count)++ == UINT64_MAX )                         \
+        if ( count_val++ == UINT64_MAX )                        \
             return COUNT_OVERFLOW;                              \
-        KAHAN_SUM(sum, correction, PyFloat_AS_DOUBLE(item));    \
+        KAHAN_SUM_ADD(PyFloat_AS_DOUBLE(item));                 \
     }                                                           \
                                                                 \
 } while (0);
@@ -97,6 +97,9 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
                                          bool only_num, double* sum,
                                          double* correction, uint64_t* count)
 {
+    DEREFERENCE(sum, correction);
+    uint64_t count_val = *count;
+
     PyObject* item;
 
     if ( only_str )
@@ -107,6 +110,10 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -118,6 +125,10 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -129,12 +140,18 @@ static inline int sum_and_count_iterable(PyObject* iter, bool only_str,
     }
     Py_DECREF(iter);
 
+    REASSIGN(sum, correction);
+    *count = count_val;
+
     return 0;
 }
 
 static inline int sum_and_count_list(PyObject* list, bool only_str, bool only_num,
                                      double* sum, double* correction, uint64_t* count)
 {
+    DEREFERENCE(sum, correction);
+    uint64_t count_val = *count;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -144,6 +161,10 @@ static inline int sum_and_count_list(PyObject* list, bool only_str, bool only_nu
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_AND_COUNT_IF_STR(item);
         }
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -154,6 +175,10 @@ static inline int sum_and_count_list(PyObject* list, bool only_str, bool only_nu
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_AND_COUNT_IF_NUM(item);
         }
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -165,6 +190,9 @@ static inline int sum_and_count_list(PyObject* list, bool only_str, bool only_nu
         ADD_AND_COUNT_IF_NUM(item);
     }
 
+    REASSIGN(sum, correction);
+    *count = count_val;
+
     return 0;
 }
 
@@ -172,6 +200,9 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str, bool only_n
                                       double* sum, double* correction,
                                       uint64_t* count)
 {
+    DEREFERENCE(sum, correction);
+    uint64_t count_val = *count;
+
     Py_ssize_t tupl_len = PyTuple_GET_SIZE(list);
 
     if ( only_str )
@@ -181,6 +212,10 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(list, i);
             ADD_AND_COUNT_IF_STR(item);
         }
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -191,6 +226,10 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(list, i);
             ADD_AND_COUNT_IF_NUM(item);
         }
+
+        REASSIGN(sum, correction);
+        *count = count_val;
+
         return 0;
     }
 
@@ -201,6 +240,9 @@ static inline int sum_and_count_tuple(PyObject* list, bool only_str, bool only_n
         ADD_AND_COUNT_IF_STR(item);
         ADD_AND_COUNT_IF_NUM(item);
     }
+
+    REASSIGN(sum, correction);
+    *count = count_val;
 
     return 0;
 }

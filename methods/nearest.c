@@ -18,8 +18,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
                                                                 \
@@ -37,8 +37,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
@@ -49,8 +49,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
                                                                 \
@@ -78,8 +78,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
                                                                 \
@@ -105,8 +105,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
     else if ( PyFloat_Check(item) )                             \
@@ -121,8 +121,8 @@ do                                                              \
         double distance = fabs(value - target);                 \
         if ( distance < *current_gap )                          \
         {                                                       \
-            *current_gap = distance;                            \
-            *nearest_value = value;                             \
+            current_gap_val = distance;                         \
+            nearest_value_val = value;                          \
         }                                                       \
     }                                                           \
                                                                 \
@@ -132,6 +132,9 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
                               double target, double* nearest_value,
                               double* current_gap)
 {
+    double nearest_value_val = *nearest_value;
+    double current_gap_val = *current_gap;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -141,6 +144,8 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
         }
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -151,6 +156,8 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
         }
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -161,6 +168,8 @@ static inline int search_list(PyObject* list, bool only_str, bool only_num,
         UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
     }
 
+    *nearest_value = nearest_value_val;
+    *current_gap = current_gap_val;
     return 0;
 }
 
@@ -168,6 +177,9 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
                                double target, double* nearest_value,
                                double* current_gap)
 {
+    double nearest_value_val = *nearest_value;
+    double current_gap_val = *current_gap;
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -177,6 +189,8 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             UPDATE_CUR_GAP_AND_VALUE_IF_STR(item);
         }
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -187,6 +201,8 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
         }
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -197,6 +213,8 @@ static inline int search_tuple(PyObject* tuple, bool only_str, bool only_num,
         UPDATE_CUR_GAP_AND_VALUE_IF_NUM(item);
     }
 
+    *nearest_value = nearest_value_val;
+    *current_gap = current_gap_val;
     return 0;
 }
 
@@ -204,6 +222,9 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
                                   double target, double* nearest_value,
                                   double* current_gap)
 {
+    double nearest_value_val = *nearest_value;
+    double current_gap_val = *current_gap;
+
     PyObject* item;
 
     if ( only_str )
@@ -214,6 +235,9 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -225,6 +249,9 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *nearest_value = nearest_value_val;
+        *current_gap = current_gap_val;
         return 0;
     }
 
@@ -236,6 +263,8 @@ static inline int search_iterable(PyObject* iter, bool only_str, bool only_num,
     }
     Py_DECREF(iter);
 
+    *nearest_value = nearest_value_val;
+    *current_gap = current_gap_val;
     return 0;
 }
 

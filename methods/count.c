@@ -13,7 +13,7 @@ do                                                              \
                                                                 \
         if ( strtod(str, NULL) == target )                      \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -29,7 +29,7 @@ do                                                              \
         if ( PyErr_Occurred() ) return DOUBLE_OVERFLOW;         \
         if ( value == target )                                  \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -37,7 +37,7 @@ do                                                              \
     {                                                           \
         if ( PyFloat_AS_DOUBLE(item) == target )                \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -58,7 +58,7 @@ do                                                              \
                                                                 \
         if ( strtod(str, NULL) == target )                      \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -78,7 +78,7 @@ do                                                              \
         }                                                       \
         if ( value == target )                                  \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -86,7 +86,7 @@ do                                                              \
     {                                                           \
         if ( PyFloat_AS_DOUBLE(item) == target )                \
         {                                                       \
-            if ( (*count)++ == UINT64_MAX )                     \
+            if ( count_val++ == UINT64_MAX )                    \
                 return COUNT_OVERFLOW;                          \
         }                                                       \
     }                                                           \
@@ -96,6 +96,8 @@ do                                                              \
 static inline int count_in_list(PyObject* list, bool only_str, bool only_num,
                                 double target, uint64_t* count)
 {
+    uint64_t count_val = *count;
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -105,6 +107,7 @@ static inline int count_in_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             COUNT_IF_STR(item);
         }
+        *count = count_val;
         return 0;
     }
 
@@ -115,6 +118,7 @@ static inline int count_in_list(PyObject* list, bool only_str, bool only_num,
             PyObject* item = PyList_GET_ITEM(list, i);
             COUNT_IF_NUM(item);
         }
+        *count = count_val;
         return 0;
     }
 
@@ -125,12 +129,15 @@ static inline int count_in_list(PyObject* list, bool only_str, bool only_num,
         COUNT_IF_NUM(item);
     }
 
+    *count = count_val;
     return 0;
 }
 
 static inline int count_in_tuple(PyObject* tuple, bool only_str, bool only_num,
                                  double target, uint64_t* count)
 {
+    uint64_t count_val = *count;
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -140,6 +147,7 @@ static inline int count_in_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             COUNT_IF_STR(item);
         }
+        *count = count_val;
         return 0;
     }
 
@@ -150,6 +158,7 @@ static inline int count_in_tuple(PyObject* tuple, bool only_str, bool only_num,
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             COUNT_IF_NUM(item);
         }
+        *count = count_val;
         return 0;
     }
 
@@ -160,12 +169,15 @@ static inline int count_in_tuple(PyObject* tuple, bool only_str, bool only_num,
         COUNT_IF_NUM(item);
     }
 
+    *count = count_val;
     return 0;
 }
 
 static inline int count_in_iterable(PyObject* iter, bool only_str, bool only_num,
                                     double target, uint64_t* count)
 {
+    uint64_t count_val = *count;
+
     PyObject* item;
 
     if ( only_str )
@@ -176,6 +188,8 @@ static inline int count_in_iterable(PyObject* iter, bool only_str, bool only_num
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *count = count_val;
         return 0;
     }
 
@@ -187,6 +201,8 @@ static inline int count_in_iterable(PyObject* iter, bool only_str, bool only_num
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        *count = count_val;
         return 0;
     }
 
@@ -198,6 +214,7 @@ static inline int count_in_iterable(PyObject* iter, bool only_str, bool only_num
     }
     Py_DECREF(iter);
 
+    *count = count_val;
     return 0;
 }
 
