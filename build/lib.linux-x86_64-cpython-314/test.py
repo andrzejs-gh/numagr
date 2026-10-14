@@ -1197,9 +1197,13 @@ def numagr_methods_test():
 	test_method(numagr.pstdev, tuple(ITERABLE), ret_table = ret_table, mode = "tuple")
 	test_method(numagr.pstdev, ITERABLE, ret_table = ret_table, mk_gen = True, mode = "generator")
 
-	print("Method test completed", OK)
-
 def main_test():
+
+	print(CYAN("* * *"))
+	print("Beginning method test ...")
+	numagr_methods_test()
+	print("Method test completed.", OK)
+	print(CYAN("* * *"))
 
 	tests = (sum_test, min_test, max_test, amean_test,
 			 gmean_test, hmean_test, nearest_test, count_test,
@@ -1211,7 +1215,7 @@ def main_test():
 		test()
 		print(CYAN("* * *"))
 
-	print(f"Performance test completed. {OK}")
+	print("Performance test completed.", OK)
 	print(CYAN("* * *"))
 
 
@@ -1219,7 +1223,6 @@ if __name__ == "__main__":
 
 	load_lists()
 
-	# main_test()
-	numagr_methods_test()
+	main_test()
 
 	sys.exit(0)
