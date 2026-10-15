@@ -183,7 +183,7 @@ def sum_test():
 													  normalized_MIXED)
 	numagr_sum_mixed, numagr_sum_mixed_time = benchmark(numagr.sum, MIXED_SAFE)
 
-	print(LIGHT_BLUE("Summing mixed values:"))
+	print(LIGHT_BLUE(f"Summing {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sum       ')} t = {sum_mixed_time + normal_time}\n{sum_mixed}")
 	print(f"{LIGHT_YELLOW('math.fsum ')} t = {math_fsum_mixed_time + normal_time}\n{math_fsum_mixed}")
@@ -200,13 +200,13 @@ def min_test():
 	numpy_min_ints, numpy_min_ints_time = benchmark(numpy.min, INTS)
 	numagr_min_ints, numagr_min_ints_time = benchmark(numagr.min, INTS)
 
-	print(LIGHT_BLUE("Finding minimum in integers:"))
+	print(LIGHT_BLUE(f"Finding minimum in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('min       ')} t = {min_ints_time}\n{min_ints}")
 	print(f"{LIGHT_YELLOW('numpy.min ')} t = {numpy_min_ints_time}\n{numpy_min_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.min')} t = {numagr_min_ints_time} {LIGHT_GREEN('<-')}\n{numagr_min_ints}")
 
-	print(LIGHT_BLUE("Finding minimum in floats:"))
+	print(LIGHT_BLUE(f"Finding minimum in {LIMIT} floats:"))
 
 	min_floats, min_floats_time = benchmark(min, FLOATS)
 	numpy_min_floats, numpy_min_floats_time = benchmark(numpy.min, FLOATS)
@@ -224,7 +224,7 @@ def min_test():
 													normalized_MIXED)
 	numagr_min_mixed, numagr_min_mixed_time = benchmark(numagr.min, MIXED_HAZ)
 
-	print(LIGHT_BLUE("Finding minimum of mixed values:"))
+	print(LIGHT_BLUE(f"Finding minimum of {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('min       ')} t = {min_mixed_time + normal_time}\n{min_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.min ')} t = {numpy_min_mixed_time + normal_time}\n{numpy_min_mixed}")
@@ -240,13 +240,13 @@ def max_test():
 	numpy_max_ints, numpy_max_ints_time = benchmark(numpy.max, INTS)
 	numagr_max_ints, numagr_max_ints_time = benchmark(numagr.max, INTS)
 
-	print(LIGHT_BLUE("Finding maximum in integers:"))
+	print(LIGHT_BLUE(f"Finding maximum in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('max       ')} t = {max_ints_time}\n{max_ints}")
 	print(f"{LIGHT_YELLOW('numpy.max ')} t = {numpy_max_ints_time}\n{numpy_max_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.max')} t = {numagr_max_ints_time} {LIGHT_GREEN('<-')}\n{numagr_max_ints}")
 
-	print(LIGHT_BLUE("Finding maximum in floats:"))
+	print(LIGHT_BLUE(f"Finding maximum in {LIMIT} floats:"))
 
 	max_floats, max_floats_time = benchmark(max, FLOATS)
 	numpy_max_floats, numpy_max_floats_time = benchmark(numpy.max, FLOATS)
@@ -264,7 +264,7 @@ def max_test():
 													  normalized_MIXED)
 	numagr_max_mixed, numagr_max_mixed_time = benchmark(numagr.max, MIXED_SAFE)
 
-	print(LIGHT_BLUE("Finding maximum of mixed values:"))
+	print(LIGHT_BLUE(f"Finding maximum of {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('max       ')} t = {max_mixed_time + normal_time}\n{max_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.max ')} t = {numpy_max_mixed_time + normal_time}\n{numpy_max_mixed}")
@@ -285,14 +285,14 @@ def amean_test():
 	numpy_mean_ints, numpy_mean_ints_time = benchmark(numpy.mean, INTS)
 	numagr_mean_ints, numagr_mean_ints_time = benchmark(numagr.amean, INTS)
 
-	print(LIGHT_BLUE("Finding arithmetic mean in integers:"))
+	print(LIGHT_BLUE(f"Finding arithmetic mean in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sum(x) / len(x)')} t = {std_mean_ints_time}\n{std_mean_ints}")
 	print(f"{LIGHT_YELLOW('statistics.mean')} t = {stat_mean_ints_time}\n{stat_mean_ints}")
 	print(f"{LIGHT_YELLOW('numpy.mean     ')} t = {numpy_mean_ints_time}\n{numpy_mean_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.amean   ')} t = {numagr_mean_ints_time} {LIGHT_GREEN('<-')}\n{numagr_mean_ints}")
 
-	print(LIGHT_BLUE("Finding arithmetic mean in floats:"))
+	print(LIGHT_BLUE(f"Finding arithmetic mean in {LIMIT} floats:"))
 
 	std_mean_floats, std_mean_floats_time = benchmark(std_mean, FLOATS)
 	stat_mean_floats, stat_mean_floats_time = benchmark(statistics.mean, FLOATS)
@@ -313,7 +313,7 @@ def amean_test():
 														normalized_MIXED)
 	numagr_mean_mixed, numagr_mean_mixed_time = benchmark(numagr.amean, MIXED_SAFE)
 
-	print(LIGHT_BLUE("Finding arithmetic mean of mixed values:"))
+	print(LIGHT_BLUE(f"Finding arithmetic mean of {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sum(x) / len(x)')} t = {std_mean_mixed_time + normal_time}\n{std_mean_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.mean')} t = {stat_mean_mixed_time + normal_time}\n{stat_mean_mixed}")
@@ -331,13 +331,13 @@ def gmean_test():
 		lambda x: numpy.exp(numpy.mean(numpy.log(x))), INTS)
 	numagr_gmean_ints, numagr_gmean_ints_time = benchmark(numagr.gmean, INTS)
 
-	print(LIGHT_BLUE("Finding geometric mean in integers:"))
+	print(LIGHT_BLUE(f"Finding geometric mean in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('statistics.geometric_mean')} t = {stat_gmean_ints_time}\n{stat_gmean_ints}")
 	print(f"{LIGHT_YELLOW('numpy.exp(mean(log(x)))  ')} t = {numpy_gmean_ints_time}\n{numpy_gmean_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.gmean             ')} t = {numagr_gmean_ints_time} {LIGHT_GREEN('<-')}\n{numagr_gmean_ints}")
 
-	print(LIGHT_BLUE("Finding geometric mean in floats:"))
+	print(LIGHT_BLUE(f"Finding geometric mean in {LIMIT} floats:"))
 
 	stat_gmean_floats, stat_gmean_floats_time = benchmark(statistics.geometric_mean, FLOATS)
 	numpy_gmean_floats, numpy_gmean_floats_time = benchmark(
@@ -360,7 +360,7 @@ def gmean_test():
 	numagr_gmean_mixed, numagr_gmean_mixed_time = benchmark(numagr.gmean,
 														    MIXED_SAFE, only_num=True)
 
-	print(LIGHT_BLUE("Finding geometric mean of mixed values:"))
+	print(LIGHT_BLUE(f"Finding geometric mean of {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('statistics.geometric_mean')} t = {stat_gmean_mixed_time + normal_time}\n{stat_gmean_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.exp(mean(log(x)))  ')} t = {numpy_gmean_mixed_time + normal_time}\n{numpy_gmean_mixed}")
@@ -384,14 +384,14 @@ def hmean_test():
 	numpy_hmean_ints, numpy_hmean_ints_time = benchmark(numpy_hmean, INTS)
 	numagr_hmean_ints, numagr_hmean_ints_time = benchmark(numagr.hmean, INTS)
 
-	print(LIGHT_BLUE("Finding harmonic mean in integers:"))
+	print(LIGHT_BLUE(f"Finding harmonic mean in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('len(x) / sum(1/x)        ')} t = {std_hmean_ints_time}\n{std_hmean_ints}")
 	print(f"{LIGHT_YELLOW('statistics.harmonic_mean ')} t = {stat_hmean_ints_time}\n{stat_hmean_ints}")
 	print(f"{LIGHT_YELLOW('len(x) / numpy.sum(1 / x)')} t = {numpy_hmean_ints_time}\n{numpy_hmean_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.hmean             ')} t = {numagr_hmean_ints_time} {LIGHT_GREEN('<-')}\n{numagr_hmean_ints}")
 
-	print(LIGHT_BLUE("Finding harmonic mean in floats:"))
+	print(LIGHT_BLUE(f"Finding harmonic mean in {LIMIT} floats:"))
 
 	std_hmean_floats, std_hmean_floats_time = benchmark(std_hmean, FLOATS)
 	stat_hmean_floats, stat_hmean_floats_time = benchmark(statistics.harmonic_mean, FLOATS)
@@ -414,7 +414,7 @@ def hmean_test():
 	numagr_hmean_mixed, numagr_hmean_mixed_time = benchmark(
 		numagr.hmean, MIXED_SAFE, only_num=True)
 
-	print(LIGHT_BLUE("Finding harmonic mean of mixed values:"))
+	print(LIGHT_BLUE(f"Finding harmonic mean of {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('len(x) / sum(1/x)        ')} t = {std_hmean_mixed_time + normal_time}\n{std_hmean_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.harmonic_mean ')} t = {stat_hmean_mixed_time + normal_time}\n{stat_hmean_mixed}")
@@ -438,7 +438,7 @@ def nearest_test():
 	numagr_nearest_ints, numagr_nearest_ints_time = benchmark(numagr.nearest,
 																target, INTS)
 
-	print(LIGHT_BLUE(f"Finding nearest value in integers, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding nearest value in {LIMIT} integers, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('min(key=abs(x-target))')} t = {std_nearest_ints_time}\n{std_nearest_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.nearest        ')} t = {numagr_nearest_ints_time} {LIGHT_GREEN('<-')}\n{numagr_nearest_ints}")
@@ -451,7 +451,7 @@ def nearest_test():
 	numagr_nearest_floats, numagr_nearest_floats_time = benchmark(numagr.nearest,
 																  target, FLOATS)
 
-	print(LIGHT_BLUE(f"Finding nearest value in floats, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding nearest value in {LIMIT} floats, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('min(key=abs(x-target))')} t = {std_nearest_floats_time}\n{std_nearest_floats}")
 	print(f"{LIGHT_GREEN( 'numagr.nearest        ')} t = {numagr_nearest_floats_time} {LIGHT_GREEN('<-')}\n{numagr_nearest_floats}")
@@ -468,7 +468,7 @@ def nearest_test():
 	numagr_nearest_mixed, numagr_nearest_mixed_time = benchmark(numagr.nearest,
 													target, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE(f"Finding nearest value of mixed values, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding nearest value of {LIMIT} mixed values, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('min(key=abs(x-target)')} t = {std_nearest_mixed_time + normal_time}\n{std_nearest_mixed}")
 	print(f"{LIGHT_GREEN( 'numagr.nearest       ')} t = {numagr_nearest_mixed_time} {LIGHT_GREEN('<-')}\n{numagr_nearest_mixed}")
@@ -492,7 +492,7 @@ def count_test():
 	numpy_count_ints, numpy_count_ints_time = benchmark(numpy_count, target, INTS)
 	numagr_count_ints, numagr_count_ints_time = benchmark(numagr.count, target, INTS)
 
-	print(LIGHT_BLUE(f"Counting occurrences in integers, target = {target}:"))
+	print(LIGHT_BLUE(f"Counting occurrences in {LIMIT} integers, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('x.count(target)    ')} t = {std_count_ints_time}\n{std_count_ints}")
 	print(f"{LIGHT_YELLOW('numpy.count_nonzero')} t = {numpy_count_ints_time}\n{numpy_count_ints}")
@@ -506,7 +506,7 @@ def count_test():
 	numagr_count_floats, numagr_count_floats_time = benchmark(numagr.count,
 															  target, FLOATS)
 
-	print(LIGHT_BLUE(f"Counting occurrences in floats, target = {target}:"))
+	print(LIGHT_BLUE(f"Counting occurrences in {LIMIT} floats, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('x.count(target)    ')} t = {std_count_floats_time}\n{std_count_floats}")
 	print(f"{LIGHT_YELLOW('numpy.count_nonzero')} t = {numpy_count_floats_time}\n{numpy_count_floats}")
@@ -526,7 +526,7 @@ def count_test():
 	numagr_count_mixed, numagr_count_mixed_time = benchmark(numagr.count, target,
 														    MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE(f"Counting occurrences of mixed values, target = {target}:"))
+	print(LIGHT_BLUE(f"Counting occurrences of {LIMIT} mixed values, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('x.count(target)    ')} t = {std_count_mixed_time + normal_time}\n{std_count_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.count_nonzero')} t = {numpy_count_mixed_time + normal_time}\n{numpy_count_mixed}")
@@ -552,7 +552,7 @@ def fraction_below_test():
 	numagr_fraction_ints, numagr_fraction_ints_time = benchmark(
 		numagr.frac_below, target, INTS)
 
-	print(LIGHT_BLUE(f"Finding fraction below target in integers, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding fraction below target in {LIMIT} integers, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('sum(x < target) / len(x)')} t = {std_fraction_ints_time}\n{std_fraction_ints}")
 	print(f"{LIGHT_YELLOW('numpy.mean(x < target)  ')} t = {numpy_fraction_ints_time}\n{numpy_fraction_ints}")
@@ -560,7 +560,7 @@ def fraction_below_test():
 
 	target = choice(FLOATS)
 
-	print(LIGHT_BLUE(f"Finding fraction below target in floats, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding fraction below target in {LIMIT} floats, target = {target}:"))
 
 	std_fraction_floats, std_fraction_floats_time = benchmark(
 		std_fraction, target, FLOATS)
@@ -588,7 +588,7 @@ def fraction_below_test():
 		numagr.frac_below, target, MIXED_HAZ, only_num=True)
 
 	print(LIGHT_BLUE(
-		f"Finding fraction below target in mixed values, target = {target}:"))
+		f"Finding fraction below target in {LIMIT} mixed values, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('sum(x < target) / len(x)')} t = {std_fraction_mixed_time + normal_time}\n{std_fraction_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.mean(x < target)  ')} t = {numpy_fraction_mixed_time + normal_time}\n{numpy_fraction_mixed}")
@@ -614,7 +614,7 @@ def fraction_above_test():
 	numagr_fraction_ints, numagr_fraction_ints_time = benchmark(
 		numagr.frac_above, target, INTS)
 
-	print(LIGHT_BLUE(f"Finding fraction above target in integers, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding fraction above target in {LIMIT} integers, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('sum(x > target) / len(x)')} t = {std_fraction_ints_time}\n{std_fraction_ints}")
 	print(f"{LIGHT_YELLOW('numpy.mean(x > target)  ')} t = {numpy_fraction_ints_time}\n{numpy_fraction_ints}")
@@ -622,7 +622,7 @@ def fraction_above_test():
 
 	target = choice(FLOATS)
 
-	print(LIGHT_BLUE(f"Finding fraction above target in floats, target = {target}:"))
+	print(LIGHT_BLUE(f"Finding fraction above target in {LIMIT} floats, target = {target}:"))
 
 	std_fraction_floats, std_fraction_floats_time = benchmark(
 		std_fraction, target, FLOATS)
@@ -650,7 +650,7 @@ def fraction_above_test():
 		numagr.frac_above, target, MIXED_HAZ, only_num=True)
 
 	print(LIGHT_BLUE(
-		f"Finding fraction above target in mixed values, target = {target}:"))
+		f"Finding fraction above target in {LIMIT} mixed values, target = {target}:"))
 
 	print(f"{LIGHT_YELLOW('sum(x > target) / len(x)')} t = {std_fraction_mixed_time + normal_time}\n{std_fraction_mixed}")
 	print(f"{LIGHT_YELLOW('numpy.mean(x > target)  ')} t = {numpy_fraction_mixed_time + normal_time}\n{numpy_fraction_mixed}")
@@ -677,7 +677,7 @@ def mode_test():
 	numagr_mode_ints, numagr_mode_ints_time = benchmark(
 		numagr.mode, INTS)
 
-	print(LIGHT_BLUE("Finding mode in integers:"))
+	print(LIGHT_BLUE(f"Finding mode in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('Counter(x).most_common)')} t = {counter_mode_ints_time}\n{counter_mode_ints}")
 	print(f"{LIGHT_YELLOW('statistics.mode        ')} t = {stat_mode_ints_time}\n{stat_mode_ints}")
@@ -693,7 +693,7 @@ def mode_test():
 	numagr_mode_floats, numagr_mode_floats_time = benchmark(
 		numagr.mode, FLOATS)
 
-	print(LIGHT_BLUE("Finding mode in floats:"))
+	print(LIGHT_BLUE(f"Finding mode in {LIMIT} floats:"))
 
 	print(f"{LIGHT_YELLOW('Counter(x).most_common)')} t = {counter_mode_floats_time}\n{counter_mode_floats}")
 	print(f"{LIGHT_YELLOW('statistics.mode        ')} t = {stat_mode_floats_time}\n{stat_mode_floats}")
@@ -714,7 +714,7 @@ def mode_test():
 	numagr_mode_mixed, numagr_mode_mixed_time = benchmark(
 		numagr.mode, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE("Finding mode in mixed values:"))
+	print(LIGHT_BLUE(f"Finding mode in {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('Counter(x).most_common)')} t = {counter_mode_mixed_time + normal_time}\n{counter_mode_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.mode        ')} t = {stat_mode_mixed_time + normal_time}\n{stat_mode_mixed}")
@@ -739,7 +739,7 @@ def variance_test():
 	numagr_var_ints, numagr_var_ints_time = benchmark(
 		numagr.var, INTS)
 
-	print(LIGHT_BLUE("Finding variance in integers:"))
+	print(LIGHT_BLUE(f"Finding variance in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_ints_time}\n{std_var_ints}")
 	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_ints_time}\n{stat_var_ints}")
@@ -755,7 +755,7 @@ def variance_test():
 	numagr_var_floats, numagr_var_floats_time = benchmark(
 		numagr.var, FLOATS)
 
-	print(LIGHT_BLUE("Finding variance in floats:"))
+	print(LIGHT_BLUE(f"Finding variance in {LIMIT} floats:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_floats_time}\n{std_var_floats}")
 	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_floats_time}\n{stat_var_floats}")
@@ -776,7 +776,7 @@ def variance_test():
 	numagr_var_mixed, numagr_var_mixed_time = benchmark(
 		numagr.var, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE("Finding variance in mixed values:"))
+	print(LIGHT_BLUE(f"Finding variance in {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / (n - 1)')} t = {std_var_mixed_time + normal_time}\n{std_var_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.variance           ')} t = {stat_var_mixed_time + normal_time}\n{stat_var_mixed}")
@@ -802,7 +802,7 @@ def pvariance_test():
 	numagr_pvar_ints, numagr_pvar_ints_time = benchmark(
 		numagr.pvar, INTS)
 
-	print(LIGHT_BLUE("Finding population variance in integers:"))
+	print(LIGHT_BLUE(f"Finding population variance in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_ints_time}\n{std_pvar_ints}")
 	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_ints_time}\n{stat_pvar_ints}")
@@ -818,7 +818,7 @@ def pvariance_test():
 	numagr_pvar_floats, numagr_pvar_floats_time = benchmark(
 		numagr.pvar, FLOATS)
 
-	print(LIGHT_BLUE("Finding population variance in floats:"))
+	print(LIGHT_BLUE(f"Finding population variance in {LIMIT} floats:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_floats_time}\n{std_pvar_floats}")
 	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_floats_time}\n{stat_pvar_floats}")
@@ -839,7 +839,7 @@ def pvariance_test():
 	numagr_pvar_mixed, numagr_pvar_mixed_time = benchmark(
 		numagr.pvar, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE("Finding population variance in mixed values:"))
+	print(LIGHT_BLUE(f"Finding population variance in {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sum((x - mean) ** 2) / n')} t = {std_pvar_mixed_time + normal_time}\n{std_pvar_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.pvariance    ')} t = {stat_pvar_mixed_time + normal_time}\n{stat_pvar_mixed}")
@@ -865,7 +865,7 @@ def stdev_test():
 	numagr_stdev_ints, numagr_stdev_ints_time = benchmark(
 		numagr.stdev, INTS)
 
-	print(LIGHT_BLUE("Finding standard deviation in integers:"))
+	print(LIGHT_BLUE(f"Finding standard deviation in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_ints_time}\n{std_stdev_ints}")
 	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_ints_time}\n{stat_stdev_ints}")
@@ -881,7 +881,7 @@ def stdev_test():
 	numagr_stdev_floats, numagr_stdev_floats_time = benchmark(
 		numagr.stdev, FLOATS)
 
-	print(LIGHT_BLUE("Finding standard deviation in floats:"))
+	print(LIGHT_BLUE(f"Finding standard deviation in {LIMIT} floats:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_floats_time}\n{std_stdev_floats}")
 	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_floats_time}\n{stat_stdev_floats}")
@@ -902,7 +902,7 @@ def stdev_test():
 	numagr_stdev_mixed, numagr_stdev_mixed_time = benchmark(
 		numagr.stdev, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE("Finding standard deviation in mixed values:"))
+	print(LIGHT_BLUE(f"Finding standard deviation in {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / (n - 1))')} t = {std_stdev_mixed_time + normal_time}\n{std_stdev_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.stdev                    ')} t = {stat_stdev_mixed_time + normal_time}\n{stat_stdev_mixed}")
@@ -928,7 +928,7 @@ def pstdev_test():
 	numagr_pstdev_ints, numagr_pstdev_ints_time = benchmark(
 		numagr.pstdev, INTS)
 
-	print(LIGHT_BLUE("Finding population standard deviation in integers:"))
+	print(LIGHT_BLUE(f"Finding population standard deviation in {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_ints_time}\n{std_pstdev_ints}")
 	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_ints_time}\n{stat_pstdev_ints}")
@@ -944,7 +944,7 @@ def pstdev_test():
 	numagr_pstdev_floats, numagr_pstdev_floats_time = benchmark(
 		numagr.pstdev, FLOATS)
 
-	print(LIGHT_BLUE("Finding population standard deviation in floats:"))
+	print(LIGHT_BLUE(f"Finding population standard deviation in {LIMIT} floats:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_floats_time}\n{std_pstdev_floats}")
 	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_floats_time}\n{stat_pstdev_floats}")
@@ -965,7 +965,7 @@ def pstdev_test():
 	numagr_pstdev_mixed, numagr_pstdev_mixed_time = benchmark(
 		numagr.pstdev, MIXED_HAZ, only_num=True)
 
-	print(LIGHT_BLUE("Finding population standard deviation in mixed values:"))
+	print(LIGHT_BLUE(f"Finding population standard deviation in {LIMIT} mixed values:"))
 
 	print(f"{LIGHT_YELLOW('sqrt(sum((x - mean) ** 2) / n)')} t = {std_pstdev_mixed_time + normal_time}\n{std_pstdev_mixed}")
 	print(f"{LIGHT_YELLOW('statistics.pstdev             ')} t = {stat_pstdev_mixed_time + normal_time}\n{stat_pstdev_mixed}")

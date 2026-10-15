@@ -16,7 +16,7 @@ do                                                              \
         if ( value == target ) return EXACT_MATCH_FOUND;        \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
@@ -35,7 +35,7 @@ do                                                              \
         if ( value == target ) return EXACT_MATCH_FOUND;        \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
@@ -47,7 +47,7 @@ do                                                              \
         if ( value == target ) return EXACT_MATCH_FOUND;        \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
@@ -76,7 +76,7 @@ do                                                              \
         }                                                       \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
@@ -103,7 +103,7 @@ do                                                              \
         }                                                       \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
@@ -119,7 +119,7 @@ do                                                              \
         }                                                       \
                                                                 \
         double distance = fabs(value - target);                 \
-        if ( distance < *current_gap )                          \
+        if ( distance < current_gap_val )                       \
         {                                                       \
             current_gap_val = distance;                         \
             nearest_value_val = value;                          \
