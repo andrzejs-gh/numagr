@@ -135,14 +135,14 @@ double correction_val = *(correction_ptr);
 *(sum_ptr) = sum_val;                          \
 *(correction_ptr) = correction_val;
 
-#define KAHAN_SUM_ADD(value)                         \
-do                                                   \
-{                                                    \
-    double next = (value) - correction_val;          \
-    double new_sum = sum_val + next;                 \
-    correction_val = (new_sum - sum_val) - next;     \
-    sum_val = new_sum;                               \
-                                                     \
+#define KAHAN_SUM_ADD(value, sum_val, correction_val)   \
+do                                                      \
+{                                                       \
+    double next = (value) - correction_val;             \
+    double new_sum = sum_val + next;                    \
+    correction_val = (new_sum - sum_val) - next;        \
+    sum_val = new_sum;                                  \
+                                                        \
 } while (0);
 
 #define KAHAN_SUM(sum_ptr, correction_ptr, value)       \

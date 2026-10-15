@@ -2,8 +2,61 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../numagr.h"
 #include "../floats_hash_table.h"
+
+#define GET_HASH(key, hash)                             \
+do                                                      \
+{                                                       \
+    unsigned char* bytes = (unsigned char*)&key;        \
+    hash = FNV_OFFSET_BASIS;                            \
+                                                        \
+    for ( size_t i = 0; i < sizeof(double); i++ )       \
+    {                                                   \
+        hash ^= bytes[i];                               \
+        hash *= FNV_PRIME;                              \
+    }                                                   \
+                                                        \
+} while (0);
+
+#define FHTABLE_INC(fht, val, ret)                                          \
+do                                                                          \
+{                                                                           \
+    double key = val;                                                       \
+    if ( !key ) key = 0.0; /* normalize negative zero just in case */       \
+                                                                            \
+    uint64_t hash;                                                          \
+    GET_HASH(key, hash);                                                    \
+                                                                            \
+    size_t fht_capacity = fht->capacity;                                    \
+    size_t index = hash % fht_capacity;                                     \
+    fhtable_entry* fht_table = fht->table;                                  \
+    bool entry_found = false;                                               \
+                                                                            \
+    while ( fht_table[index].count )                                        \
+    {                                                                       \
+        if ( fht_table[index].key == key )                                  \
+        {                                                                   \
+            fht_table[index].count++;                                       \
+            entry_found = true;                                             \
+            break;                                                          \
+        }                                                                   \
+        if ( ++index == fht_capacity )                                      \
+            index = 0;                                                      \
+    }                                                                       \
+    if ( entry_found ) break;                                               \
+                                                                            \
+    fht_table[index] = (fhtable_entry){key, 1, hash};                       \
+                                                                            \
+    if ( (++fht->count / (double)fht_capacity) > FHTABLE_LOAD_FACTOR )      \
+    {                                                                       \
+        void* ret_ptr = fhtable_grow(fht);                                  \
+        if ( !ret_ptr )                                                     \
+            ret = REALLOC_FAILURE;                                          \
+    }                                                                       \
+                                                                            \
+} while (0);
 
 #define iter_HASH_IF_STR(item)                              \
 do                                                          \
@@ -16,8 +69,10 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return STR_ENCODING_FAILURE;                    \
         }                                                   \
+        double value = strtod(str, NULL);                   \
                                                             \
-        int ret = fhtable_inc(table, strtod(str, NULL));    \
+        int ret = 0;                                        \
+        FHTABLE_INC(table, value, ret)                      \
         if ( ret )                                          \
         {                                                   \
             Py_DECREF(item); Py_DECREF(iter);               \
@@ -39,7 +94,8 @@ do                                                                  \
             return DOUBLE_OVERFLOW;                                 \
         }                                                           \
                                                                     \
-        int ret = fhtable_inc(table, value);                        \
+        int ret = 0;                                                \
+        FHTABLE_INC(table, value, ret);                             \
         if ( ret )                                                  \
         {                                                           \
             Py_DECREF(item); Py_DECREF(iter);                       \
@@ -49,7 +105,10 @@ do                                                                  \
     }                                                               \
     else if ( PyFloat_Check(item) )                                 \
     {                                                               \
-        int ret = fhtable_inc(table, PyFloat_AS_DOUBLE(item));      \
+        double value = PyFloat_AS_DOUBLE(item);                     \
+                                                                    \
+        int ret = 0;                                                \
+        FHTABLE_INC(table, value, ret);                             \
         if ( ret )                                                  \
         {                                                           \
             Py_DECREF(item); Py_DECREF(iter);                       \
@@ -68,7 +127,10 @@ do                                                          \
         if ( !str )                                         \
             return STR_ENCODING_FAILURE;                    \
                                                             \
-        int ret = fhtable_inc(table, strtod(str, NULL));    \
+        double value = strtod(str, NULL);                   \
+                                                            \
+        int ret = 0;                                        \
+        FHTABLE_INC(table, value, ret);                     \
         if ( ret ) return ret;                              \
     }                                                       \
                                                             \
@@ -83,12 +145,16 @@ do                                                                  \
         if ( PyErr_Occurred() )                                     \
             return DOUBLE_OVERFLOW;                                 \
                                                                     \
-        int ret = fhtable_inc(table, value);                        \
+        int ret = 0;                                                \
+        FHTABLE_INC(table, value, ret);                             \
         if ( ret ) return ret;                                      \
     }                                                               \
     else if ( PyFloat_Check(item) )                                 \
     {                                                               \
-        int ret = fhtable_inc(table, PyFloat_AS_DOUBLE(item));      \
+        double value = PyFloat_AS_DOUBLE(item);                     \
+                                                                    \
+        int ret = 0;                                                \
+        FHTABLE_INC(table, value, ret);                             \
         if ( ret ) return ret;                                      \
     }                                                               \
                                                                     \
@@ -107,6 +173,45 @@ do                                                          \
     table_allocated = true;                                 \
                                                             \
 } while (0);
+
+static inline fhtable* fhtable_grow(fhtable* fht)
+{
+    size_t old_capacity = fht->capacity;
+    size_t new_capacity = FHTABLE_GROWTH_FACTOR*old_capacity;
+
+    fhtable_entry* new_table = calloc(new_capacity, sizeof(fhtable_entry));
+    if ( !new_table )
+        return NULL;
+
+    fhtable_entry* old_table = fht->table;
+
+    for ( size_t i = 0; i < old_capacity; i++ )
+    {
+        if ( old_table[i].count )
+        {
+            size_t new_index = old_table[i].hash % new_capacity;
+
+            while ( new_table[new_index].count )
+            {
+                if ( ++new_index == new_capacity )
+                    new_index = 0;
+            }
+
+            new_table[new_index] = (fhtable_entry)
+            {
+                .key = old_table[i].key,
+                .count = old_table[i].count,
+                .hash = old_table[i].hash
+            };
+        }
+    }
+
+    fht->capacity = new_capacity;
+    fht->table = new_table;
+    free(old_table);
+
+    return fht;
+}
 
 static inline int hash_values_iterable(PyObject* iter, bool only_str,
                                        bool only_num, fhtable* table)

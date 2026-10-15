@@ -358,13 +358,14 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
     double* array_addr = array.addr;
 
-    double sum_val = 0.0;
-    double correction_val = 0.0;
+    double recip_sum = 0.0;
+    double correction = 0.0;
     for ( size_t i = 0; i < count; i++ )
     {
-        KAHAN_SUM_ADD(min / array_addr[i])
+        double value = min / array_addr[i];
+        KAHAN_SUM_ADD(value, recip_sum, correction);
     }
     free(array.addr);
 
-    return PyFloat_FromDouble((min*count)/sum_val);
+    return PyFloat_FromDouble((min*count)/recip_sum);
 }

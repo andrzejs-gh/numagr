@@ -21,7 +21,8 @@ do                                                          \
         if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM_ADD(log(value));                          \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
     }                                                       \
                                                             \
 } while (0);
@@ -41,7 +42,9 @@ do                                                          \
         if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM_ADD(log(value));                          \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
+                                                            \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -53,7 +56,8 @@ do                                                          \
         if ( count_val++ == UINT64_MAX )                    \
             return COUNT_OVERFLOW;                          \
                                                             \
-        KAHAN_SUM_ADD(log(value));                          \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
     }                                                       \
                                                             \
 } while (0);
@@ -82,7 +86,9 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM_ADD(log(value));                          \
+                                                            \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
     }                                                       \
                                                             \
 } while (0);
@@ -113,7 +119,9 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM_ADD(log(value));                          \
+                                                            \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
     }                                                       \
     else if ( PyFloat_Check(item) )                         \
     {                                                       \
@@ -133,7 +141,9 @@ do                                                          \
             Py_DECREF(item); Py_DECREF(iter);               \
             return COUNT_OVERFLOW;                          \
         }                                                   \
-        KAHAN_SUM_ADD(log(value));                          \
+                                                            \
+        value = log(value);                                 \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
     }                                                       \
                                                             \
 } while (0);

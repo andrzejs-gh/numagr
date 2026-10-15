@@ -19,7 +19,7 @@ do                                                          \
         }                                                   \
                                                             \
         double value = strtod(str, NULL);                   \
-        KAHAN_SUM(sum, correction, value);                  \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
                                                             \
         int ret = 0;                                        \
         FDARRAY_PUSH(array, value, ret);                    \
@@ -44,7 +44,7 @@ do                                                              \
             return DOUBLE_OVERFLOW;                             \
         }                                                       \
                                                                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);          \
                                                                 \
         int ret = 0;                                            \
         FDARRAY_PUSH(array, value, ret);                        \
@@ -58,7 +58,7 @@ do                                                              \
     {                                                           \
         double value = PyFloat_AS_DOUBLE(item);                 \
                                                                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);          \
                                                                 \
         int ret = 0;                                            \
         FDARRAY_PUSH(array, value, ret);                        \
@@ -81,7 +81,7 @@ do                                                          \
             return STR_ENCODING_FAILURE;                    \
                                                             \
         double value = strtod(str, NULL);                   \
-        KAHAN_SUM(sum, correction, value);                  \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);      \
                                                             \
         int ret = 0;                                        \
         FDARRAY_PUSH(array, value, ret);                    \
@@ -99,7 +99,7 @@ do                                                              \
         if ( PyErr_Occurred() )                                 \
             return DOUBLE_OVERFLOW;                             \
                                                                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);          \
                                                                 \
         int ret = 0;                                            \
         FDARRAY_PUSH(array, value, ret);                        \
@@ -109,7 +109,7 @@ do                                                              \
     else if ( PyFloat_Check(item) )                             \
     {                                                           \
         double value = PyFloat_AS_DOUBLE(item);                 \
-        KAHAN_SUM(sum, correction, value);                      \
+        KAHAN_SUM_ADD(value, sum_val, correction_val);          \
                                                                 \
         int ret = 0;                                            \
         FDARRAY_PUSH(array, value, ret);                        \
@@ -224,6 +224,8 @@ do                                                                  \
 static inline int add_and_push_list(PyObject* list, bool only_str, bool only_num,
                                     double* sum, double* correction, fdarray* array)
 {
+    DEREFERENCE(sum, correction);
+
     Py_ssize_t list_len = PyList_GET_SIZE(list);
 
     if ( only_str )
@@ -233,6 +235,7 @@ static inline int add_and_push_list(PyObject* list, bool only_str, bool only_num
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_AND_PUSH_IF_STR(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -243,6 +246,7 @@ static inline int add_and_push_list(PyObject* list, bool only_str, bool only_num
             PyObject* item = PyList_GET_ITEM(list, i);
             ADD_AND_PUSH_IF_NUM(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -253,12 +257,15 @@ static inline int add_and_push_list(PyObject* list, bool only_str, bool only_num
         ADD_AND_PUSH_IF_NUM(item);
     }
 
+    REASSIGN(sum, correction);
     return 0;
 }
 
 static inline int add_and_push_tuple(PyObject* tuple, bool only_str, bool only_num,
                                      double* sum, double* correction, fdarray* array)
 {
+    DEREFERENCE(sum, correction);
+
     Py_ssize_t tuple_len = PyTuple_GET_SIZE(tuple);
 
     if ( only_str )
@@ -268,6 +275,7 @@ static inline int add_and_push_tuple(PyObject* tuple, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_AND_PUSH_IF_STR(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -278,6 +286,7 @@ static inline int add_and_push_tuple(PyObject* tuple, bool only_str, bool only_n
             PyObject* item = PyTuple_GET_ITEM(tuple, i);
             ADD_AND_PUSH_IF_NUM(item);
         }
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -288,6 +297,7 @@ static inline int add_and_push_tuple(PyObject* tuple, bool only_str, bool only_n
         ADD_AND_PUSH_IF_NUM(item);
     }
 
+    REASSIGN(sum, correction);
     return 0;
 }
 
@@ -295,6 +305,8 @@ static inline int add_and_push_iterable(PyObject* iter, bool only_str, bool only
                                         double* sum, double* correction,
                                         fdarray* array)
 {
+    DEREFERENCE(sum, correction);
+
     PyObject* item;
 
     if ( only_str )
@@ -305,6 +317,8 @@ static inline int add_and_push_iterable(PyObject* iter, bool only_str, bool only
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -316,6 +330,8 @@ static inline int add_and_push_iterable(PyObject* iter, bool only_str, bool only
             Py_DECREF(item);
         }
         Py_DECREF(iter);
+
+        REASSIGN(sum, correction);
         return 0;
     }
 
@@ -327,6 +343,7 @@ static inline int add_and_push_iterable(PyObject* iter, bool only_str, bool only
     }
     Py_DECREF(iter);
 
+    REASSIGN(sum, correction);
     return 0;
 }
 

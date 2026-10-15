@@ -1239,10 +1239,10 @@ def spec_test(method):
 
 if __name__ == "__main__":
 
-	ITERATIONS = 10
-	spec_test(numagr.sum)
-	# load_lists()
+	ITERATIONS = 1
+	# spec_test(numagr.pvar)
+	load_lists()
 
-	# main_test()
+	main_test()
 
 	sys.exit(0)
