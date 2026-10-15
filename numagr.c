@@ -1,5 +1,8 @@
 #include <Python.h>
+#include "numagr.h"
 #include "methods.c"
+
+DECLARE_EXCEPTIONS;
 
 static PyMethodDef methods[] = {
     {"sum", (PyCFunction)sum, METH_VARARGS | METH_KEYWORDS, ""},
@@ -32,5 +35,11 @@ static struct PyModuleDef numagr_module = {
 
 PyMODINIT_FUNC PyInit_numagr(void)
 {
-    return PyModule_Create(&numagr_module);
+    PyObject* module = PyModule_Create(&numagr_module);
+    if ( !module )
+        return NULL;
+
+    ADD_EXCEPTION(module, CountOverflow, "CountOverflow");
+
+    return module;
 }

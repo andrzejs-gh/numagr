@@ -5,6 +5,32 @@
 #include "floats_array.h"
 #include "floats_hash_table.h"
 
+#define DECLARE_EXCEPTIONS              \
+static PyObject* CountOverflow;         \
+;
+
+#define ADD_EXCEPTION(module, global_variable, name)                            \
+do                                                                              \
+{                                                                               \
+    char full_name[128] = "numagr." name;                                       \
+    (global_variable) = PyErr_NewException(full_name, PyExc_Exception, NULL);   \
+                                                                                \
+    if ((global_variable) == NULL)                                              \
+    {                                                                           \
+        Py_DECREF(module);                                                      \
+        return NULL;                                                            \
+    }                                                                           \
+                                                                                \
+    if (PyModule_AddObjectRef(module, (name), (global_variable)) < 0)           \
+    {                                                                           \
+        Py_DECREF((global_variable));                                           \
+        (global_variable) = NULL;                                               \
+        Py_DECREF(module);                                                      \
+        return NULL;                                                            \
+    }                                                                           \
+                                                                                \
+} while (0);
+
 #define SET_INV_KWARG_VAL_ERR(kwarg_name)                           \
 PyErr_Format                                                        \
 (                                                                   \
