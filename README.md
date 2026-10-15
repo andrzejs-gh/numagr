@@ -1,7 +1,7 @@
 ### **numagr.sum**
 
 ```python
-numagr.sum(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.sum(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -21,7 +21,7 @@ numagr.sum(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.max**
 
 ```python
-numagr.max(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.max(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -41,7 +41,7 @@ numagr.max(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.min**
 
 ```python
-numagr.min(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.min(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -61,7 +61,7 @@ numagr.min(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.amean**
 
 ```python
-numagr.amean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.amean(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -81,7 +81,7 @@ numagr.amean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.gmean**
 
 ```python
-numagr.gmean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.gmean(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -101,7 +101,7 @@ numagr.gmean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.hmean**
 
 ```python
-numagr.hmean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.hmean(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -121,7 +121,7 @@ numagr.hmean(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.nearest**
 
 ```python
-numagr.nearest(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.nearest(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -141,7 +141,7 @@ numagr.nearest(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.count**
 
 ```python
-numagr.count(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.count(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -161,7 +161,7 @@ numagr.count(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.frac_below**
 
 ```python
-numagr.frac_below(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.frac_below(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -181,7 +181,7 @@ numagr.frac_below(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.frac_above**
 
 ```python
-numagr.frac_above(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.frac_above(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -201,7 +201,7 @@ numagr.frac_above(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.mode**
 
 ```python
-numagr.mode(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.mode(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -221,7 +221,7 @@ numagr.mode(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.var**
 
 ```python
-numagr.variance(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.variance(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -241,7 +241,7 @@ numagr.variance(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.pvar**
 
 ```python
-numagr.pvariance(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.pvariance(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -261,7 +261,7 @@ numagr.pvariance(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.stdev**
 
 ```python
-numagr.stdev(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.stdev(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
@@ -281,7 +281,7 @@ numagr.stdev(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
 ### **numagr.pstdev**
 
 ```python
-numagr.pstdev(iterable_1, iterable_2, ..., only_str = ..., only_num = ...)
+numagr.pstdev(*iterables, only_str = False, only_num = False)
 ```
 
 **Return (success):**
