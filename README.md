@@ -17,11 +17,12 @@ Takes arbitrary iterables and calculates the sum.
 
 **Return (success):**
 
-- Result
+- `float` sum
+- `float` +inf / -inf (overflow)
 
 **Return (failure):**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -35,13 +36,16 @@ Takes arbitrary iterables and calculates the sum.
 numagr.max(*iterables, only_str = False, only_num = False)
 ```
 
+Takes arbitrary iterables and finds the largest value.
+
 **Return (success):**
 
-- Result
+- `float` max value
+- `float` +inf / -inf (overflow)
 
 **Return (failure):**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -55,13 +59,16 @@ numagr.max(*iterables, only_str = False, only_num = False)
 numagr.min(*iterables, only_str = False, only_num = False)
 ```
 
+Takes arbitrary iterables and finds the smallest value.
+
 **Return (success):**
 
-- Result
+- `float` min value
+- `float` +inf / -inf (overflow)
 
 **Return (failure):**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -75,13 +82,17 @@ numagr.min(*iterables, only_str = False, only_num = False)
 numagr.amean(*iterables, only_str = False, only_num = False)
 ```
 
+Takes arbitrary iterables and calculates arithmetic mean.
+
 **Return (success):**
 
-- Result
+- `float` arithmetic mean
+- `float` inf (element count is `0`)
 
 **Return (failure):**
 
-- Error
+- `RuntimeError` (element count exceeds unsigned 64-bit integer capacity)
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -95,13 +106,18 @@ numagr.amean(*iterables, only_str = False, only_num = False)
 numagr.gmean(*iterables, only_str = False, only_num = False)
 ```
 
+Takes arbitrary iterables and calculates geometric mean.
+
 **Return (success):**
 
-- Result
+- `float` geometric mean
+- `float` inf (element count is `0`)
 
 **Return (failure):**
 
-- Error
+- `RuntimeError` (one of the iterables contain a string that cannot be evaluated to a value greater than `0`)
+- `RuntimeError` (element count exceeds unsigned 64-bit integer capacity)
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -115,13 +131,18 @@ numagr.gmean(*iterables, only_str = False, only_num = False)
 numagr.hmean(*iterables, only_str = False, only_num = False)
 ```
 
+Takes arbitrary iterables and calculates harmonic mean.
+
 **Return (success):**
 
-- Result
+- `float` harmonic mean
+- `float` inf (element count is `0`)
 
 **Return (failure):**
 
-- Error
+- `RuntimeError` (one of the iterables contains a `0`)
+
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>

@@ -1,6 +1,5 @@
 #include <Python.h>
 #include <stdbool.h>
-#include <float.h>
 #include "../numagr.h"
 
 #define UPDATE_MAX_VALUE_IF_STR(item)                   \
