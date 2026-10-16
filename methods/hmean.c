@@ -348,10 +348,10 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         return PyFloat_FromDouble(INFINITY);
     }
 
-    if ( min <= 0.0 )
+    if ( min < 0.0 ) // 0 is already handled with return ZERO_VALUE
     {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "The iterable contains a non-positive value.");
+        PyErr_SetString(NegativeValue,
+                        "The iterable contains a negative value.");
         free(array.addr);
         return NULL;
     }

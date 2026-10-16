@@ -1,8 +1,8 @@
 #include <Python.h>
 #include "numagr.h"
-#include "methods.c"
 
 DECLARE_EXCEPTIONS;
+#include "methods.c"
 
 static PyMethodDef methods[] = {
     {"sum", (PyCFunction)sum, METH_VARARGS | METH_KEYWORDS, ""},
@@ -40,6 +40,9 @@ PyMODINIT_FUNC PyInit_numagr(void)
         return NULL;
 
     ADD_EXCEPTION(module, CountOverflow, "CountOverflow");
+    ADD_EXCEPTION(module, InvalidStringValue, "InvalidStringValue");
+    ADD_EXCEPTION(module, NegativeValue, "NegativeValue");
+    ADD_EXCEPTION(module, ZeroValue, "ZeroValue");
 
     return module;
 }

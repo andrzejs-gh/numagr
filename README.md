@@ -6,7 +6,7 @@ Setting `only_str` to `True` will cause all non-strings in iterables to be **ign
 
 Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
 
-### **numagr.sum**
+### **sum**
 
 ```python
 numagr.sum(*iterables, only_str = False, only_num = False)
@@ -30,7 +30,7 @@ Takes arbitrary iterables and calculates the sum.
 
 ---
 
-### **numagr.max**
+### **max**
 
 ```python
 numagr.max(*iterables, only_str = False, only_num = False)
@@ -41,6 +41,7 @@ Takes arbitrary iterables and finds the largest value.
 **Return (success):**
 
 - `float` max value
+- `float` -inf (element count is zero)
 - `float` +inf / -inf (overflow)
 
 **Return (failure):**
@@ -53,7 +54,7 @@ Takes arbitrary iterables and finds the largest value.
 
 ---
 
-### **numagr.min**
+### **min**
 
 ```python
 numagr.min(*iterables, only_str = False, only_num = False)
@@ -63,7 +64,8 @@ Takes arbitrary iterables and finds the smallest value.
 
 **Return (success):**
 
-- `float` min value
+- `float` max value
+- `float` +inf (element count is zero)
 - `float` +inf / -inf (overflow)
 
 **Return (failure):**
@@ -76,7 +78,7 @@ Takes arbitrary iterables and finds the smallest value.
 
 ---
 
-### **numagr.amean**
+### **amean**
 
 ```python
 numagr.amean(*iterables, only_str = False, only_num = False)
@@ -91,7 +93,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 
 **Return (failure):**
 
-- `RuntimeError` (element count exceeds unsigned 64-bit integer capacity)
+- `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
 - built-in Python exceptions
 
 <p align="right">
@@ -100,7 +102,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 
 ---
 
-### **numagr.gmean**
+### **gmean**
 
 ```python
 numagr.gmean(*iterables, only_str = False, only_num = False)
@@ -125,7 +127,7 @@ Takes arbitrary iterables and calculates geometric mean.
 
 ---
 
-### **numagr.hmean**
+### **hmean**
 
 ```python
 numagr.hmean(*iterables, only_str = False, only_num = False)
@@ -150,7 +152,7 @@ Takes arbitrary iterables and calculates harmonic mean.
 
 ---
 
-### **numagr.nearest**
+### **nearest**
 
 ```python
 numagr.nearest(*iterables, only_str = False, only_num = False)
@@ -170,7 +172,7 @@ numagr.nearest(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.count**
+### **count**
 
 ```python
 numagr.count(*iterables, only_str = False, only_num = False)
@@ -190,7 +192,7 @@ numagr.count(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.frac_below**
+### **frac_below**
 
 ```python
 numagr.frac_below(*iterables, only_str = False, only_num = False)
@@ -210,7 +212,7 @@ numagr.frac_below(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.frac_above**
+### **frac_above**
 
 ```python
 numagr.frac_above(*iterables, only_str = False, only_num = False)
@@ -230,7 +232,7 @@ numagr.frac_above(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.mode**
+### **mode**
 
 ```python
 numagr.mode(*iterables, only_str = False, only_num = False)
@@ -250,7 +252,7 @@ numagr.mode(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.var**
+### **var**
 
 ```python
 numagr.var(*iterables, only_str = False, only_num = False)
@@ -270,7 +272,7 @@ numagr.var(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.pvar**
+### **pvar**
 
 ```python
 numagr.pvar(*iterables, only_str = False, only_num = False)
@@ -290,7 +292,7 @@ numagr.pvar(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.stdev**
+### **stdev**
 
 ```python
 numagr.stdev(*iterables, only_str = False, only_num = False)
@@ -310,7 +312,7 @@ numagr.stdev(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **numagr.pstdev**
+### **pstdev**
 
 ```python
 numagr.pstdev(*iterables, only_str = False, only_num = False)

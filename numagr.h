@@ -5,8 +5,11 @@
 #include "floats_array.h"
 #include "floats_hash_table.h"
 
-#define DECLARE_EXCEPTIONS              \
-static PyObject* CountOverflow;         \
+#define DECLARE_EXCEPTIONS                  \
+static PyObject* CountOverflow;             \
+static PyObject* NegativeValue;             \
+static PyObject* ZeroValue;                 \
+static PyObject* InvalidStringValue;        \
 ;
 
 #define ADD_EXCEPTION(module, global_variable, name)                            \
@@ -189,17 +192,17 @@ switch ( return_code )                                                      \
         continue;                                                           \
                                                                             \
     case COUNT_OVERFLOW:                                                    \
-        PyErr_SetString(PyExc_RuntimeError,                                 \
+        PyErr_SetString(CountOverflow,                                      \
                         "The iterable contains too many elements.");        \
         return NULL;                                                        \
                                                                             \
     case ZERO_VALUE:                                                        \
-        PyErr_SetString(PyExc_RuntimeError,                                 \
+        PyErr_SetString(ZeroValue,                                          \
                         "The iterable contains a zero value.");             \
         return NULL;                                                        \
                                                                             \
     case NEGATIVE_VALUE:                                                    \
-        PyErr_SetString(PyExc_RuntimeError,                                 \
+        PyErr_SetString(NegativeValue,                                      \
                         "The iterable contains a negative value.");         \
         return NULL;                                                        \
                                                                             \
@@ -207,7 +210,7 @@ switch ( return_code )                                                      \
         return PyFloat_FromDouble(0.0);                                     \
                                                                             \
     case ARR_SIZE_OVERFLOW:                                                 \
-        PyErr_SetString(PyExc_RuntimeError,                                 \
+        PyErr_SetString(CountOverflow,                                      \
                         "The iterable contains too many elements.");        \
         return NULL;                                                        \
                                                                             \
@@ -223,7 +226,7 @@ switch ( return_code )                                                      \
 #define SET_INV_STR_ERROR                                               \
 PyErr_Format                                                            \
 (                                                                       \
-    PyExc_RuntimeError,                                                 \
+    InvalidStringValue,                                                 \
     "The iterable contains a str that "                                 \
     "cannot be evaluated to a positive value: \"%s\". \n"               \
     "For geometric mean, all strings in the iterable "                  \

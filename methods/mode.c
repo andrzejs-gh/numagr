@@ -198,11 +198,11 @@ static inline fhtable* fhtable_grow(fhtable* fht)
             }
 
             new_table[new_index] = (fhtable_entry)
-            {
-                .key = old_table[i].key,
-                .count = old_table[i].count,
-                .hash = old_table[i].hash
-            };
+                                   {
+                                      .key = old_table[i].key,
+                                      .count = old_table[i].count,
+                                      .hash = old_table[i].hash
+                                   };
         }
     }
 
