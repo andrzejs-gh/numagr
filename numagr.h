@@ -5,13 +5,6 @@
 #include "floats_array.h"
 #include "floats_hash_table.h"
 
-#define DECLARE_EXCEPTIONS                  \
-static PyObject* CountOverflow;             \
-static PyObject* NegativeValue;             \
-static PyObject* ZeroValue;                 \
-static PyObject* InvalidStringValue;        \
-;
-
 #define ADD_EXCEPTION(module, global_variable, name)                            \
 do                                                                              \
 {                                                                               \
@@ -280,6 +273,11 @@ enum
     REALLOC_FAILURE,
     ARR_SIZE_OVERFLOW
 };
+
+static PyObject* CountOverflow;
+static PyObject* NegativeValue;
+static PyObject* ZeroValue;
+static PyObject* InvalidStringValue;
 
 typedef PyObject* (*numagr_method)(PyObject*, PyObject*, PyObject*);
 

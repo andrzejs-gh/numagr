@@ -1,7 +1,5 @@
 #include <Python.h>
 #include "numagr.h"
-
-DECLARE_EXCEPTIONS;
 #include "methods.c"
 
 static PyMethodDef methods[] = {
