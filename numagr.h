@@ -2,6 +2,7 @@
 #define NUMAGR_H
 
 #include <Python.h>
+#include "floatobject.h"
 #include "floats_array.h"
 #include "floats_hash_table.h"
 
@@ -160,6 +161,18 @@ double correction_val = *(correction_ptr);
 #define KAHAN_SUM_ADD(value, sum_val, correction_val)   \
 do                                                      \
 {                                                       \
+     if ( !isfinite(sum_val) )                          \
+     {                                                  \
+        if ( isinf(sum_val) )                           \
+        {                                               \
+            sum_val += value;                           \
+            break;                                      \
+        }                                               \
+        else if ( isnan(sum_val) )                      \
+        {                                               \
+            return NAN_VALUE;                           \
+        }                                               \
+     }                                                  \
     double next = (value) - correction_val;             \
     double new_sum = sum_val + next;                    \
     correction_val = (new_sum - sum_val) - next;        \
@@ -201,6 +214,9 @@ switch ( return_code )                                                      \
                                                                             \
     case ZERO_IN_ITERABLE:                                                  \
         return PyFloat_FromDouble(0.0);                                     \
+                                                                            \
+    case NAN_VALUE:                                                         \
+        return PyFloat_FromDouble(NAN);                                     \
                                                                             \
     case ARR_SIZE_OVERFLOW:                                                 \
         PyErr_SetString(CountOverflow,                                      \
@@ -270,6 +286,7 @@ enum
     NEGATIVE_VALUE,
     INVALID_VALUE,
     ZERO_IN_ITERABLE,
+    NAN_VALUE,
     REALLOC_FAILURE,
     ARR_SIZE_OVERFLOW
 };

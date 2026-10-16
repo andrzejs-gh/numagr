@@ -157,6 +157,28 @@ do                                                          \
                                                             \
 } while (0);
 
+#define recips_KAHAN_SUM_ADD(value, sum, correction)    \
+do                                                      \
+{                                                       \
+    if ( !isfinite(sum) )                               \
+    {                                                   \
+        if ( isinf(sum) )                               \
+        {                                               \
+            sum += value;                               \
+            break;                                      \
+        }                                               \
+        else if ( isnan(sum) )                          \
+        {                                               \
+            return PyFloat_FromDouble(NAN);             \
+        }                                               \
+    }                                                   \
+    double next = (value) - correction;                 \
+    double new_sum = sum + next;                        \
+    correction = (new_sum - sum) - next;                \
+    sum = new_sum;                                      \
+                                                        \
+} while (0);
+
 static inline int add_to_array_list(PyObject* list, bool only_str, bool only_num,
                                     double* min, fdarray* array)
 {
@@ -363,8 +385,8 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
     for ( size_t i = 0; i < count; i++ )
     {
         double value = min / array_addr[i];
-        KAHAN_SUM_ADD(value, recip_sum, correction);
-    }
+        recips_KAHAN_SUM_ADD(value, recip_sum, correction); // will return with NaN
+    }                                                       // if encountered
     free(array.addr);
 
     return PyFloat_FromDouble((min*count)/recip_sum);
