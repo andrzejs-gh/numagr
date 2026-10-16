@@ -359,6 +359,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
             ret = add_to_array_iterable(iter, is_only_str, is_only_num, &min, &array);
         }
+        if ( !ret ) free(array.addr);
         HANDLE_RETURN_CODES(ret);
     }
 
