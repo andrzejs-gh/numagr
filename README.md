@@ -18,7 +18,6 @@ Takes arbitrary iterables and calculates the sum.
 **Return (success):**
 
 - `float` sum
-- `float` +inf / -inf (overflow)
 
 **Return (failure):**
 
@@ -36,13 +35,12 @@ Takes arbitrary iterables and calculates the sum.
 numagr.max(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and finds the largest value.
+Takes arbitrary iterables and returns the largest value.
 
 **Return (success):**
 
 - `float` max value
-- `float` -inf (element count is zero)
-- `float` +inf / -inf (overflow)
+- `float` -inf (if it's the largest value, if element count is zero, or if all elements are NaN(s))
 
 **Return (failure):**
 
@@ -60,13 +58,12 @@ Takes arbitrary iterables and finds the largest value.
 numagr.min(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and finds the smallest value.
+Takes arbitrary iterables and returns the smallest value.
 
 **Return (success):**
 
 - `float` max value
-- `float` +inf (element count is zero)
-- `float` +inf / -inf (overflow)
+- `float` inf (if it's the smallest value, if element count is zero, or if all elements are NaN(s))
 
 **Return (failure):**
 

@@ -327,7 +327,7 @@ static PyObject* gmean(PyObject* self, PyObject* args, PyObject* kwargs)
     }
 
     if ( !count )
-        return PyFloat_FromDouble(0.0);
+        return PyFloat_FromDouble(NAN);
 
     return PyFloat_FromDouble(exp(log_sum / count));
 }

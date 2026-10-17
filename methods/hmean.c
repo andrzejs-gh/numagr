@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "../numagr.h"
 #include "../floats_array.h"
+#include "pyport.h"
 
 #define ADD_TO_ARRAY_IF_STR(item)                           \
 do                                                          \
@@ -325,7 +326,9 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         {
             if ( !array_allocated )
             {
-                ALLOC_ARRAY(PyList_GET_SIZE(arg));
+                Py_ssize_t size = PyList_GET_SIZE(arg);
+                size = (size ? size : 1024);
+                ALLOC_ARRAY(size);
                 if ( !array_allocated ) return NULL;
             }
 
@@ -335,7 +338,9 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
         {
             if ( !array_allocated )
             {
-                ALLOC_ARRAY(PyTuple_GET_SIZE(arg));
+                Py_ssize_t size = PyTuple_GET_SIZE(arg);
+                size = (size ? size : 1024);
+                ALLOC_ARRAY(size);
                 if ( !array_allocated ) return NULL;
             }
 
@@ -359,7 +364,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
 
             ret = add_to_array_iterable(iter, is_only_str, is_only_num, &min, &array);
         }
-        if ( !ret ) free(array.addr);
+        if ( ret ) free(array.addr);
         HANDLE_RETURN_CODES(ret);
     }
 
@@ -368,7 +373,7 @@ static PyObject* hmean(PyObject* self, PyObject* args, PyObject* kwargs)
     if ( !count )
     {
         free(array.addr);
-        return PyFloat_FromDouble(INFINITY);
+        return PyFloat_FromDouble(NAN);
     }
 
     if ( min < 0.0 ) // 0 is already handled with return ZERO_VALUE

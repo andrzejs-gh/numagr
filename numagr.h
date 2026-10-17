@@ -2,7 +2,6 @@
 #define NUMAGR_H
 
 #include <Python.h>
-#include "floatobject.h"
 #include "floats_array.h"
 #include "floats_hash_table.h"
 

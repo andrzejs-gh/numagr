@@ -229,7 +229,7 @@ static PyObject* sum(PyObject* self, PyObject* args, PyObject* kwargs)
 
             err = sum_iterable(iter, is_only_str, is_only_num, &sum, &correction);
         }
-        if ( err ) return NULL;
+        HANDLE_RETURN_CODES(err);
     }
 
     return PyFloat_FromDouble(sum);
