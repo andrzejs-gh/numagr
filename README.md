@@ -86,7 +86,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 **Return (success):**
 
 - `float` arithmetic mean
-- `float` inf (element count is `0`)
+- `float` nan (element count is `0`)
 
 **Return (failure):**
 
@@ -99,7 +99,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 
 ---
 
-### **gmean**
+### **gmean** //// !!!!!!!
 
 ```python
 numagr.gmean(*iterables, only_str = False, only_num = False)
@@ -110,11 +110,11 @@ Takes arbitrary iterables and calculates geometric mean.
 **Return (success):**
 
 - `float` geometric mean
-- `float` inf (element count is `0`)
+- `float` nan (element count is `0`)
 
 **Return (failure):**
 
-- `RuntimeError` (one of the iterables contain a string that cannot be evaluated to a value greater than `0`)
+- `numagr.InvalidStringValue` (one of the iterables contain a string that cannot be evaluated to a value greater than `0`)
 - `RuntimeError` (element count exceeds unsigned 64-bit integer capacity)
 - built-in Python exceptions
 
