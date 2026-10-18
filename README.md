@@ -15,11 +15,11 @@ numagr.sum(*iterables, only_str = False, only_num = False)
 Takes arbitrary iterables and calculates the sum.
 
 
-**Return (success):**
+**Return:**
 
 - `float` sum
 
-**Return (failure):**
+**Exceptions:**
 
 - built-in Python exceptions
 
@@ -37,12 +37,12 @@ numagr.max(*iterables, only_str = False, only_num = False)
 
 Takes arbitrary iterables and returns the largest value.
 
-**Return (success):**
+**Return:**
 
 - `float` max value
-- `float` -inf (if it's the largest value, if element count is zero, or if all elements are NaN(s))
+- `float` -`inf` (if it's the largest value, if element count is zero, or if all elements are NaN(s))
 
-**Return (failure):**
+**Exceptions:**
 
 - built-in Python exceptions
 
@@ -60,12 +60,12 @@ numagr.min(*iterables, only_str = False, only_num = False)
 
 Takes arbitrary iterables and returns the smallest value.
 
-**Return (success):**
+**Return:**
 
 - `float` max value
-- `float` inf (if it's the smallest value, if element count is zero, or if all elements are NaN(s))
+- `float` `inf` (if it's the smallest value, if element count is zero, or if all elements are NaN(s))
 
-**Return (failure):**
+**Exceptions:**
 
 - built-in Python exceptions
 
@@ -83,12 +83,12 @@ numagr.amean(*iterables, only_str = False, only_num = False)
 
 Takes arbitrary iterables and calculates arithmetic mean.
 
-**Return (success):**
+**Return:**
 
 - `float` arithmetic mean
 - `float` nan (element count is `0`)
 
-**Return (failure):**
+**Exceptions:**
 
 - `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
 - built-in Python exceptions
@@ -99,7 +99,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 
 ---
 
-### **gmean** //// !!!!!!!
+### **gmean**
 
 ```python
 numagr.gmean(*iterables, only_str = False, only_num = False)
@@ -107,15 +107,16 @@ numagr.gmean(*iterables, only_str = False, only_num = False)
 
 Takes arbitrary iterables and calculates geometric mean.
 
-**Return (success):**
+**Return:**
 
 - `float` geometric mean
 - `float` nan (element count is `0`)
 
-**Return (failure):**
+**Exceptions:**
 
 - `numagr.InvalidStringValue` (one of the iterables contain a string that cannot be evaluated to a value greater than `0`)
-- `RuntimeError` (element count exceeds unsigned 64-bit integer capacity)
+- `numagr.NegativeValue` (the iterable contains a negative value)
+- `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
 - built-in Python exceptions
 
 <p align="right">
@@ -132,15 +133,16 @@ numagr.hmean(*iterables, only_str = False, only_num = False)
 
 Takes arbitrary iterables and calculates harmonic mean.
 
-**Return (success):**
+**Return:**
 
 - `float` harmonic mean
-- `float` inf (element count is `0`)
+- `float` nan (element count is `0`)
 
-**Return (failure):**
+**Exceptions:**
 
-- `RuntimeError` (one of the iterables contains a `0`)
-
+- `numagr.NegativeValue` (one of the iterables contains a negative value)
+- `numagr.ZeroValue` (one of the iterables contains a `0`)
+- `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
 - built-in Python exceptions
 
 <p align="right">
@@ -152,16 +154,19 @@ Takes arbitrary iterables and calculates harmonic mean.
 ### **nearest**
 
 ```python
-numagr.nearest(*iterables, only_str = False, only_num = False)
+numagr.nearest(target_value, *iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+Finds the value closest to a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
 
-- Result
+**Return:**
 
-**Return (failure):**
+- `float` nearest value
+- `float` `inf` (no finite values in the iterables)
 
-- Error
+**Exceptions:**
+
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -172,16 +177,19 @@ numagr.nearest(*iterables, only_str = False, only_num = False)
 ### **count**
 
 ```python
-numagr.count(*iterables, only_str = False, only_num = False)
+numagr.count(target_value, *iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+Returns the number of occurences for a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
 
-- Result
+**Return:**
 
-**Return (failure):**
+- `float` number of occurences
 
-- Error
+**Exceptions:**
+
+- `numagr.CountOverflow` (occurences count exceeds unsigned 64-bit integer capacity)
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -192,16 +200,19 @@ numagr.count(*iterables, only_str = False, only_num = False)
 ### **frac_below**
 
 ```python
-numagr.frac_below(*iterables, only_str = False, only_num = False)
+numagr.frac_below(target_value, *iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+Returns fraction of values that are below a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
 
-- Result
+**Return:**
 
-**Return (failure):**
+- `float` fraction of values below the target value
 
-- Error
+**Exceptions:**
+
+- `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -212,16 +223,19 @@ numagr.frac_below(*iterables, only_str = False, only_num = False)
 ### **frac_above**
 
 ```python
-numagr.frac_above(*iterables, only_str = False, only_num = False)
+numagr.frac_above(target_value, *iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+Returns fraction of values that are above a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
 
-- Result
+**Return:**
 
-**Return (failure):**
+- `float` fraction of values above the target value
 
-- Error
+**Exceptions:**
+
+- `numagr.CountOverflow` (element count exceeds unsigned 64-bit integer capacity)
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -229,17 +243,19 @@ numagr.frac_above(*iterables, only_str = False, only_num = False)
 
 ---
 
-### **mode**
+### **mode** /// !!!!!!!!!!!!!!!!!!!!!!¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
 
 ```python
 numagr.mode(*iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+Takes arbitrary iterables and returns the mode. Ignores `nan`'s,
 
-- Result
+**Return:**
 
-**Return (failure):**
+- `float` mode
+
+**Exceptions:**
 
 - Error
 
@@ -255,11 +271,11 @@ numagr.mode(*iterables, only_str = False, only_num = False)
 numagr.var(*iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+**Return:**
 
 - Result
 
-**Return (failure):**
+**Exceptions:**
 
 - Error
 
@@ -275,11 +291,11 @@ numagr.var(*iterables, only_str = False, only_num = False)
 numagr.pvar(*iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+**Return:**
 
 - Result
 
-**Return (failure):**
+**Exceptions:**
 
 - Error
 
@@ -295,11 +311,11 @@ numagr.pvar(*iterables, only_str = False, only_num = False)
 numagr.stdev(*iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+**Return:**
 
 - Result
 
-**Return (failure):**
+**Exceptions:**
 
 - Error
 
@@ -315,11 +331,11 @@ numagr.stdev(*iterables, only_str = False, only_num = False)
 numagr.pstdev(*iterables, only_str = False, only_num = False)
 ```
 
-**Return (success):**
+**Return:**
 
 - Result
 
-**Return (failure):**
+**Exceptions:**
 
 - Error
 

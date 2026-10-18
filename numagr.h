@@ -112,6 +112,21 @@ do                                                                              
                                                                                 \
 } while (0);
 
+#define THROW_IF_NOT_FINITE_NUM(value)                                  \
+do                                                                      \
+{                                                                       \
+    if ( !isfinite(value) )                                             \
+    {                                                                   \
+        PyErr_SetString                                                 \
+        (                                                               \
+            PyExc_TypeError,                                            \
+            "Target value must be a finite number."                     \
+        );                                                              \
+        return NULL;                                                    \
+    }                                                                   \
+                                                                        \
+} while (0);
+
 #define PARSE_TARGET_VALUE                                              \
 do                                                                      \
 {                                                                       \
@@ -131,11 +146,13 @@ do                                                                      \
     {                                                                   \
         target = PyLong_AsDouble(arg);                                  \
         if ( PyErr_Occurred() ) return NULL;                            \
+        THROW_IF_NOT_FINITE_NUM(target)                                 \
     }                                                                   \
     else if ( PyFloat_Check(arg) )                                      \
     {                                                                   \
         target = PyFloat_AsDouble(arg);                                 \
         if ( PyErr_Occurred() ) return NULL;                            \
+        THROW_IF_NOT_FINITE_NUM(target)                                 \
     }                                                                   \
     else                                                                \
     {                                                                   \

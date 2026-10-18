@@ -70,6 +70,7 @@ do                                                          \
             return STR_ENCODING_FAILURE;                    \
         }                                                   \
         double value = strtod(str, NULL);                   \
+        if ( isnan(value) ) break;                          \
                                                             \
         int ret = 0;                                        \
         FHTABLE_INC(table, value, ret)                      \
@@ -93,6 +94,7 @@ do                                                                  \
             Py_DECREF(item); Py_DECREF(iter);                       \
             return DOUBLE_OVERFLOW;                                 \
         }                                                           \
+        if ( isnan(value) ) break;                                  \
                                                                     \
         int ret = 0;                                                \
         FHTABLE_INC(table, value, ret);                             \
@@ -106,6 +108,7 @@ do                                                                  \
     else if ( PyFloat_Check(item) )                                 \
     {                                                               \
         double value = PyFloat_AS_DOUBLE(item);                     \
+        if ( isnan(value) ) break;                                  \
                                                                     \
         int ret = 0;                                                \
         FHTABLE_INC(table, value, ret);                             \
@@ -128,6 +131,7 @@ do                                                          \
             return STR_ENCODING_FAILURE;                    \
                                                             \
         double value = strtod(str, NULL);                   \
+        if ( isnan(value) ) break;                          \
                                                             \
         int ret = 0;                                        \
         FHTABLE_INC(table, value, ret);                     \
@@ -144,6 +148,7 @@ do                                                                  \
         double value = PyLong_AsDouble(item);                       \
         if ( PyErr_Occurred() )                                     \
             return DOUBLE_OVERFLOW;                                 \
+        if ( isnan(value) ) break;                                  \
                                                                     \
         int ret = 0;                                                \
         FHTABLE_INC(table, value, ret);                             \
@@ -152,6 +157,7 @@ do                                                                  \
     else if ( PyFloat_Check(item) )                                 \
     {                                                               \
         double value = PyFloat_AS_DOUBLE(item);                     \
+        if ( isnan(value) ) break;                                  \
                                                                     \
         int ret = 0;                                                \
         FHTABLE_INC(table, value, ret);                             \
@@ -325,6 +331,9 @@ static inline int hash_values_tuple(PyObject* tuple, bool only_str, bool only_nu
 
 static inline double get_mode(fhtable* table)
 {
+    if ( !table->count )
+        return NAN;
+
     size_t table_capacity = table->capacity;
     fhtable_entry* entries = table->table;
     double current_mode = INFINITY;
@@ -363,7 +372,9 @@ static PyObject* mode(PyObject* self, PyObject* args, PyObject* kwargs)
         {
             if ( !table_allocated )
             {
-                ALLOC_FTABLE(PyList_GET_SIZE(arg));
+                Py_ssize_t size = PyList_GET_SIZE(arg);
+                size = (size ? size : 1024);
+                ALLOC_FTABLE(size);
                 if ( !table_allocated ) return NULL;
             }
 
@@ -373,7 +384,9 @@ static PyObject* mode(PyObject* self, PyObject* args, PyObject* kwargs)
         {
             if ( !table_allocated )
             {
-                ALLOC_FTABLE(PyTuple_GET_SIZE(arg));
+                Py_ssize_t size = PyTuple_GET_SIZE(arg);
+                size = (size ? size : 1024);
+                ALLOC_FTABLE(size);
                 if ( !table_allocated ) return NULL;
             }
 
