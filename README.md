@@ -7,8 +7,11 @@
 ## API
 
 All Python objects that do not evaluate to a number are **ignored**.
+
 All strings that cannot be evaluated to a number via C `strtod` function count as `0`'s.
+
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
+
 Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
 
 - [sum](#sum)
