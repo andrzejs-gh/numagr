@@ -1,20 +1,15 @@
 ## Description
 
-**NUMAGR** is a Python C extension offering efficient statistical methods for numerical data. It is not only faster compared to standard or other third party modules, it also converts Pythons strings "on the fly" without having to initialize Python numerical objects to hold the values.
-
-***
-
-All Python objects that do not evaluate to a number are **ignored**.
-
-All strings that cannot be evaluated to a number via C `strtod` function count as `0`'s.
-
-Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
-
-Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
+**NUMAGR** is a Python C extension offering efficient statistical methods for numerical data. It's faster compared to standard and to other third party modules. It's also different in that it accepts and converts Python's numeric strings "on the fly" (using C `strtod` function), without having to initialize intermediate Python objects to hold the values. For sumations the module implements Kahan algorithm to retain precission.
 
 ***
 
 ## API
+
+All Python objects that do not evaluate to a number are **ignored**.
+All strings that cannot be evaluated to a number via C `strtod` function count as `0`'s.
+Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
+Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
 
 - [sum](#sum)
 - [max](#max)
