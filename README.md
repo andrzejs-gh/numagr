@@ -1,6 +1,6 @@
 ## API
 
-- [sum](#-sum-)
+- [sum](#sum)
 
 All Python objects that do not evaluate to a number are **ignored**.
 
