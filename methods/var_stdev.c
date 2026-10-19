@@ -157,7 +157,9 @@ do                                                                  \
         {                                                           \
             if ( !array_allocated )                                 \
             {                                                       \
-                ALLOC_ARRAY(PyList_GET_SIZE(arg));                  \
+                Py_ssize_t size = PyList_GET_SIZE(arg);             \
+                size = (size ? size : 1024);                        \
+                ALLOC_ARRAY(size);                                  \
                 if ( !array_allocated ) return NULL;                \
             }                                                       \
                                                                     \
@@ -168,7 +170,9 @@ do                                                                  \
         {                                                           \
             if ( !array_allocated )                                 \
             {                                                       \
-                ALLOC_ARRAY(PyList_GET_SIZE(arg));                  \
+                Py_ssize_t size = PyTuple_GET_SIZE(arg);             \
+                size = (size ? size : 1024);                        \
+                ALLOC_ARRAY(size);                                  \
                 if ( !array_allocated ) return NULL;                \
             }                                                       \
                                                                     \
@@ -194,14 +198,15 @@ do                                                                  \
             ret = add_and_push_iterable(iter, is_only_str, is_only_num, \
                                         &sum, &correction, &array);     \
         }                                                               \
+        if ( ret ) free(array.addr);                                    \
         HANDLE_RETURN_CODES(ret);                                       \
     }                                                                   \
                                                                         \
     count = array.count;                                                \
-    if ( !count )                                                       \
+    if ( !count  || isinf(sum) )                                        \
     {                                                                   \
         free(array.addr);                                               \
-        return PyFloat_FromDouble(INFINITY);                            \
+        return PyFloat_FromDouble(NAN);                                 \
     }                                                                   \
                                                                         \
     double a_mean = sum / count;                                        \

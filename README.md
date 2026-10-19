@@ -243,13 +243,13 @@ Returns fraction of values that are above a specified target value. The target v
 
 ---
 
-### **mode** /// !!!!!!!!!!!!!!!!!!!!!!¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+### **mode**
 
 ```python
 numagr.mode(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and returns the mode. Ignores `nan`'s,
+Calculates the mode. Ignores any `nan`'s in the data. If the element count is `0`, the function returns `nan`.
 
 **Return:**
 
@@ -257,7 +257,7 @@ Takes arbitrary iterables and returns the mode. Ignores `nan`'s,
 
 **Exceptions:**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -271,13 +271,15 @@ Takes arbitrary iterables and returns the mode. Ignores `nan`'s,
 numagr.var(*iterables, only_str = False, only_num = False)
 ```
 
+Calculates the variance. If there are any `inf`'s or `nan`'s in the data, or if the element count is `0` or `1`, the function returns `nan`.
+
 **Return:**
 
-- Result
+- `float` variance
 
 **Exceptions:**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -291,13 +293,15 @@ numagr.var(*iterables, only_str = False, only_num = False)
 numagr.pvar(*iterables, only_str = False, only_num = False)
 ```
 
+Calculates the population variance. If there are any `inf`'s or `nan`'s in the data, or if the element count is `0`, the function returns `nan`.
+
 **Return:**
 
-- Result
+- `float` population variance
 
 **Exceptions:**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -311,13 +315,15 @@ numagr.pvar(*iterables, only_str = False, only_num = False)
 numagr.stdev(*iterables, only_str = False, only_num = False)
 ```
 
+Calculates standard deviation. If there are any `inf`'s or `nan`'s in the data, or if the element count is `0` or `1`, the function returns `nan`.
+
 **Return:**
 
-- Result
+- `float` standard deviation
 
 **Exceptions:**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
@@ -331,13 +337,15 @@ numagr.stdev(*iterables, only_str = False, only_num = False)
 numagr.pstdev(*iterables, only_str = False, only_num = False)
 ```
 
+Calculates population standard deviation. If there are any `inf`'s or `nan`'s in the data, or if the element count is `0`, the function returns `nan`.
+
 **Return:**
 
-- Result
+- `float` population standard deviation
 
 **Exceptions:**
 
-- Error
+- built-in Python exceptions
 
 <p align="right">
 <a href="#api">GO TO API ^</a>
