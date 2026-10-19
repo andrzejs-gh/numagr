@@ -1,3 +1,7 @@
+## API
+
+- [sum](#-sum-)
+
 All Python objects that do not evaluate to a number are **ignored**.
 
 All strings that cannot be evaluated to a number via C `strtod` function count as `0`'s.
@@ -12,7 +16,7 @@ Setting `only_num` to `True` will cause all strings in iterables to be **ignored
 numagr.sum(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and calculates the sum.
+Calculates the sum.
 
 
 **Return:**
@@ -35,7 +39,7 @@ Takes arbitrary iterables and calculates the sum.
 numagr.max(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and returns the largest value.
+Returns the largest value.
 
 **Return:**
 
@@ -58,7 +62,7 @@ Takes arbitrary iterables and returns the largest value.
 numagr.min(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and returns the smallest value.
+Returns the smallest value.
 
 **Return:**
 
@@ -81,7 +85,7 @@ Takes arbitrary iterables and returns the smallest value.
 numagr.amean(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and calculates arithmetic mean.
+Calculates arithmetic mean.
 
 **Return:**
 
@@ -105,7 +109,7 @@ Takes arbitrary iterables and calculates arithmetic mean.
 numagr.gmean(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and calculates geometric mean.
+Calculates geometric mean.
 
 **Return:**
 
@@ -131,7 +135,7 @@ Takes arbitrary iterables and calculates geometric mean.
 numagr.hmean(*iterables, only_str = False, only_num = False)
 ```
 
-Takes arbitrary iterables and calculates harmonic mean.
+Calculates harmonic mean.
 
 **Return:**
 
@@ -180,7 +184,7 @@ Finds the value closest to a specified target value. The target value must be a 
 numagr.count(target_value, *iterables, only_str = False, only_num = False)
 ```
 
-Returns the number of occurences for a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
+Returns the number of occurences of a specified target value. The target value must be a finite number (`int` or `float`), passing `inf` or `nan` will raise `TypeError`.
 
 **Return:**
 
