@@ -154,14 +154,14 @@ def sum_test():
 	numpy_sum_ints, numpy_sum_ints_time = benchmark(numpy.sum, INTS)
 	numagr_sum_ints, numagr_sum_ints_time = benchmark(numagr.sum, INTS)
 
-	print(LIGHT_BLUE("Summing integers:"))
+	print(LIGHT_BLUE(f"Summing {LIMIT} integers:"))
 
 	print(f"{LIGHT_YELLOW('sum       ')} t = {sum_ints_time}\n{sum_ints}")
 	print(f"{LIGHT_YELLOW('math.fsum ')} t = {math_fsum_ints_time}\n{math_fsum_ints}")
 	print(f"{LIGHT_YELLOW('numpy.sum ')} t = {numpy_sum_ints_time}\n{numpy_sum_ints}")
 	print(f"{LIGHT_GREEN( 'numagr.sum')} t = {numagr_sum_ints_time} {LIGHT_GREEN('<-')}\n{numagr_sum_ints}")
 
-	print(LIGHT_BLUE("Summing floats:"))
+	print(LIGHT_BLUE(f"Summing {LIMIT} floats:"))
 
 	sum_floats, sum_floats_time = benchmark(sum, FLOATS)
 	math_fsum_floats, math_fsum_floats_time = benchmark(math.fsum, FLOATS)
