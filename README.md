@@ -6,9 +6,7 @@
 
 ## API
 
-All Python objects that do not evaluate to a number are **ignored**.
-
-All strings that cannot be evaluated to a number via C `strtod` function count as `0`'s.
+Inside iterables, all strings that cannot be evaluated to a number via C `strtod` function count as `0`'s, and all Python objects that do not evaluate to a number are **ignored**.
 
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
 
