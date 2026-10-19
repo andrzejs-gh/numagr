@@ -1,9 +1,9 @@
 from setuptools import setup, Extension
 
 src = [
-		"numagr.c",
-		"floats_hash_table.c",
-		"floats_array.c"
+		"src/numagr.c",
+		"src/floats_hash_table.c",
+		"src/floats_array.c"
 ]
 
 extra_comp_flags = [
@@ -14,6 +14,9 @@ extra_comp_flags = [
 
 setup(
     name = "numagr",
+    version = "0.9",
+    author = "andrzejs",
+    url = "https://github.com/andrzejs-gh/numagr",
     ext_modules = [Extension("numagr",
 						sources = src,
 						extra_compile_args = extra_comp_flags

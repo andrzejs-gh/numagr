@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+setup.py
+numagr.egg-info/PKG-INFO
+numagr.egg-info/SOURCES.txt
+numagr.egg-info/dependency_links.txt
+numagr.egg-info/top_level.txt
+src/floats_array.c
+src/floats_hash_table.c
+src/numagr.c
