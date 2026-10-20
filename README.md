@@ -1,8 +1,8 @@
 ## Table of contents
 
-[Description](#description)
-[Usage](#usage)
-[API](#api)
+- [Description](#description)
+- [Usage](#usage)
+- [API](#api)
 
 ## Description
 
