@@ -13,7 +13,7 @@ It's faster compared to standard and to other third party modules. It's also dif
 For sumations the module implements Kahan algorithm to retain precission.
 
 <p align="right">
-<a href="#-table-of-contents">GO TO TABLE OF CONTENTS ^</a>
+<a href="#table-of-contents">GO TO TABLE OF CONTENTS ^</a>
 </p>
 
 ***
@@ -54,7 +54,7 @@ numagr.stdev(random_floats, only_str = True, only_num = True) # TypeError
 ```
 
 <p align="right">
-<a href="#-table-of-contents">GO TO TABLE OF CONTENTS ^</a>
+<a href="#table-of-contents">GO TO TABLE OF CONTENTS ^</a>
 </p>
 
 ***
