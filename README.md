@@ -1,3 +1,9 @@
+## Table of contents
+
+[Description](#description)
+[Usage](#usage)
+[API](#api)
+
 ## Description
 
 **NUMAGR** is a Python C extension offering efficient statistical methods for numerical data. 
@@ -6,15 +12,54 @@ It's faster compared to standard and to other third party modules. It's also dif
 
 For sumations the module implements Kahan algorithm to retain precission.
 
+<p align="right">
+<a href="#-table-of-contents">GO TO TABLE OF CONTENTS ^</a>
+</p>
+
 ***
 
-## API
+## Usage
 
 Inside iterables, all strings that cannot be evaluated to a number via C `strtod` function count as `0`'s, and all Python objects that do not evaluate to a number are **ignored**.
+
+Examples:
+```python
+numagr.sum([1,2,3,4,5,6,7,8,9])                           # 45
+
+numagr.sum([1,2,"3",4,"5",6,"7",8,9])                     # 45
+
+numagr.sum([None,1,"abc",2,"3",[],4,"5",6,"7",8,print,9]) # 45
+
+numagr.amean([1,2,3,4])                 # 2.5
+
+numagr.amean([1,2,3,4, "abc", None])    # 2.0 ( "abc" became 0, None was ignored )
+```
 
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
 
 Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
+
+```python
+numagr.count(5, [1,2,5,"5","5","5",6,7], only_str = True) # 3
+
+numagr.count(5, [1,2,5,"5","5","5",6,7], only_num = True) # 1
+```
+
+The kwargs are mutually exclusive, they cannot be both `True` at the same time.
+
+```python
+random_floats = [random.random() for _ in range(1_000_000)]
+numagr.stdev(random_floats, only_str = True, only_num = True) # TypeError
+# TypeError: Keyword arguments "str_only" and "num_only" are mutually exclusive.
+```
+
+<p align="right">
+<a href="#-table-of-contents">GO TO TABLE OF CONTENTS ^</a>
+</p>
+
+***
+
+## API
 
 - [sum](#sum)
 - [max](#max)
@@ -212,7 +257,7 @@ Returns the number of occurences of a specified target value. The target value m
 
 **Return:**
 
-- `float` number of occurences
+- `int` number of occurences
 
 **Exceptions:**
 
