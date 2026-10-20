@@ -8,7 +8,9 @@
 
 **NUMAGR** is a Python C extension offering efficient statistical methods for numerical data. 
 
-It's faster compared to standard and to other third party modules (use `test.py` for benchmarking). It's also different in that it accepts and converts Python's numeric strings "on the fly" (using C `strtod` function), without having to initialize intermediate Python objects to hold the values. 
+It's faster compared to standard and to other third party modules (use `test.py` for benchmarking). 
+
+It's also different in that it accepts and converts Python's numeric strings "on the fly" (using C `strtod` function), without having to initialize intermediate Python objects to hold the values. 
 
 For sumations the module implements Kahan algorithm to retain precission.
 
@@ -113,7 +115,7 @@ Returns the largest value.
 **Return:**
 
 - `float` max value
-- `float` -`inf` (if it's the largest value, if element count is zero, or if all elements are NaN(s))
+- `float` `-inf` (if it's the largest value, if element count is zero, or if all elements are `nan`'s)
 
 **Exceptions:**
 
@@ -136,7 +138,7 @@ Returns the smallest value.
 **Return:**
 
 - `float` max value
-- `float` `inf` (if it's the smallest value, if element count is zero, or if all elements are NaN(s))
+- `float` `inf` (if it's the smallest value, if element count is zero, or if all elements are `nan`'s)
 
 **Exceptions:**
 
