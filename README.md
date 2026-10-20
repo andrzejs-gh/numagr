@@ -22,7 +22,7 @@ For sumations the module implements Kahan algorithm to retain precission.
 
 ## Usage
 
-Inside iterables, all strings that cannot be evaluated to a number via C `strtod` function count as `0`'s, and all Python objects that do not evaluate to a number are **ignored**.
+Inside iterables, all strings that cannot be evaluated to a number count as `0`'s, and all Python objects that do not evaluate to a number are **ignored**.
 
 Examples:
 ```python
@@ -35,6 +35,13 @@ numagr.sum([None,1,"abc",2,"3",[],4,"5",6,"7",8,print,9]) # 45
 numagr.amean([1,2,3,4])                 # 2.5
 
 numagr.amean([1,2,3,4, "abc", None])    # 2.0 ( "abc" became 0, None was ignored )
+
+numagr.stdev([9,8.001,7,6.11,5])                        # 1.564579560137483
+
+numagr.stdev([9,[],8.001,"7","6.11",None,5])            # 1.564579560137483
+
+numagr.stdev([9,"abc",[],8.001,"7","6.11",None,5])      # 3.190121653897648 ("abc" became 0)
+
 ```
 
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
