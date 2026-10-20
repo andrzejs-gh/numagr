@@ -1,0 +1,36 @@
+
+name: BUILD_WINDOWS_WHEELS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: CHECK_OUT_THE_REPO
+        uses: actions/checkout@v4
+
+      - name: SET_UP_PYTHON
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: INSTALL_CBUILDWHEEL
+        run: python -m pip install cibuildwheel
+
+      - name: BUILD_THE_WHEELS
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: "cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp314-win_amd64"
+          CIBW_ARCHS_WINDOWS: AMD64
+
+      - name: UPLOAD_THE_WHEELS
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-amd64-wheels
+          path: wheelhouse/*.whl
+          if-no-files-found: error

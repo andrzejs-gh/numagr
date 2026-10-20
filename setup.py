@@ -1,4 +1,5 @@
 from setuptools import setup, Extension
+import sys
 
 src = [
 		"src/numagr.c",
@@ -12,6 +13,13 @@ extra_comp_flags = [
 	"-lm"
 ]
 
+if sys.platform == "win32":
+    extra_comp_flags = ["/O2"]
+    extra_link_args = []
+else:
+    extra_comp_flags = ["-O3", "-fno-fast-math"]
+    extra_link_args = ["-lm"]
+
 setup(
     name = "numagr",
     version = "0.9",
@@ -19,7 +27,8 @@ setup(
     url = "https://github.com/andrzejs-gh/numagr",
     ext_modules = [Extension("numagr",
 						sources = src,
-						extra_compile_args = extra_comp_flags
+						extra_compile_args = extra_comp_flags,
+						extra_link_args = extra_link_args
 					)
 		]
 )
