@@ -1,5 +1,5 @@
 
-name: BUILD_WINDOWS_WHEELS
+name: << Build Windows Wheels >>
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
         run: python -m pip install cibuildwheel
 
       - name: BUILD_THE_WHEELS
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir wheels
         env:
           CIBW_BUILD: "cp311-win_amd64 cp312-win_amd64 cp313-win_amd64 cp314-win_amd64"
           CIBW_ARCHS_WINDOWS: AMD64
@@ -32,5 +32,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-amd64-wheels
-          path: wheelhouse/*.whl
+          path: wheels/*.whl
           if-no-files-found: error

@@ -10,12 +10,14 @@ src = [
 extra_comp_flags = [
 	"-O3",
 	"-fno-fast-math",
-	"-lm"
 ]
+
+define_macros = []
 
 if sys.platform == "win32":
     extra_comp_flags = ["/O2"]
     extra_link_args = []
+    define_macros.append(("NOMINMAX", "1"))
 else:
     extra_comp_flags = ["-O3", "-fno-fast-math"]
     extra_link_args = ["-lm"]
@@ -27,6 +29,7 @@ setup(
     url = "https://github.com/andrzejs-gh/numagr",
     ext_modules = [Extension("numagr",
 						sources = src,
+						define_macros = define_macros,
 						extra_compile_args = extra_comp_flags,
 						extra_link_args = extra_link_args
 					)
