@@ -254,5 +254,5 @@ static PyObject* count(PyObject* self, PyObject* args, PyObject* kwargs)
         if ( ret ) return NULL;
     }
 
-    return PyLong_FromUInt64(count);
+    return PyLong_FromUnsignedLongLong(count);
 }
