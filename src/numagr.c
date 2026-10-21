@@ -4,8 +4,8 @@
 
 static PyMethodDef methods[] = {
     {"sum", (PyCFunction)sum, METH_VARARGS | METH_KEYWORDS, ""},
-    {"max", (PyCFunction)max, METH_VARARGS | METH_KEYWORDS, ""},
-    {"min", (PyCFunction)min, METH_VARARGS | METH_KEYWORDS, ""},
+    {"max", (PyCFunction)max_value, METH_VARARGS | METH_KEYWORDS, ""},
+    {"min", (PyCFunction)min_value, METH_VARARGS | METH_KEYWORDS, ""},
     {"amean", (PyCFunction)amean, METH_VARARGS | METH_KEYWORDS, ""},
     {"gmean", (PyCFunction)gmean, METH_VARARGS | METH_KEYWORDS, ""},
     {"hmean", (PyCFunction)hmean, METH_VARARGS | METH_KEYWORDS, ""},

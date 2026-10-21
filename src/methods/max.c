@@ -197,7 +197,7 @@ static inline int get_max_in_iterable(PyObject* iter, bool only_str, bool only_n
     return 0;
 }
 
-static PyObject* max(PyObject* self, PyObject* args, PyObject* kwargs)
+static PyObject* max_value(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
     bool is_only_str = false;

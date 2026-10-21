@@ -198,7 +198,7 @@ static inline int get_min_in_iterable(PyObject* iter, bool only_str, bool only_n
     return 0;
 }
 
-static PyObject* min(PyObject* self, PyObject* args, PyObject* kwargs)
+static PyObject* min_value(PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Py_ssize_t argc = PyTuple_GET_SIZE(args);
     bool is_only_str = false;
@@ -236,5 +236,5 @@ static PyObject* min(PyObject* self, PyObject* args, PyObject* kwargs)
 
 numagr_method get_min_method_ptr(void)
 {
-    return min;
+    return min_value;
 }
