@@ -332,6 +332,7 @@ numagr.mode(*iterables, only_str = False, only_num = False)
 ```
 
 Calculates the mode. Ignores any `nan`'s in the data. If the element count is `0`, the function returns `nan`.
+`numagr.mode` uses custom hash table internally (see the implementation `src/methods/mode.c`, `src/floats_hash_table.h`, `src/floats_hash_table.c`). If there is more than one most common value, it is not guaranteed to return the first one in order.
 
 **Return:**
 
