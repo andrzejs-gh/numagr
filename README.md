@@ -48,7 +48,7 @@ You can pass arbitrary number of iterables:
 
 ```python
 numagr.pvar([], (1.001,2,"3.14",4), {"1",2,3}, [x for x in range(1000)], 
-            (y for y in range(10)), (), {z:z for z in range(100)})
+            (y for y in range(10)), (), {z:z for z in range(100)}) # 94262.80388164554
 ```
 
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
