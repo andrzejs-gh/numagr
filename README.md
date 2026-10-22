@@ -6,7 +6,7 @@
 
 ## Description
 
-**NUMAGR** is a Python C extension offering efficient statistical and numerical aggregation methods.
+**NUMAGR** is a Python C extension offering efficient statistical and aggregation methods for numerical data.
 
 It's faster compared to standard and to other third party modules (use `test.py` for benchmarking). 
 
