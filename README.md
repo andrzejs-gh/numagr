@@ -8,6 +8,8 @@
 
 **NUMAGR** is a Python C extension offering efficient statistical methods for numerical data. 
 
+The source and wheels for Windows (Python 3.11, 3.12, 3.13, 3.14, 3.15) are available on PyPi: `pip install numagr`. Current version is `0.9`.
+
 It's faster compared to standard and to other third party modules (use `test.py` for benchmarking). 
 
 It's also different in that it accepts and converts Python's numeric strings "on the fly" (using C `strtod` function), without having to initialize intermediate Python objects to hold the values. 
