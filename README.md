@@ -44,6 +44,13 @@ numagr.stdev([9,"abc",[],8.001,"7","6.11",None,5])      # 3.190121653897648 ("ab
 
 ```
 
+You can pass arbitrary number of iterables:
+
+```python
+numagr.pvar([], (1.001,2,"3.14",4), {"1",2,3}, [x for x in range(1000)], 
+            (y for y in range(10)), (), {z:z for z in range(100)})
+```
+
 Setting `only_str` to `True` will cause all non-strings in iterables to be **ignored**.
 
 Setting `only_num` to `True` will cause all strings in iterables to be **ignored**.
