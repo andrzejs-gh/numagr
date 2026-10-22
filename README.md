@@ -16,7 +16,7 @@ For sumations the module implements Kahan algorithm to retain precission.
 
 The source and wheels for Windows (Python 3.11, 3.12, 3.13, 3.14, 3.15) are available on PyPi: 
 
-`pip install numagr`. 
+`pip install numagr`
 
 Current version is `0.9`.
 
